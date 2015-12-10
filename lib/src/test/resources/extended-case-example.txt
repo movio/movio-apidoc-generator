@@ -2,9 +2,9 @@ package test.apidoc.apidoctest.v0.models {
 
   case class User(
     age: String,
-    dateTime: _root_.org.joda.time.LocalDateTime
-    optionalDateTime: _root_.scala.Optional[_root_.org.joda.time.LocalDateTime]
-  ) extends co.movio.BaseClass {
+    dateTime: _root_.org.joda.time.LocalDateTime,
+    optionalDateTime: _root_.scala.Option[_root_.org.joda.time.LocalDateTime]
+  ) extends com.github.BaseClass {
 
     import Validation._
     validateLength("age", age, 10)

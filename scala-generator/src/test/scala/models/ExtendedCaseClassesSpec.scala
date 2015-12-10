@@ -27,7 +27,7 @@ class ExtendedCaseClassesSpec extends FunSpec with ShouldMatchers {
             ]}
           ],
           "attributes": [
-            { "name": "scala_extends", "value": { "classes": ["co.movio.BaseClass"] } }
+            { "name": "scala_extends", "value": { "classes": ["com.github.BaseClass"] } }
           ]
         }
       ]
