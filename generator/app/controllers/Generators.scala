@@ -177,6 +177,26 @@ object Generators {
         ),
         status = lib.generator.Status.Proposal,
         codeGenerator = None
+      ),
+      CodeGenTarget(
+        metaData = Generator(
+          key = "validated_scala_models",
+          name = "Validated Scala Models",
+          description = Some("Validated Scala Models"),
+          language = Some("Scala")
+        ),
+        status = lib.generator.Status.Beta,
+        codeGenerator = Some(scala.generator.ExtendedCaseClasses)
+      ),
+      CodeGenTarget(
+        metaData = Generator(
+          key = "play_2_x_json_standalone",
+          name = "Play 2.x json_standalone",
+          description = Some("Generate play 2.x json serialization based on <a href='http://www.playframework.com/documentation/2.3.x/ScalaJsonCombinators'>Scala Json combinators</a>."),
+          language = Some("Scala")
+        ),
+        status = lib.generator.Status.Beta,
+        codeGenerator = Some(scala.models.Play2JsonStandalone)
       )
   ).sortBy(_.metaData.key)
 }

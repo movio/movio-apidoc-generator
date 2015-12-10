@@ -128,7 +128,8 @@ object ScalaUnionType {
 
 }
 
-class ScalaModel(val ssd: ScalaService, val model: Model) {
+// Not sure how to expose attributes - for now expose the underlying model
+case class ScalaModel(val ssd: ScalaService, val model: Model) {
 
   val originalName: String = model.name
 
@@ -279,7 +280,8 @@ class ScalaResponse(ssd: ScalaService, method: Method, response: Response) {
   }
 }
 
-class ScalaField(ssd: ScalaService, modelName: String, field: Field) {
+// Not sure how to expose attributes - for now expose the underlying field
+case class ScalaField(ssd: ScalaService, modelName: String, field: Field) {
 
   def name: String = ScalaUtil.quoteNameIfKeyword(Text.snakeToCamelCase(field.name))
 
