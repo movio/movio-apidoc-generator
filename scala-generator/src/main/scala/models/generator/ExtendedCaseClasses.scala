@@ -157,7 +157,7 @@ object Validation {
                                  val value = if(field.required)
                                    s"_root_.${clazz}"
                                           else
-                                   s"_root_.scala.Option[_root_.${clazz}]"
+                                   s"_root_.scala.Option[_root_.${clazz}] = None"
                                  s"$name: ${value}"
                                case None => fields(field.name).definition()
                              }

@@ -3,7 +3,7 @@ package test.apidoc.apidoctest.v0.models {
   case class User(
     age: String,
     dateTime: _root_.org.joda.time.LocalDateTime,
-    optionalDateTime: _root_.scala.Option[_root_.org.joda.time.LocalDateTime]
+    optionalDateTime: _root_.scala.Option[_root_.org.joda.time.LocalDateTime] = None
   ) extends com.github.BaseClass {
 
     import Validation._
