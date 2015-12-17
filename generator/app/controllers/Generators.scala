@@ -197,6 +197,16 @@ object Generators {
         ),
         status = lib.generator.Status.Beta,
         codeGenerator = Some(scala.models.Play2JsonStandalone)
+      ),
+      CodeGenTarget(
+        metaData = Generator(
+          key = "kafka_0_8",
+          name = "Kafka Consumer / Producer",
+          description = Some("TBC"),
+          language = Some("Scala")
+        ),
+        status = lib.generator.Status.Beta,
+        codeGenerator = Some(scala.models.Kafka)
       )
   ).sortBy(_.metaData.key)
 }

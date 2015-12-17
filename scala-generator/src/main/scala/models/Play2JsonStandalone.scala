@@ -7,7 +7,8 @@ import scala.generator.{ScalaEnums, ScalaCaseClasses, ScalaService}
 import generator.ServiceFileNames
 
 // Copied from Play2Json
-object Play2JsonStandalone extends CodeGenerator {
+object Play2JsonStandalone extends Play2JsonStandalone
+trait Play2JsonStandalone extends CodeGenerator {
 
   override def invoke(
     form: InvocationForm

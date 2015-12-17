@@ -69,7 +69,27 @@ trait ExtendedCaseClasses extends CodeGenerator {
       case code => "\n" + code.mkString("\n\n")
     }
 
-    val validationSource = s"""
+    val source = s"${header}package ${packageNamespace(ssd)} {\n\n  " +
+      Seq(
+        ssd.unions.map { generateUnionTraits(ssd.models, _) }.mkString("\n\n").indent(2),
+        "",
+        ssd.models.filter(modelFilter).map { m => generateCaseClass(ssd, m, ssd.unionsForModel(m)) }.mkString("\n\n").indent(2),
+        generatedClasses,
+        generatePlayEnums(ssd).indent(2)
+      ).mkString("\n").trim +
+      additionalClasses.indent(2) +
+      s"\n\n}"
+
+    Seq(ServiceFileNames.toFile(form.service.namespace, form.service.organization.key, form.service.application.key, form.service.version, filenamePostfix, source, Some("Scala")))
+  }
+
+  def packageNamespace(ssd: ScalaService): String = ssd.namespaces.models
+
+  def modelFilter(model: ScalaModel):Boolean = true
+
+  def filenamePostfix = "Models"
+
+  def additionalClasses = s"""
 
 object Validation {
 
@@ -97,21 +117,6 @@ object Validation {
 
 }
 """
-    val source = s"${header}package ${ssd.namespaces.models} {\n\n  " +
-      Seq(
-        ssd.unions.map { generateUnionTraits(ssd.models, _) }.mkString("\n\n").indent(2),
-        "",
-        ssd.models.map { m => generateCaseClass(ssd, m, ssd.unionsForModel(m)) }.mkString("\n\n").indent(2),
-        generatedClasses,
-        generatePlayEnums(ssd).indent(2)
-      ).mkString("\n").trim +
-      validationSource.indent(2) + 
-      s"\n\n}"
-
-
-    Seq(ServiceFileNames.toFile(form.service.namespace, form.service.organization.key, form.service.application.key, form.service.version, "Models", source, Some("Scala")))
-
-  }
 
   private def generateUnionTraits(models: Seq[ScalaModel], union: ScalaUnion): String = {
     // TODO: handle primitive types
@@ -122,8 +127,15 @@ object Validation {
 
   def generateCaseClass(ssd: ScalaService, model: ScalaModel, unions: Seq[ScalaUnion]): String = {
     model.description.map { desc => ScalaUtil.textToComment(desc) + "\n" }.getOrElse("") +
-      s"case class ${model.name}(${getArguments(model, unions)})" + ScalaUtil.extendsClause(extendsClasses(model) ++ unions.map(_.name)).map(s => s" $s").getOrElse("") + generateBody(ssd, model, unions)
+      s"case class ${model.name}(${getArguments(model, unions)})" + extendsClause(model, unions) + generateBody(ssd, model, unions)
   }
+
+  def extendsClause(model: ScalaModel, unions: Seq[ScalaUnion]) =
+    ScalaUtil.extendsClause(
+      manualExtendsClasses ++
+      extendsClasses(model) ++
+        unions.map(_.name)).map(s => s" $s").getOrElse("")
+
 
   private def generatePlayEnums(ssd: ScalaService): String = {
     ssd.enums.map { ScalaEnums(ssd, _).build }.mkString("\n\n")
@@ -145,6 +157,8 @@ object Validation {
   }.flatMap { attr =>
     (attr.value \ "classes").as[JsArray].value.map(_.as[JsString].value)
   }
+
+  def manualExtendsClasses = Seq.empty[String]
 
   // Override field types
   def getArguments(model: ScalaModel, unions: Seq[ScalaUnion]): String = {
