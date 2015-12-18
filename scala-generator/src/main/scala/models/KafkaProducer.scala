@@ -5,10 +5,9 @@ import lib.Text._
 import lib.generator.CodeGenerator
 import scala.generator.{ScalaEnums, ScalaCaseClasses, ScalaService}
 import generator.ServiceFileNames
+import scala.generator.MovioCaseClasses
 
 object KafkaProducer extends CodeGenerator {
-
-  val KafkaClassAttribute = "kafka_class"
 
   override def invoke(
     form: InvocationForm
@@ -31,15 +30,16 @@ object KafkaProducer extends CodeGenerator {
       case true => ApidocComments(form.service.version, form.userAgent).toJavaString() + "\n"
     }
 
-    val classes = ssd.models.filter(model =>
+    val models = ssd.models.filter(model =>
       model.model.attributes.filter(attr =>
-        attr.name == KafkaClassAttribute
+        attr.name == MovioCaseClasses.KafkaKey
       ).size > 0
     )
 
     // Return list of files
-    classes.map{ clazz =>
-      val className = clazz.name
+    models.map{ model =>
+      val className = model.name
+      val configPath = ssd.namespaces.base.split("\\.").toSeq.dropRight(1).mkString(".")
       val source = s""" $header
 import kafka.producer._
 import kafka.serializer.StringEncoder
@@ -56,11 +56,11 @@ import scala.util.{ Failure, Try }
 
 package ${ssd.namespaces.base}.kafka {
   import ${ssd.namespaces.base}.models._
-  import ${ssd.namespaces.base}.kafka.models._
+  import ${ssd.namespaces.base}.models.json._
 
   class ${className}Producer(config: Config) {
 
-    val BrokerListKey = s"$${${className}Topic.base}.producer.broker-connection-string"
+    val BrokerListKey = s"${configPath}.kafka.producer.broker-connection-string"
 
     lazy val producerConfig = new ProducerConfig(readProducerPropertiesFromConfig(config))
     lazy val producer = new Producer[String, String](producerConfig)
@@ -75,11 +75,10 @@ package ${ssd.namespaces.base}.kafka {
     }
 
     def send(single: ${className}, tenant: String): Try[Unit] = {
-      sendBatch(Seq(single), tenant)
+      send(Seq(single), tenant)
     }
 
     def send(batch: Seq[${className}], tenant: String): Try[Unit] = {
-      import movio.cinema.movie.core.api.v0.kafka.models.json._
       val topic = ${className}Topic.topic(tenant)
       Try {
         producer.send(batch map { message =>
@@ -87,7 +86,7 @@ package ${ssd.namespaces.base}.kafka {
                       }: _*)
       } andThen {
         case Failure(ex) ⇒
-          throw new KafkaProducerException(s"Failed to publish [$$topic] message to kafka queue.", ex)
+          throw new KafkaProducerException(s"Failed to publish $$topic message to kafka queue.", ex)
       }
     }
   }

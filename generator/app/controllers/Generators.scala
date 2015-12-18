@@ -180,13 +180,13 @@ object Generators {
       ),
       CodeGenTarget(
         metaData = Generator(
-          key = "validated_scala_models",
-          name = "Validated Scala Models",
+          key = "movio_scala_models",
+          name = "Movio Scala Models",
           description = Some("Validated Scala Models"),
           language = Some("Scala")
         ),
         status = lib.generator.Status.Beta,
-        codeGenerator = Some(scala.generator.ExtendedCaseClasses)
+        codeGenerator = Some(scala.generator.MovioCaseClasses)
       ),
       CodeGenTarget(
         metaData = Generator(
@@ -207,6 +207,16 @@ object Generators {
         ),
         status = lib.generator.Status.Beta,
         codeGenerator = Some(scala.models.Kafka)
+      ),
+      CodeGenTarget(
+        metaData = Generator(
+          key = "kafka_0_8_tests",
+          name = "Kafka Tests",
+          description = Some("TBC"),
+          language = Some("Scala")
+        ),
+        status = lib.generator.Status.Beta,
+        codeGenerator = Some(scala.models.KafkaTests)
       )
   ).sortBy(_.metaData.key)
 }

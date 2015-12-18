@@ -1,14 +1,15 @@
 package scala.models
 
 import com.bryzek.apidoc.generator.v0.models.{File, InvocationForm}
+import com.bryzek.apidoc.spec.v0.models.Attribute
 import lib.Text._
 import lib.generator.CodeGenerator
 import scala.generator.{ScalaEnums, ScalaCaseClasses, ScalaService}
 import generator.ServiceFileNames
+import scala.generator.MovioCaseClasses
+import play.api.libs.json.JsString
 
 object KafkaConsumer extends CodeGenerator {
-
-  val KafkaClassAttribute = "kafka_class"
 
   override def invoke(
     form: InvocationForm
@@ -31,17 +32,27 @@ object KafkaConsumer extends CodeGenerator {
       case true => ApidocComments(form.service.version, form.userAgent).toJavaString() + "\n"
     }
 
-    val classes = ssd.models.filter(model =>
+    val models = ssd.models.filter(model =>
       model.model.attributes.exists(attr =>
-        attr.name == KafkaClassAttribute
+        attr.name == MovioCaseClasses.KafkaKey
       )
     )
 
     // Return list of files
-    classes.map{ clazz =>
-      val className = clazz.name
+    models.map{ model =>
+      val className = model.name
+      val configPath = ssd.namespaces.base.split("\\.").toSeq.dropRight(1).mkString(".")
+      val topicFn = (model.model.attributes.find(attr => attr.name == MovioCaseClasses.KafkaKey) map {attr: Attribute =>
+             (attr.value \ "topic").as[JsString].value
+         }).get
+      val apiVersion = ssd.namespaces.last
+      val topicRegex = topicFn.
+        replace("${apiVersion}", apiVersion).
+        replace("$apiVersion", apiVersion).
+        replace("${tenant}",""). 
+        replace("$tenant","") +
+        """ + "(.*)""""
       val source = s"""$header
-
 import java.util.Properties
 
 import scala.language.postfixOps
@@ -57,11 +68,34 @@ import kafka.serializer.StringDecoder
 import play.api.libs.json.Json
 
 package ${ssd.namespaces.base}.kafka {
-  import ${ssd.namespaces.base}.kafka.models._
-  import ${ssd.namespaces.base}.kafka.models.json._
+  import ${ssd.namespaces.base}.models._
+  import ${ssd.namespaces.base}.models.json._
+
+  object ${className}Topic {
+    /**
+      The version of the api - apidoc generator enforces this value.
+      For use when creating a topic name.
+      Example: "v2"
+      */
+    val apiVersion = "${apiVersion}"
+
+    /**
+      The name of the kafka topic to publish and consume messages from.
+      This is a scala statedment/code that that gets executed
+      Example: `s"mc-servicename-$${apiVersion}-$${tenant}"` 
+
+      @param tenant is the customer id, eg vc_regalus
+      */
+    def topic(tenant: String) = ${topicFn}
+
+    val topicRegex = ${topicRegex}
+  }
+
+  case class KafkaProducerException(message: String, ex: Throwable)
+      extends RuntimeException(message, ex)
 
   object ${className}Consumer {
-    val base = s"$${${className}Topic.base}.consumer"
+    val base = "${configPath}.consumer"
     val KafkaOffsetStorageType = s"$$base.offset-storage-type"
     val KafkaOffsetStorageDualCommit = s"$$base.offset-storage-dual-commit"
     val ConsumerTimeoutKey = s"$$base.timeout.ms"
@@ -74,7 +108,7 @@ package ${ssd.namespaces.base}.kafka {
   ) extends {
     import ${className}Consumer._
 
-    val topicFilter = new Whitelist(${className}Topic.regex)
+    val topicFilter = new Whitelist(${className}Topic.topicRegex)
 
     lazy val consumerConfig = new ConsumerConfig(readConsumerPropertiesFromConfig)
     lazy val consumer = Consumer.create(consumerConfig)
@@ -107,7 +141,7 @@ package ${ssd.namespaces.base}.kafka {
       @tailrec
       def fetchBatch(remainingInBatch: Int, messages: Seq[${className}]): Try[Seq[${className}]] ={
         if (remainingInBatch == 0) {
-          messages
+          Success(messages)
         } else {
           // FIXME test
           Try {
@@ -118,7 +152,7 @@ package ${ssd.namespaces.base}.kafka {
             case Failure(ex) => ex match {
               case ex: ConsumerTimeoutException ⇒
                 // Consumer timed out waiting for a message. Ending batch.
-                messages
+                Success(messages)
               case ex =>
                 Failure(ex)
             }

@@ -6,7 +6,7 @@ import lib.generator.CodeGenerator
 import scala.generator.{ScalaEnums, ScalaCaseClasses, ScalaService}
 import generator.ServiceFileNames
 
-// Copied from Play2Json
+// Copied from Play2Models
 object Play2JsonStandalone extends Play2JsonStandalone
 trait Play2JsonStandalone extends CodeGenerator {
 
@@ -28,7 +28,7 @@ trait Play2JsonStandalone extends CodeGenerator {
 
     val prefix = underscoreAndDashToInitCap(ssd.name)
     val enumJson: String = ssd.enums.map { ScalaEnums(ssd, _).buildJson() }.mkString("\n\n")
-    val play2Json = Play2Json(ssd).generate()
+    val play2Json = Play2JsonExtended(ssd).generate()
 
     val header = addHeader match {
       case false => ""
@@ -36,7 +36,6 @@ trait Play2JsonStandalone extends CodeGenerator {
     }
 
     val source = s"""$header
-
 package ${ssd.namespaces.models} {
 
   package object json {

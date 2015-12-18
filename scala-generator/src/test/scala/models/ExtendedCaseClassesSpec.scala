@@ -35,7 +35,7 @@ class ExtendedCaseClassesSpec extends FunSpec with ShouldMatchers {
 
   it("generates validation") {
     val form = InvocationForm(service)
-    val contents = ExtendedCaseClasses.generateCode(form, addHeader = false).map(_.contents).mkString("\n\n")
+    val contents = MovioCaseClasses.generateCode(form, addHeader = false).map(_.contents).mkString("\n\n")
     models.TestHelper.assertEqualsFile("/extended-case-example.txt", contents)
   }
 }
