@@ -95,7 +95,7 @@ package ${ssd.namespaces.base}.kafka {
       extends RuntimeException(message, ex)
 
   object ${className}Consumer {
-    val base = "${configPath}.consumer"
+    val base = "${configPath}.kafka.consumer"
     val KafkaOffsetStorageType = s"$$base.offset-storage-type"
     val KafkaOffsetStorageDualCommit = s"$$base.offset-storage-dual-commit"
     val ConsumerTimeoutKey = s"$$base.timeout.ms"
