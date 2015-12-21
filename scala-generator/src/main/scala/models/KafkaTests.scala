@@ -34,7 +34,7 @@ object KafkaTests extends CodeGenerator {
 
     val models = ssd.models.filter(model =>
       model.model.attributes.filter(attr =>
-        attr.name == MovioCaseClasses.KafkaKey
+        attr.name == MovioCaseClasses.KafkaClassKey
       ).size > 0
     )
 
@@ -145,7 +145,7 @@ class ${className}Tests extends MovioSpec with KafkaTestKit {
     it("should send and receive a message") {
       new Fixture {
         // Produce test message
-        producer.send(entity1, "vc_test")
+        producer.sendWrapped(entity1, "vc_test")
 
         // And consume it
         awaitCondition("Message should get processed") {
@@ -163,7 +163,7 @@ class ${className}Tests extends MovioSpec with KafkaTestKit {
         val entities = Seq(entity1, entity2)
 
         // Produce test message
-        producer.send(entities, "vc_test")
+        producer.sendWrapped(entities, "vc_test")
 
         // And consume it
         awaitCondition("Message should get processed") {

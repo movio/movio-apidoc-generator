@@ -34,7 +34,7 @@ object KafkaConsumer extends CodeGenerator {
 
     val models = ssd.models.filter(model =>
       model.model.attributes.exists(attr =>
-        attr.name == MovioCaseClasses.KafkaKey
+        attr.name == MovioCaseClasses.KafkaClassKey
       )
     )
 
@@ -42,8 +42,8 @@ object KafkaConsumer extends CodeGenerator {
     models.map{ model =>
       val className = model.name
       val configPath = ssd.namespaces.base.split("\\.").toSeq.dropRight(1).mkString(".")
-      val topicFn = (model.model.attributes.find(attr => attr.name == MovioCaseClasses.KafkaKey) map {attr: Attribute =>
-             (attr.value \ "topic").as[JsString].value
+      val topicFn = (model.model.attributes.find(attr => attr.name == MovioCaseClasses.KafkaClassKey) map {attr: Attribute =>
+             (attr.value \ MovioCaseClasses.KafkaTopicKey).as[JsString].value
          }).get
       val apiVersion = ssd.namespaces.last
       val topicRegex = topicFn.
