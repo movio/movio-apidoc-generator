@@ -135,20 +135,26 @@ package ${ssd.namespaces.base}.kafka {
     }
 
     def processBatchThenCommit(
-      processor: Seq[${className}] ⇒ Try[Seq[${className}]],
+      processor: Map[String, Seq[${className}]] ⇒ Try[Map[String, Seq[${className}]]],
       batchSize: Int = 1
-    ): Try[Seq[${className}]] = {
+    ): Try[Map[String, Seq[${className}]]] = {
       @tailrec
-      def fetchBatch(remainingInBatch: Int, messages: Seq[${className}]): Try[Seq[${className}]] ={
+      def fetchBatch(remainingInBatch: Int, messages: Map[String, Seq[${className}]]): Try[Map[String, Seq[${className}]]] ={
         if (remainingInBatch == 0) {
           Success(messages)
         } else {
           // FIXME test
           Try {
-            Json.parse(iterator.next().message).as[${className}]
+            iterator.next()
           } match {
             case Success(message) =>
-              fetchBatch(remainingInBatch - 1, messages :+ message)
+              val entity = Json.parse(message.message).as[KafkaMovieCore]
+              val KafkaMovieCoreTopic.topicRegex.r(tenant) = message.topic
+
+              val newSeq = messages.get(tenant).getOrElse(Seq.empty) :+ entity
+              val newMessages = messages + (tenant -> newSeq)
+
+              fetchBatch(remainingInBatch - 1, newMessages)
             case Failure(ex) => ex match {
               case ex: ConsumerTimeoutException ⇒
                 // Consumer timed out waiting for a message. Ending batch.
@@ -160,7 +166,7 @@ package ${ssd.namespaces.base}.kafka {
         }
       }
 
-      fetchBatch(batchSize, Seq.empty) match {
+      fetchBatch(batchSize, Map.empty) match {
         case Success(messages) =>
           processor(messages) map { allMessages =>
             consumer.commitOffsets(true)

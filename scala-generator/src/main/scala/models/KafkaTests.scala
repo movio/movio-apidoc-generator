@@ -134,8 +134,8 @@ class ${className}Tests extends MovioSpec with KafkaTestKit {
     it("should timeout with no messages") {
       new Fixture {
         awaitCondition("Message should get processed") {
-          def processor(messages: Seq[${className}]): Try[Seq[${className}]] =  Success(messages)
-          consumer.processBatchThenCommit(processor) shouldBe Success(Seq.empty)
+          def processor(messages: Map[String, Seq[${className}]]): Try[Map[String, Seq[${className}]]] =  Success(messages)
+          consumer.processBatchThenCommit(processor) shouldBe Success(Map.empty)
         }
 
         consumer.shutdown
@@ -145,34 +145,38 @@ class ${className}Tests extends MovioSpec with KafkaTestKit {
     it("should send and receive a message") {
       new Fixture {
         // Produce test message
-        producer.sendWrapped(entity1, "vc_test")
+        producer.sendWrapped(entity1, tenant)
 
         // And consume it
         awaitCondition("Message should get processed") {
-          def processor(messages: Seq[${className}]): Try[Seq[${className}]] =  Success(messages)
-          consumer.processBatchThenCommit(processor).get.head shouldBe entity1
+          def processor(messages: Map[String, Seq[${className}]]): Try[Map[String, Seq[${className}]]] = {
+            println(messages)
+            println("do some side effecting stuff here")
+            Success(messages)
+          }
+          consumer.processBatchThenCommit(processor).get(tenant) shouldBe Seq(entity1)
         }
 
         consumer.shutdown
       }
     }
 
-
     it("should send and receive a batch of messages") {
       new Fixture {
         val entities = Seq(entity1, entity2)
 
         // Produce test message
-        producer.sendWrapped(entities, "vc_test")
+        producer.sendWrapped(entities, tenant)
 
         // And consume it
         awaitCondition("Message should get processed") {
-          def processor(messages: Seq[${className}]): Try[Seq[${className}]] =  {
+          def processor(messages: Map[String, Seq[${className}]]): Try[Map[String, Seq[${className}]]] =  {
+            println(messages)
             println("do some side effecting stuff here")
             Success(messages)
           }
           // Use distinct because there are items in the queue from other tests
-          consumer.processBatchThenCommit(processor, 100).get.distinct shouldBe entities
+          consumer.processBatchThenCommit(processor, 100).get(tenant) shouldBe entities
         }
 
         consumer.shutdown
@@ -207,9 +211,8 @@ class ${className}Tests extends MovioSpec with KafkaTestKit {
       |\"\"\".stripMargin)
       .withFallback(ConfigFactory.load())
 
-    val random = new java.util.Random
     val producer = new ${className}Producer(testConfig)
-    val consumer = new ${className}Consumer(testConfig, random.nextInt.toString)
+    val consumer = new ${className}Consumer(testConfig, tenant)
   }
 
   val entity1 = ${createEntity(model, 1, ssd.models).indent(4)}
