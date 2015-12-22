@@ -212,7 +212,7 @@ class ${className}Tests extends MovioSpec with KafkaTestKit {
       .withFallback(ConfigFactory.load())
 
     val producer = new ${className}Producer(testConfig)
-    val consumer = new ${className}Consumer(testConfig, tenant)
+    val consumer = new ${className}Consumer(testConfig, new java.util.Random().nextInt.toString)
   }
 
   val entity1 = ${createEntity(model, 1, ssd.models).indent(4)}
