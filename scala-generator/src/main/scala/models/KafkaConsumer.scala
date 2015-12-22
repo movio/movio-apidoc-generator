@@ -148,8 +148,8 @@ package ${ssd.namespaces.base}.kafka {
             iterator.next()
           } match {
             case Success(message) =>
-              val entity = Json.parse(message.message).as[KafkaMovieCore]
-              val KafkaMovieCoreTopic.topicRegex.r(tenant) = message.topic
+              val entity = Json.parse(message.message).as[${className}]
+              val ${className}Topic.topicRegex.r(tenant) = message.topic
 
               val newSeq = messages.get(tenant).getOrElse(Seq.empty) :+ entity
               val newMessages = messages + (tenant -> newSeq)
