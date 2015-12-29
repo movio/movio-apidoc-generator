@@ -67,6 +67,8 @@ import kafka.serializer.StringDecoder
 
 import play.api.libs.json.Json
 
+import movio.api.kafka_0_8.KafkaConsumer
+
 package ${ssd.namespaces.base}.kafka {
   import ${ssd.namespaces.base}.models._
   import ${ssd.namespaces.base}.models.json._
@@ -91,9 +93,6 @@ package ${ssd.namespaces.base}.kafka {
     val topicRegex = ${topicRegex}
   }
 
-  case class KafkaProducerException(message: String, ex: Throwable)
-      extends RuntimeException(message, ex)
-
   object ${className}Consumer {
     val base = "${configPath}.kafka.consumer"
     val KafkaOffsetStorageType = s"$$base.offset-storage-type"
@@ -105,7 +104,7 @@ package ${ssd.namespaces.base}.kafka {
   class ${className}Consumer (
     config: Config,
     consumerGroupId: String
-  ) extends {
+  ) extends KafkaConsumer[${className}] {
     import ${className}Consumer._
 
     val topicFilter = new Whitelist(${className}Topic.topicRegex)

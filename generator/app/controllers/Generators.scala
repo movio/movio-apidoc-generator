@@ -217,6 +217,16 @@ object Generators {
         ),
         status = lib.generator.Status.Beta,
         codeGenerator = Some(scala.models.KafkaTests)
+      ),
+      CodeGenTarget(
+        metaData = Generator(
+          key = "play_app",
+          name = "Play Application",
+          description = Some("TBC"),
+          language = Some("Scala")
+        ),
+        status = lib.generator.Status.Beta,
+        codeGenerator = Some(scala.models.PlayApp)
       )
   ).sortBy(_.metaData.key)
 }

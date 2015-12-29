@@ -1,9 +1,9 @@
 package scala.models
 
-import com.bryzek.apidoc.generator.v0.models.{File, InvocationForm}
+import com.bryzek.apidoc.generator.v0.models.{ File, InvocationForm }
 import lib.Text._
 import lib.generator.CodeGenerator
-import scala.generator.{ScalaEnums, ScalaCaseClasses, ScalaService, ScalaModel, ScalaField}
+import scala.generator.{ ScalaEnums, ScalaCaseClasses, ScalaService, ScalaModel, ScalaField }
 import generator.ServiceFileNames
 import scala.generator.MovioCaseClasses
 import lib.Datatype._
@@ -28,79 +28,16 @@ object KafkaTests extends CodeGenerator {
     val play2Json = Play2Json(ssd).generate()
 
     val header = addHeader match {
-      case false => ""
-      case true => ApidocComments(form.service.version, form.userAgent).toJavaString() + "\n"
+      case false ⇒ ""
+      case true  ⇒ ApidocComments(form.service.version, form.userAgent).toJavaString() + "\n"
     }
 
-    val models = ssd.models.filter(model =>
-      model.model.attributes.filter(attr =>
-        attr.name == MovioCaseClasses.KafkaClassKey
-      ).size > 0
-    )
-
-    def createEntity(model: ScalaModel, number: Int, models: Seq[ScalaModel]): String = {
-      def getModelForField(name: String): ScalaModel = {
-        models.find(model => model.originalName == name).get
-      }
-
-      val fields = model.fields.map{field =>
-        val defaultValue =
-          field.field.attributes.find(_.name == MovioCaseClasses.ScalaTypeKey) match {
-            case Some(attr) =>
-              (attr.value \ MovioCaseClasses.ScalaExampleKey).toOption match {
-                case Some(example) => example.as[JsString].value
-                case None =>
-                  (attr.value \ MovioCaseClasses.ScalaDefaultKey).toOption match {
-                    case Some(default) => default.as[JsString].value
-                    case None =>
-                      if (field.required)
-                        throw new RuntimeException("manditory fields must provide examples")
-                      else
-                        "None"
-                  }
-              }
-
-            case None =>
-              field.`type` match {
-                case t: Primitive => t match {
-                  case Primitive.Boolean => true
-                  case Primitive.Double => 2.0 + number
-                  case Primitive.Integer => 21 + number
-                  case Primitive.Long => 101L + number
-                  case Primitive.DateIso8601 => "new org.joda.time.Date()"
-                  case Primitive.DateTimeIso8601 => "new org.joda.time.DateTime()"
-                  case Primitive.Decimal => 1.31 + number
-                  case Primitive.Object => ""
-                  case Primitive.String => s""""${field.name}${number}""""
-                  case Primitive.Unit => ""
-                  case Primitive.Uuid => "new java.util.UUID()"
-                  case _ => "???"
-                }
-                case t: Container => t match {
-                  case Container.List(name) => "List.empty"
-                  case Container.Map(name) => "Map.empty"
-                  case Container.Option(name) => "None" 
-                }
-                case t: UserDefined => t match {
-                  case UserDefined.Model(name) => createEntity(getModelForField(name), number, models).indent(2)
-                  case UserDefined.Enum(name) => "" // TBC
-                  case UserDefined.Union(name) => "" // TBC
-                }
-                case e => "???"
-              }
-          }
-
-        s"""${field.name} = $defaultValue"""
-      }.mkString("", ",\n", "").indent(2)
-      s"""
-${model.name} (
-$fields
-)
-"""
-    }
+    val models = ssd.models.filter(model ⇒
+      model.model.attributes.filter(attr ⇒
+        attr.name == MovioCaseClasses.KafkaClassKey).size > 0)
 
     // Return list of files
-    models.map{ model =>
+    models.map { model ⇒
       val className = model.name
       val configPath = ssd.namespaces.base.split("\\.").toSeq.dropRight(1).mkString(".")
       val source = s""" $header
@@ -221,5 +158,66 @@ class ${className}Tests extends MovioSpec with KafkaTestKit {
 """
       ServiceFileNames.toFile(form.service.namespace, form.service.organization.key, form.service.application.key, form.service.version, s"${className}Test", source, Some("Scala"))
     }
+  }
+
+  def createEntity(model: ScalaModel, number: Int, models: Seq[ScalaModel]): String = {
+    def getModelForField(name: String): ScalaModel = {
+      models.find(model ⇒ model.originalName == name).get
+    }
+
+    val fields = model.fields.map { field ⇒
+      val defaultValue =
+        field.field.attributes.find(_.name == MovioCaseClasses.ScalaTypeKey) match {
+          case Some(attr) ⇒
+            (attr.value \ MovioCaseClasses.ScalaExampleKey).toOption match {
+              case Some(example) ⇒ example.as[JsString].value
+              case None ⇒
+                (attr.value \ MovioCaseClasses.ScalaDefaultKey).toOption match {
+                  case Some(default) ⇒ default.as[JsString].value
+                  case None ⇒
+                    if (field.required)
+                      throw new RuntimeException("manditory fields must provide examples")
+                    else
+                      "None"
+                }
+            }
+
+          case None ⇒
+            field.`type` match {
+              case t: Primitive ⇒ t match {
+                case Primitive.Boolean         ⇒ true
+                case Primitive.Double          ⇒ 2.0 + number
+                case Primitive.Integer         ⇒ 21 + number
+                case Primitive.Long            ⇒ 101L + number
+                case Primitive.DateIso8601     ⇒ "new org.joda.time.Date()"
+                case Primitive.DateTimeIso8601 ⇒ "new org.joda.time.DateTime()"
+                case Primitive.Decimal         ⇒ 1.31 + number
+                case Primitive.Object          ⇒ ""
+                case Primitive.String          ⇒ s""""${field.name}${number}""""
+                case Primitive.Unit            ⇒ ""
+                case Primitive.Uuid            ⇒ "new java.util.UUID()"
+                case _                         ⇒ "???"
+              }
+              case t: Container ⇒ t match {
+                case Container.List(name)   ⇒ "List.empty"
+                case Container.Map(name)    ⇒ "Map.empty"
+                case Container.Option(name) ⇒ "None"
+              }
+              case t: UserDefined ⇒ t match {
+                case UserDefined.Model(name) ⇒ createEntity(getModelForField(name), number, models).indent(2)
+                case UserDefined.Enum(name)  ⇒ "" // TBC
+                case UserDefined.Union(name) ⇒ "" // TBC
+              }
+              case e ⇒ "???"
+            }
+        }
+
+      s"""${field.name} = $defaultValue"""
+    }.mkString("", ",\n", "").indent(2)
+    s"""
+${model.name} (
+$fields
+)
+"""
   }
 }

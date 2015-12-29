@@ -147,7 +147,7 @@ case class ScalaModel(val ssd: ScalaService, val model: Model) {
 
 }
 
-class ScalaBody(ssd: ScalaService, val body: Body) {
+case class ScalaBody(ssd: ScalaService, val body: Body) {
 
   val datatype = {
     val t = ssd.datatypeResolver.parse(body.`type`, true).getOrElse {

@@ -24,10 +24,6 @@ object KafkaProducer extends CodeGenerator {
   ): Seq[File] = {
     val ssd = ScalaService(form.service)
 
-    val prefix = underscoreAndDashToInitCap(ssd.name)
-    val enumJson: String = ssd.enums.map { ScalaEnums(ssd, _).buildJson() }.mkString("\n\n")
-    val play2Json = Play2Json(ssd).generate()
-
     val header = addHeader match {
       case false => ""
       case true => ApidocComments(form.service.version, form.userAgent).toJavaString() + "\n"
@@ -54,18 +50,20 @@ import kafka.serializer.StringEncoder
 import play.api.libs.json.Json
 import play.api.libs.json.Writes
 
-import movio.core.utils.TryHelpers.TryOps
-
 import java.util.Properties
 import com.typesafe.config.Config
 
 import scala.util.{ Failure, Try }
 
+import movio.api.kafka_0_8.KafkaProducer
+import movio.api.kafka_0_8.KafkaProducerException
+import movio.core.utils.TryHelpers.TryOps
+
 package ${ssd.namespaces.base}.kafka {
   import ${ssd.namespaces.base}.models._
   import ${ssd.namespaces.base}.models.json._
 
-  class ${kafkaClassName}Producer(config: Config) {
+  class ${kafkaClassName}Producer(config: Config) extends KafkaProducer[${kafkaClassName}, ${className}] {
 
     val BrokerListKey = s"${configPath}.kafka.producer.broker-connection-string"
 
