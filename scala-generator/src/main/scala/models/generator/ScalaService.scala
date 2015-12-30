@@ -4,6 +4,9 @@ import com.bryzek.apidoc.spec.v0.models._
 import lib.{Datatype, DatatypeResolver, Methods, Text}
 import lib.generator.GeneratorUtil
 import scala.models.Util
+import play.api.libs.json._
+import play.api.libs.functional.syntax._
+import com.bryzek.apidoc.spec.v0.models.json._
 
 case class ScalaService(
   val service: Service
@@ -145,6 +148,24 @@ case class ScalaModel(val ssd: ScalaService, val model: Model) {
 
   val argList: Option[String] = ScalaUtil.fieldsToArgList(fields.map(_.definition()))
 
+  val attributes = model.attributes
+
+  def attribute(name: String) = attributes.filter(_.name == name).headOption
+
+  def getKafkaModelAttribute:Option[KafkaModelAttribute] = {
+    implicit val kafkaModelAttributeFmt = Json.format[KafkaModelAttribute]
+    attribute(MovioCaseClasses.KafkaClassKey).map(a => a.value.as[KafkaModelAttribute])
+  }
+}
+
+case class KafkaModelAttribute (
+  dataType: Model,
+  messageKey: String,
+  topic: String
+)
+object KafkaModelAttribute {
+  implicit val kafkaModelAttributeFmt = Json.format[KafkaModelAttribute]
+  implicit val kafkaModelAttributeWrites = Json.writes[KafkaModelAttribute]
 }
 
 case class ScalaBody(ssd: ScalaService, val body: Body) {
@@ -157,6 +178,8 @@ case class ScalaBody(ssd: ScalaService, val body: Body) {
   }
 
   val name: String = datatype.name
+
+  val toVariableName: String = datatype.toVariableName
 
 }
 
@@ -190,6 +213,9 @@ class ScalaResource(ssd: ScalaService, val resource: Resource) {
 
   val operations = resource.operations.map { new ScalaOperation(ssd, _, this)}
 
+  val attributes = resource.attributes
+
+  def attribute(name: String) = attributes.filter(_.name == name).headOption
 }
 
 class ScalaOperation(val ssd: ScalaService, operation: Operation, resource: ScalaResource) {
@@ -212,7 +238,11 @@ class ScalaOperation(val ssd: ScalaService, operation: Operation, resource: Scal
 
   lazy val formParameters = parameters.filter { _.location == ParameterLocation.Form }
 
-  val name: String = GeneratorUtil.urlToMethodName(resource.plural, operation.method, path)
+  val name: String = GeneratorUtil.urlToMethodName(
+    resource.plural,
+    operation.method,
+    path,
+    body.map(b => ScalaUtil.toClassName(b.toVariableName)))
 
   val argList: Option[String] = body match {
     case None => {
@@ -235,6 +265,9 @@ class ScalaOperation(val ssd: ScalaService, operation: Operation, resource: Scal
 
   lazy val resultType = responses.find(_.isSuccess).map(_.resultType).getOrElse("Unit")
 
+  val attributes = operation.attributes
+
+  def attribute(name: String) = attributes.filter(_.name == name).headOption
 }
 
 class ScalaResponse(ssd: ScalaService, method: Method, response: Response) {

@@ -33,12 +33,9 @@ trait PlayService extends CodeGenerator {
       case true  ⇒ ApidocComments(form.service.version, form.userAgent).toJavaString() + "\n"
     }
 
-    val models = ssd.models.filter(model ⇒
-      model.model.attributes.exists(attr ⇒
-        attr.name == MovioCaseClasses.KafkaClassKey))
+    val models = ssd.models.filter(_.attribute(MovioCaseClasses.KafkaClassKey).isDefined)
 
     ssd.resources.map { resource: ScalaResource ⇒
-      println(resource.plural) 
       val resourceName = resource.plural
       val serviceName = resource.plural + "Service"
 
@@ -56,14 +53,14 @@ trait PlayService extends CodeGenerator {
         val method = operation.method.toString.toLowerCase
         val parameters = operation.parameters
 
-        val bodyType = operation.body.map(_.name).getOrElse("Unit")
+        val resultType = operation.resultType
+
+        val bodyType = operation.body.map(_.name).getOrElse(resultType)
 
         val firstParamName = parameters.map(_.name).headOption.getOrElse("")
 
-        val dataArg = bodyType match {
-          case "Unit" => None
-          case _ => Some(s"""data: ${bodyType}""")
-        }
+        val dataArg = operation.body.map(b => s"""data: ${b.name}""")
+
         val additionalArgs = Seq(Some("request: Request[T]"), dataArg).flatten
         val argList = ScalaUtil.fieldsToArgList(additionalArgs ++ (parameters.map(_.definition()))).mkString(", ")
 
@@ -75,8 +72,6 @@ trait PlayService extends CodeGenerator {
           .map(clazz => s"kafka${ScalaUtil.toClassName(clazz)}Producer")
           .getOrElse("???")
 
-        // Use in service
-        val resultType = operation.resultType
 
         val bodyScala = method match {
           case "post" | "put" => s"""${producerName}.send(data, ${firstParamName})"""
@@ -90,7 +85,7 @@ trait PlayService extends CodeGenerator {
 
 
         s"""
-def ${method}[T](${argList}): Future[Try[${resultType}]] = {
+def ${method}[T](${argList}): Future[Try[${bodyType}]] = {
   Future {
     ${bodyScala}
   }
@@ -118,7 +113,7 @@ class ${serviceName} @Inject() (config: Config) {
   ${resourceFunctions.indent(2)}
 }
 """
-      ServiceFileNames.toFile("app.services", form.service.organization.key, form.service.application.key, form.service.version, s"${serviceName}", source, Some("Scala"))
+      File(serviceName + ".scala", Some("services"), source)
     }
   }
 }

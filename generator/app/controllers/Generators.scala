@@ -220,13 +220,33 @@ object Generators {
       ),
       CodeGenTarget(
         metaData = Generator(
-          key = "play_app",
-          name = "Play Application",
+          key = "play_app_services",
+          name = "Play Services",
           description = Some("TBC"),
           language = Some("Scala")
         ),
         status = lib.generator.Status.Beta,
-        codeGenerator = Some(scala.models.PlayApp)
+        codeGenerator = Some(scala.models.PlayService)
+      ),
+      CodeGenTarget(
+        metaData = Generator(
+          key = "play_app_controllers",
+          name = "Play Controllers",
+          description = Some("TBC"),
+          language = Some("Scala")
+        ),
+        status = lib.generator.Status.Beta,
+        codeGenerator = Some(scala.models.PlayController)
+      ),
+      CodeGenTarget(
+        metaData = Generator(
+          key = "play_app_tests",
+          name = "Play Tests",
+          description = Some("TBC"),
+          language = Some("Scala")
+        ),
+        status = lib.generator.Status.Beta,
+        codeGenerator = Some(scala.models.PlaySystemTests)
       )
   ).sortBy(_.metaData.key)
 }

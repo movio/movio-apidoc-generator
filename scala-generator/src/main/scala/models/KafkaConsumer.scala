@@ -32,17 +32,13 @@ object KafkaConsumer extends CodeGenerator {
       case true => ApidocComments(form.service.version, form.userAgent).toJavaString() + "\n"
     }
 
-    val models = ssd.models.filter(model =>
-      model.model.attributes.exists(attr =>
-        attr.name == MovioCaseClasses.KafkaClassKey
-      )
-    )
+    val models = ssd.models.filter(_.attribute(MovioCaseClasses.KafkaClassKey).isDefined)
 
     // Return list of files
     models.map{ model =>
       val className = model.name
       val configPath = ssd.namespaces.base.split("\\.").toSeq.dropRight(1).mkString(".")
-      val topicFn = (model.model.attributes.find(attr => attr.name == MovioCaseClasses.KafkaClassKey) map {attr: Attribute =>
+      val topicFn = (model.attribute(MovioCaseClasses.KafkaClassKey) map {attr: Attribute =>
              (attr.value \ MovioCaseClasses.KafkaTopicKey).as[JsString].value
          }).get
       val apiVersion = ssd.namespaces.last

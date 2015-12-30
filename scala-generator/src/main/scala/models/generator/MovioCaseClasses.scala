@@ -139,7 +139,7 @@ trait MovioCaseClasses extends CodeGenerator {
     containsKafka(model) match {
       case true =>
         val (kafkaDataKey:String, topic: String) =
-          (model.model.attributes.find(attr => attr.name == KafkaClassKey) map {attr: Attribute =>
+          (model.attribute(KafkaClassKey) map {attr: Attribute =>
              (
                (attr.value \ KafkaMessageKey).as[JsString].value,
                (attr.value \ KafkaTopicKey).as[JsString].value
@@ -154,7 +154,7 @@ def key = ${kafkaDataKey}
   }
 
   // Add extends c
-  def extendsClasses(model: ScalaModel): Seq[String] = model.model.attributes.filter{attr =>
+  def extendsClasses(model: ScalaModel): Seq[String] = model.attributes.filter{attr =>
     attr.name == ScalaExtensionKey
   }.flatMap { attr =>
     (attr.value \ "classes").as[JsArray].value.map(_.as[JsString].value)
@@ -239,10 +239,7 @@ object Validation {
   def containsKafka(ssd: ScalaService):Boolean = 
     ssd.models.exists(containsKafka(_))
 
-  def containsKafka(model: ScalaModel):Boolean = 
-    model.model.attributes.exists{attr: Attribute =>
-      attr.name == KafkaClassKey
-    }
+  def containsKafka(model: ScalaModel):Boolean = model.attribute(KafkaClassKey).isDefined
 
   def kafkaMessageTrait(ssd: ScalaService): String = {
     containsKafka(ssd) match {

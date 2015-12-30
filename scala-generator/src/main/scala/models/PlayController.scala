@@ -1,10 +1,10 @@
 package scala.models
 
-import com.bryzek.apidoc.generator.v0.models.{ File, InvocationForm }
+import com.bryzek.apidoc.generator.v0.models.{File, InvocationForm}
 import com.bryzek.apidoc.spec.v0.models.Attribute
 import lib.Text._
 import lib.generator.CodeGenerator
-import scala.generator.{ ScalaEnums, ScalaCaseClasses, ScalaService, ScalaResource, ScalaOperation, ScalaUtil }
+import scala.generator.{ScalaEnums, ScalaCaseClasses, ScalaService, ScalaResource, ScalaOperation, ScalaUtil}
 import scala.generator.ScalaDatatype.Container
 import generator.ServiceFileNames
 import scala.generator.MovioCaseClasses
@@ -30,37 +30,34 @@ trait PlayController extends CodeGenerator {
     val play2Json = Play2Json(ssd).generate()
 
     val header = addHeader match {
-      case false ⇒ ""
-      case true  ⇒ ApidocComments(form.service.version, form.userAgent).toJavaString() + "\n"
+      case false => ""
+      case true => ApidocComments(form.service.version, form.userAgent).toJavaString() + "\n"
     }
 
-    val models = ssd.models.filter(model ⇒
-      model.model.attributes.exists(attr ⇒
-        attr.name == MovioCaseClasses.KafkaClassKey))
+    val models = ssd.models.filter(_.attribute(MovioCaseClasses.KafkaClassKey).isDefined)
 
-    ssd.resources.map { resource: ScalaResource ⇒
+    ssd.resources.map{ resource: ScalaResource =>
       val resourceName = resource.plural
       val serviceName = resource.plural + "Service"
 
-      val resourceFunctions = resource.operations.map { operation: ScalaOperation ⇒
+      val resourceFunctions = resource.operations.map { operation: ScalaOperation =>
         val method = operation.method.toString.toLowerCase
         val argList = ScalaUtil.fieldsToArgList(operation.parameters.map(_.definition())).getOrElse("")
 
         // Only include request.body if body present
-        val bodyParam = operation.body.map(_ ⇒ "request.body")
+        val bodyParam = operation.body.map(_ => "request.body")
         val argNameList = (
           Seq(Some("request"), bodyParam).flatten ++
-          operation.parameters.map(_.name)
-        )
-          .mkString(", ")
+            operation.parameters.map(_.name)
+        ).mkString(", ")
 
-        val bodyParse = operation.body.map(o ⇒ s"(BodyParsers.parse.json[${o.name}])").getOrElse("")
+        val bodyParse = operation.body.map(o => s"(BodyParsers.parse.json[${o.name}])").getOrElse("")
 
         // If we're posting a big collection - just return the size
         val returnSizeIfCollection = operation.body.map(_.datatype match {
-          case _: Container ⇒ ".size"
-          case _            ⇒ ""
-        }).getOrElse("")
+                                                          case _: Container => ".size"
+                                                          case _ => ""
+                                                        }).getOrElse("")
 
         // Use in service
         val resultType = operation.resultType
@@ -75,7 +72,8 @@ def ${operation.name}(${argList}) = Action.async${bodyParse} {  request =>
   })
 }
 """
-      }.mkString("\n\n")
+        }.mkString("\n\n")
+
 
       val source = s"""$header
 package controllers
@@ -99,7 +97,7 @@ class ${resourceName} @Singleton @Inject() (service: ${serviceName}) extends Con
   ${resourceFunctions.indent(2)}
 }
 """
-      ServiceFileNames.toFile("app.controllers", form.service.organization.key, form.service.application.key, form.service.version, s"${resourceName}", source, Some("Scala"))
+      File(resourceName + ".scala", Some("controllers"), source)
     }
   }
 }

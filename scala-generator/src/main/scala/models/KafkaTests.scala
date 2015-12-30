@@ -32,9 +32,7 @@ object KafkaTests extends CodeGenerator {
       case true  ⇒ ApidocComments(form.service.version, form.userAgent).toJavaString() + "\n"
     }
 
-    val models = ssd.models.filter(model ⇒
-      model.model.attributes.filter(attr ⇒
-        attr.name == MovioCaseClasses.KafkaClassKey).size > 0)
+    val models = ssd.models.filter(_.attribute(MovioCaseClasses.KafkaClassKey).isDefined)
 
     // Return list of files
     models.map { model ⇒

@@ -29,17 +29,13 @@ object KafkaProducer extends CodeGenerator {
       case true => ApidocComments(form.service.version, form.userAgent).toJavaString() + "\n"
     }
 
-    val models = ssd.models.filter(model =>
-      model.model.attributes.filter(attr =>
-        attr.name == MovioCaseClasses.KafkaClassKey
-      ).size > 0
-    )
+    val models = ssd.models.filter(_.attribute(MovioCaseClasses.KafkaClassKey).isDefined)
 
     // Return list of files
     models.map{ model =>
       val kafkaClassName = model.name
       val className = ScalaUtil.toClassName((
-        model.model.attributes.find(attr => attr.name == MovioCaseClasses.KafkaClassKey) map {attr: Attribute =>
+        model.attribute(MovioCaseClasses.KafkaClassKey) map {attr: Attribute =>
           (attr.value \ MovioCaseClasses.KafkaTypeKey).as[JsString].value
         }).get)
       val configPath = ssd.namespaces.base.split("\\.").toSeq.dropRight(1).mkString(".")
