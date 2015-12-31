@@ -21,12 +21,14 @@
   "models": [
     {
       "name": "user",
+      "attributes": [],
       "plural": "users",
       "description": null,
       "deprecation": null,
       "fields": [
         {
           "name": "email",
+          "attributes": [],
           "type": "string",
           "description": null,
           "deprecation": null,
@@ -38,6 +40,7 @@
         },
         {
           "name": "role",
+          "attributes": [],
           "type": "string",
           "description": null,
           "deprecation": null,
@@ -49,6 +52,7 @@
         },
         {
           "name": "groups",
+          "attributes": [],
           "type": "[string]",
           "description": null,
           "deprecation": null,
@@ -60,6 +64,7 @@
         },
         {
           "name": "permissions",
+          "attributes": [],
           "type": "[string]",
           "description": null,
           "deprecation": null,
@@ -73,12 +78,14 @@
     },
     {
       "name": "user_patch",
+      "attributes": [],
       "plural": "user_patches",
       "description": null,
       "deprecation": null,
       "fields": [
         {
           "name": "groups",
+          "attributes": [],
           "type": "[string]",
           "description": null,
           "deprecation": null,
@@ -90,6 +97,7 @@
         },
         {
           "name": "permissions",
+          "attributes": [],
           "type": "[string]",
           "description": null,
           "deprecation": null,
@@ -101,6 +109,7 @@
         },
         {
           "name": "preferences",
+          "attributes": [],
           "type": "[string]",
           "description": null,
           "deprecation": null,
@@ -117,16 +126,19 @@
     {
       "type": "user",
       "plural": "users",
+      "attributes": [],
       "description": null,
       "deprecation": null,
       "operations": [
         {
           "method": "POST",
+          "attributes": [],
           "path": "/users",
           "description": null,
           "deprecation": null,
           "body": {
             "type": "user",
+            "attributes": [],
             "description": null,
             "deprecation": null
           },
@@ -135,6 +147,7 @@
             {
               "code": { "integer": { "value": 201 } },
               "type": "user",
+              "attributes": [],
               "description": null,
               "deprecation": null
             }
@@ -142,6 +155,7 @@
         },
         {
           "method": "GET",
+          "attributes": [],
           "path": "/users/:email",
           "description": null,
           "deprecation": null,
@@ -149,6 +163,7 @@
           "parameters": [
             {
               "name": "email",
+              "attributes": [],
               "type": "string",
               "location": "Path",
               "description": null,
@@ -164,6 +179,7 @@
             {
               "code": { "integer": { "value": 200 } },
               "type": "user",
+              "attributes": [],
               "description": null,
               "deprecation": null
             }
@@ -171,11 +187,13 @@
         },
         {
           "method": "PATCH",
+          "attributes": [],
           "path": "/users",
           "description": null,
           "deprecation": null,
           "body": {
             "type": "user_patch",
+            "attributes": [],
             "description": null,
             "deprecation": null
           },
@@ -184,6 +202,7 @@
             {
               "code": { "integer": { "value": 200 } },
               "type": "user",
+              "attributes": [],
               "description": null,
               "deprecation": null
             }

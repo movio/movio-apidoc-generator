@@ -61,16 +61,19 @@
   "models": [
     {
       "name": "error",
+      "attributes": [],
       "plural": "errors",
       "fields": [
         {
           "name": "code",
+          "attributes": [],
           "type": "string",
           "description": "Machine readable code for this specific error message",
           "required": true
         },
         {
           "name": "message",
+          "attributes": [],
           "type": "string",
           "description": "Description of the error",
           "required": true
@@ -79,26 +82,31 @@
     },
     {
       "name": "generator",
+      "attributes": [],
       "plural": "generators",
       "description": "The generator metadata.",
       "fields": [
         {
           "name": "key",
+          "attributes": [],
           "type": "string",
           "required": true
         },
         {
           "name": "name",
+          "attributes": [],
           "type": "string",
           "required": true
         },
         {
           "name": "language",
+          "attributes": [],
           "type": "string",
           "required": false
         },
         {
           "name": "description",
+          "attributes": [],
           "type": "string",
           "required": false
         }
@@ -106,10 +114,12 @@
     },
     {
       "name": "healthcheck",
+      "attributes": [],
       "plural": "healthchecks",
       "fields": [
         {
           "name": "status",
+          "attributes": [],
           "type": "string",
           "required": true,
           "example": "healthy"
@@ -118,11 +128,13 @@
     },
     {
       "name": "invocation",
+      "attributes": [],
       "plural": "invocations",
       "description": "The result of invoking a generator.",
       "fields": [
         {
           "name": "source",
+          "attributes": [],
           "type": "string",
           "description": "The actual source code.",
           "required": true
@@ -131,15 +143,18 @@
     },
     {
       "name": "invocation_form",
+      "attributes": [],
       "plural": "invocation_forms",
       "fields": [
         {
           "name": "service",
+          "attributes": [],
           "type": "com.bryzek.apidoc.spec.v0.models.service",
           "required": true
         },
         {
           "name": "user_agent",
+          "attributes": [],
           "type": "string",
           "required": false
         }
@@ -149,15 +164,18 @@
   "resources": [
     {
       "type": "generator",
+      "attributes": [],
       "plural": "generators",
       "operations": [
         {
           "method": "GET",
+          "attributes": [],
           "path": "/generators",
           "description": "Get all available generators",
           "parameters": [
             {
               "name": "key",
+              "attributes": [],
               "type": "string",
               "location": "Query",
               "description": "Filter generators with this key",
@@ -165,6 +183,7 @@
             },
             {
               "name": "limit",
+              "attributes": [],
               "type": "integer",
               "location": "Query",
               "description": "The number of records to return",
@@ -174,6 +193,7 @@
             },
             {
               "name": "offset",
+              "attributes": [],
               "type": "integer",
               "location": "Query",
               "description": "Used to paginate. First page of results is 0.",
@@ -189,17 +209,20 @@
                   "value": 200
                 }
               },
+              "attributes": [],
               "type": "[generator]"
             }
           ]
         },
         {
           "method": "GET",
+          "attributes": [],
           "path": "/generators/:key",
           "description": "Get generator with this key",
           "parameters": [
             {
               "name": "key",
+              "attributes": [],
               "type": "string",
               "location": "Path",
               "required": true
@@ -212,6 +235,7 @@
                   "value": 200
                 }
               },
+              "attributes": [],
               "type": "generator"
             }
           ]
@@ -220,10 +244,12 @@
     },
     {
       "type": "healthcheck",
+      "attributes": [],
       "plural": "healthchecks",
       "operations": [
         {
           "method": "GET",
+          "attributes": [],
           "path": "/_internal_/healthcheck",
           "parameters": [],
           "responses": [
@@ -233,6 +259,7 @@
                   "value": 200
                 }
               },
+              "attributes": [],
               "type": "healthcheck"
             }
           ]
@@ -241,18 +268,22 @@
     },
     {
       "type": "invocation",
+      "attributes": [],
       "plural": "invocations",
       "operations": [
         {
           "method": "POST",
+          "attributes": [],
           "path": "/invocations/:key",
           "description": "Invoke a generator",
           "body": {
+            "attributes": [],
             "type": "invocation_form"
           },
           "parameters": [
             {
               "name": "key",
+              "attributes": [],
               "type": "string",
               "location": "Path",
               "required": true
@@ -265,6 +296,7 @@
                   "value": 200
                 }
               },
+              "attributes": [],
               "type": "invocation"
             },
             {
@@ -273,6 +305,7 @@
                   "value": 409
                 }
               },
+              "attributes": [],
               "type": "[error]"
             }
           ]

@@ -35,9 +35,10 @@ class Play2ClientGeneratorSpec extends FunSpec with ShouldMatchers {
       "models": [
         {
           "name": "user",
+          "attributes": [],
           "plural": "user",
           "fields": [
-            { "name": "id", "type": "long", "required": true }
+            { "name": "id", "type": "long", "required": true, "attributes": [] }
           ]
         }
 
@@ -45,17 +46,19 @@ class Play2ClientGeneratorSpec extends FunSpec with ShouldMatchers {
 
       "resources": [
         {
-          "type": "user",
-          "plural": "users",
+         "type": "user",
+         "attributes": [],
+         "plural": "users",
           "path": "/users",
           "operations": [
             {
               "method": "GET",
+              "attributes": [],
               "path": "/:id",
               "parameters": [],
               "responses": [
-                { "code": { "integer": { "value": 200 } }, "type": "user" },
-                { "code": { "integer": { "value": 409 } }, "type": "unit" }
+                { "code": { "integer": { "value": 200 } }, "type": "user", "attributes": [] },
+                { "code": { "integer": { "value": 409 } }, "type": "unit", "attributes": [] }
               ]
             }
           ]

@@ -19,15 +19,18 @@
   "enums": [
     {
       "name": "age_group",
+      "attributes": [],
       "plural": "age_groups",
       "description": null,
       "values": [
         {
           "name": "Youth",
+          "attributes": [],
           "description": "under 18"
         },
         {
           "name": "Adult",
+          "attributes": [],
           "description": "18 and over"
         }
       ]
@@ -37,11 +40,13 @@
   "models": [
     {
       "name": "big",
+      "attributes": [],
       "plural": "bigs",
       "description": "A model with a lot of fields.",
       "fields": [
         {
           "name": "f1",
+          "attributes": [],
           "type": "string",
           "description": null,
           "default": null,
@@ -52,6 +57,7 @@
         },
         {
           "name": "f2",
+          "attributes": [],
           "type": "string",
           "description": null,
           "default": null,
@@ -62,6 +68,7 @@
         },
         {
           "name": "f3",
+          "attributes": [],
           "type": "string",
           "description": null,
           "default": null,
@@ -72,6 +79,7 @@
         },
         {
           "name": "f4",
+          "attributes": [],
           "type": "string",
           "description": null,
           "default": null,
@@ -82,6 +90,7 @@
         },
         {
           "name": "f5",
+          "attributes": [],
           "type": "string",
           "description": null,
           "default": null,
@@ -92,6 +101,7 @@
         },
         {
           "name": "f6",
+          "attributes": [],
           "type": "string",
           "description": null,
           "default": null,
@@ -102,6 +112,7 @@
         },
         {
           "name": "f7",
+          "attributes": [],
           "type": "string",
           "description": null,
           "default": null,
@@ -112,6 +123,7 @@
         },
         {
           "name": "f8",
+          "attributes": [],
           "type": "string",
           "description": null,
           "default": null,
@@ -122,6 +134,7 @@
         },
         {
           "name": "f9",
+          "attributes": [],
           "type": "string",
           "description": null,
           "default": null,
@@ -132,6 +145,7 @@
         },
         {
           "name": "f10",
+          "attributes": [],
           "type": "string",
           "description": null,
           "default": null,
@@ -142,6 +156,7 @@
         },
         {
           "name": "f11",
+          "attributes": [],
           "type": "string",
           "description": null,
           "default": null,
@@ -152,6 +167,7 @@
         },
         {
           "name": "f12",
+          "attributes": [],
           "type": "string",
           "description": null,
           "default": null,
@@ -162,6 +178,7 @@
         },
         {
           "name": "f13",
+          "attributes": [],
           "type": "string",
           "description": null,
           "default": null,
@@ -172,6 +189,7 @@
         },
         {
           "name": "f14",
+          "attributes": [],
           "type": "string",
           "description": null,
           "default": null,
@@ -182,6 +200,7 @@
         },
         {
           "name": "f15",
+          "attributes": [],
           "type": "string",
           "description": null,
           "default": null,
@@ -192,6 +211,7 @@
         },
         {
           "name": "f16",
+          "attributes": [],
           "type": "string",
           "description": null,
           "default": null,
@@ -202,6 +222,7 @@
         },
         {
           "name": "f17",
+          "attributes": [],
           "type": "string",
           "description": null,
           "default": null,
@@ -212,6 +233,7 @@
         },
         {
           "name": "f18",
+          "attributes": [],
           "type": "string",
           "description": null,
           "default": null,
@@ -222,6 +244,7 @@
         },
         {
           "name": "f19",
+          "attributes": [],
           "type": "string",
           "description": null,
           "default": null,
@@ -232,6 +255,7 @@
         },
         {
           "name": "f20",
+          "attributes": [],
           "type": "string",
           "description": null,
           "default": null,
@@ -242,6 +266,7 @@
         },
         {
           "name": "f21",
+          "attributes": [],
           "type": "string",
           "description": null,
           "default": null,
@@ -254,11 +279,13 @@
     },
     {
       "name": "echo",
+      "attributes": [],
       "plural": "echoes",
       "description": null,
       "fields": [
         {
           "name": "value",
+          "attributes": [],
           "type": "string",
           "description": null,
           "default": null,
@@ -271,11 +298,13 @@
     },
     {
       "name": "error",
+      "attributes": [],
       "plural": "errors",
       "description": "Models an API error.",
       "fields": [
         {
           "name": "code",
+          "attributes": [],
           "type": "string",
           "description": null,
           "default": null,
@@ -286,6 +315,7 @@
         },
         {
           "name": "message",
+          "attributes": [],
           "type": "string",
           "description": null,
           "default": null,
@@ -298,11 +328,13 @@
     },
     {
       "name": "member",
+      "attributes": [],
       "plural": "members",
       "description": null,
       "fields": [
         {
           "name": "guid",
+          "attributes": [],
           "type": "uuid",
           "description": null,
           "default": null,
@@ -313,6 +345,7 @@
         },
         {
           "name": "organization",
+          "attributes": [],
           "type": "organization",
           "description": null,
           "default": null,
@@ -323,6 +356,7 @@
         },
         {
           "name": "user",
+          "attributes": [],
           "type": "user",
           "description": null,
           "default": null,
@@ -333,6 +367,7 @@
         },
         {
           "name": "role",
+          "attributes": [],
           "type": "string",
           "description": null,
           "default": null,
@@ -345,11 +380,13 @@
     },
     {
       "name": "organization",
+      "attributes": [],
       "plural": "organizations",
       "description": null,
       "fields": [
         {
           "name": "guid",
+          "attributes": [],
           "type": "uuid",
           "description": null,
           "default": null,
@@ -360,6 +397,7 @@
         },
         {
           "name": "name",
+          "attributes": [],
           "type": "string",
           "description": null,
           "default": null,
@@ -372,11 +410,13 @@
     },
     {
       "name": "user",
+      "attributes": [],
       "plural": "users",
       "description": null,
       "fields": [
         {
           "name": "guid",
+          "attributes": [],
           "type": "uuid",
           "description": null,
           "default": null,
@@ -387,6 +427,7 @@
         },
         {
           "name": "email",
+          "attributes": [],
           "type": "string",
           "description": null,
           "default": null,
@@ -397,6 +438,7 @@
         },
         {
           "name": "active",
+          "attributes": [],
           "type": "boolean",
           "description": null,
           "default": null,
@@ -407,6 +449,7 @@
         },
         {
           "name": "age_group",
+          "attributes": [],
           "type": "age_group",
           "description": null,
           "default": null,
@@ -417,6 +460,7 @@
         },
         {
           "name": "tags",
+          "attributes": [],
           "type": "map[string]",
           "description": null,
           "default": null,
@@ -429,11 +473,13 @@
     },
     {
         "name": "group",
+      "attributes": [],
         "plural": "groups",
         "description": "A group of users in an organization.",
         "fields": [
             {
                 "name": "members",
+              "attributes": [],
                 "type": "[user]",
                 "description": null,
                 "default": null,
@@ -446,11 +492,13 @@
     },
     {
       "name": "user_list",
+      "attributes": [],
       "plural": "user_lists",
       "description": null,
       "fields": [
         {
           "name": "users",
+          "attributes": [],
           "type": "[user]",
           "description": null,
           "default": null,
@@ -465,17 +513,20 @@
   "resources": [
     {
       "type": "echo",
+      "attributes": [],
       "plural": "echoes",
       "description": null,
       "operations": [
         {
           "method": "GET",
+          "attributes": [],
           "path": "/echoes",
           "description": null,
           "body": null,
           "parameters": [
             {
               "name": "foo",
+              "attributes": [],
               "type": "string",
               "location": "Query",
               "description": null,
@@ -487,6 +538,7 @@
             },
             {
               "name": "optional_messages",
+              "attributes": [],
               "type": "[string]",
               "location": "Query",
               "description": null,
@@ -498,6 +550,7 @@
             },
             {
               "name": "required_messages",
+              "attributes": [],
               "type": "[string]",
               "location": "Query",
               "description": null,
@@ -511,18 +564,21 @@
           "responses": [
             {
               "code": { "integer": { "value": 204 } },
+              "attributes": [],
               "type": "unit"
             }
           ]
         },
         {
           "method": "GET",
+          "attributes": [],
           "path": "/echoes/arrays-only",
           "description": null,
           "body": null,
           "parameters": [
             {
               "name": "optional_messages",
+              "attributes": [],
               "type": "[string]",
               "location": "Query",
               "description": null,
@@ -534,6 +590,7 @@
             },
             {
               "name": "required_messages",
+              "attributes": [],
               "type": "[string]",
               "location": "Query",
               "description": null,
@@ -547,6 +604,7 @@
           "responses": [
             {
               "code": { "integer": { "value": 204 } },
+              "attributes": [],
               "type": "unit"
             }
           ]
@@ -555,17 +613,20 @@
     },
     {
       "type": "member",
+      "attributes": [],
       "plural": "members",
       "description": null,
       "operations": [
         {
           "method": "POST",
+          "attributes": [],
           "path": "/members",
           "description": null,
           "body": null,
           "parameters": [
             {
               "name": "guid",
+              "attributes": [],
               "type": "uuid",
               "location": "Form",
               "description": null,
@@ -577,6 +638,7 @@
             },
             {
               "name": "organization",
+              "attributes": [],
               "type": "uuid",
               "location": "Form",
               "description": null,
@@ -588,6 +650,7 @@
             },
             {
               "name": "user",
+              "attributes": [],
               "type": "uuid",
               "location": "Form",
               "description": null,
@@ -599,6 +662,7 @@
             },
             {
               "name": "role",
+              "attributes": [],
               "type": "string",
               "location": "Form",
               "description": null,
@@ -612,22 +676,26 @@
           "responses": [
             {
               "code": { "integer": { "value": 201 } },
+              "attributes": [],
               "type": "member"
             },
             {
               "code": { "integer": { "value": 409 } },
+              "attributes": [],
               "type": "[error]"
             }
           ]
         },
         {
           "method": "GET",
+          "attributes": [],
           "path": "/members",
           "description": null,
           "body": null,
           "parameters": [
             {
               "name": "guid",
+              "attributes": [],
               "type": "uuid",
               "location": "Query",
               "description": null,
@@ -639,6 +707,7 @@
             },
             {
               "name": "organization_guid",
+              "attributes": [],
               "type": "uuid",
               "location": "Query",
               "description": null,
@@ -650,6 +719,7 @@
             },
             {
               "name": "user_guid",
+              "attributes": [],
               "type": "uuid",
               "location": "Query",
               "description": null,
@@ -661,6 +731,7 @@
             },
             {
               "name": "role",
+              "attributes": [],
               "type": "string",
               "location": "Query",
               "description": null,
@@ -674,18 +745,21 @@
           "responses": [
             {
               "code": { "integer": { "value": 200 } },
+              "attributes": [],
               "type": "[member]"
             }
           ]
         },
         {
           "method": "GET",
+          "attributes": [],
           "path": "/members/:organization",
           "description": null,
           "body": null,
           "parameters": [
             {
               "name": "organization",
+              "attributes": [],
               "type": "uuid",
               "location": "Path",
               "description": null,
@@ -699,16 +773,19 @@
           "responses": [
             {
               "code": { "integer": { "value": 200 } },
+              "attributes": [],
               "type": "[member]"
             }
           ]
         },
         {
-            "method": "POST",
+          "method": "POST",
+          "attributes": [],
             "path": "/members/:organization/members_bulk",
             "parameters": [
                 {
                     "name": "organization",
+                  "attributes": [],
                     "type": "uuid",
                     "location": "Path",
                     "description": null,
@@ -720,20 +797,29 @@
                 }
             ],
             "description": null,
-            "body": { "type": "[member]" },
+            "body": {
+
+
+
+              "type": "[member]",
+              "attributes": []
+            },
             "responses": [
                 {
-                    "code": { "integer": { "value": 200 } },
+                  "code": { "integer": { "value": 200 } },
+                  "attributes": [],
                     "type": "[member]"
                 }
             ]
         },
         {
-            "method": "POST",
+          "method": "POST",
+          "attributes": [],
             "path": "/members/:organization/members_map",
             "parameters": [
                 {
                     "name": "organization",
+                  "attributes": [],
                     "type": "uuid",
                     "location": "Path",
                     "description": null,
@@ -745,10 +831,14 @@
                 }
             ],
             "description": null,
-            "body": { "type": "map[member]" },
+            "body": {
+              "type": "map[member]",
+              "attributes": []
+            },
             "responses": [
                 {
-                    "code": { "integer": { "value": 200 } },
+                  "code": { "integer": { "value": 200 } },
+                  "attributes": [],
                     "type": "[member]"
                 }
             ]
@@ -757,17 +847,20 @@
     },
     {
       "type": "organization",
+      "attributes": [],
       "plural": "organizations",
       "description": null,
       "operations": [
         {
           "method": "POST",
+          "attributes": [],
           "path": "/organizations",
           "description": null,
           "body": null,
           "parameters": [
             {
               "name": "organization",
+              "attributes": [],
               "type": "organization",
               "location": "Form",
               "description": null,
@@ -781,22 +874,26 @@
           "responses": [
             {
               "code": { "integer": { "value": 201 } },
+              "attributes": [],
               "type": "organization"
             },
             {
               "code": { "integer": { "value": 409 } },
+              "attributes": [],
               "type": "[error]"
             }
           ]
         },
         {
           "method": "GET",
+          "attributes": [],
           "path": "/organizations",
           "description": null,
           "body": null,
           "parameters": [
             {
               "name": "guid",
+              "attributes": [],
               "type": "uuid",
               "location": "Query",
               "description": null,
@@ -808,6 +905,7 @@
             },
             {
               "name": "name",
+              "attributes": [],
               "type": "string",
               "location": "Query",
               "description": null,
@@ -821,18 +919,21 @@
           "responses": [
             {
               "code": { "integer": { "value": 200 } },
+              "attributes": [],
               "type": "[organization]"
             }
           ]
         },
         {
           "method": "GET",
+          "attributes": [],
           "path": "/:guid",
           "description": null,
           "body": null,
           "parameters": [
             {
               "name": "guid",
+              "attributes": [],
               "type": "uuid",
               "location": "Path",
               "description": null,
@@ -846,6 +947,7 @@
           "responses": [
             {
               "code": { "integer": { "value": 200 } },
+              "attributes": [],
               "type": "organization"
             }
           ]
@@ -854,17 +956,20 @@
     },
     {
       "type": "user",
+      "attributes": [],
       "plural": "users",
       "description": null,
       "operations": [
         {
           "method": "POST",
+          "attributes": [],
           "path": "/users",
           "description": null,
           "body": null,
           "parameters": [
             {
               "name": "guid",
+              "attributes": [],
               "type": "uuid",
               "location": "Form",
               "description": null,
@@ -876,6 +981,7 @@
             },
             {
               "name": "email",
+              "attributes": [],
               "type": "string",
               "location": "Form",
               "description": null,
@@ -887,6 +993,7 @@
             },
             {
               "name": "active",
+              "attributes": [],
               "type": "boolean",
               "location": "Form",
               "description": null,
@@ -900,22 +1007,26 @@
           "responses": [
             {
               "code": { "integer": { "value": 201 } },
+              "attributes": [],
               "type": "user"
             },
             {
               "code": { "integer": { "value": 409 } },
+              "attributes": [],
               "type": "[error]"
             }
           ]
         },
         {
           "method": "GET",
+          "attributes": [],
           "path": "/users",
           "description": null,
           "body": null,
           "parameters": [
             {
               "name": "guid",
+              "attributes": [],
               "type": "uuid",
               "location": "Query",
               "description": null,
@@ -927,6 +1038,7 @@
             },
             {
               "name": "organization_guids",
+              "attributes": [],
               "type": "[long]",
               "location": "Query",
               "description": "Limits users to the specified organizations.",
@@ -938,6 +1050,7 @@
             },
             {
               "name": "age_group",
+              "attributes": [],
               "type": "age_group",
               "location": "Query",
               "description": "Limit to users in this age group",
@@ -949,6 +1062,7 @@
             },
             {
               "name": "email",
+              "attributes": [],
               "type": "string",
               "location": "Query",
               "description": null,
@@ -960,6 +1074,7 @@
             },
             {
               "name": "active",
+              "attributes": [],
               "type": "boolean",
               "location": "Query",
               "description": null,
@@ -973,18 +1088,21 @@
           "responses": [
             {
               "code": { "integer": { "value": 200 } },
+              "attributes": [],
               "type": "[user]"
             }
           ]
         },
         {
           "method": "GET",
+          "attributes": [],
           "path": "/users/:age_group",
           "description": null,
           "body": null,
           "parameters": [
             {
               "name": "age_group",
+              "attributes": [],
               "type": "age_group",
               "location": "Path",
               "description": null,
@@ -998,12 +1116,14 @@
           "responses": [
             {
               "code": { "integer": { "value": 200 } },
+              "attributes": [],
               "type": "[user]"
             }
           ]
         },
         {
           "method": "POST",
+          "attributes": [],
           "path": "/users/noop",
           "description": null,
           "body": null,
@@ -1011,24 +1131,27 @@
           "responses": [
             {
               "code": { "integer": { "value": 200 } },
+              "attributes": [],
               "type": "unit"
             }
           ]
         }
       ]
     },
-
     {
       "type": "group",
+      "attributes": [],
       "plural": "groups",
       "description": null,
       "operations": [
           {
-              "method": "GET",
+            "method": "GET",
+            "attributes": [],
               "path": "/groups/:organization",
               "parameters": [
                   {
                       "name": "organization",
+                    "attributes": [],
                       "type": "uuid",
                       "location": "Path",
                       "description": null,
@@ -1041,7 +1164,8 @@
               ],
               "responses": [
                   {
-                      "code": { "integer": { "value": 200 } },
+                    "code": { "integer": { "value": 200 } },
+                    "attributes": [],
                       "type": "map[[user]]"
                   }
               ]

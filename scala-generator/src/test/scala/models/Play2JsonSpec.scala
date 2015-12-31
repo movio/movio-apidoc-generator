@@ -17,11 +17,12 @@ class Play2JsonSpec extends FunSpec with ShouldMatchers {
       "models": [
         {
           "name": "content",
+          "attributes": [],
           "plural": "contents",
           "fields": [
-            { "name": "required_tags", "type": "[string]", "required": true },
-            { "name": "optional_tags", "type": "[string]", "required": false },
-            { "name": "data", "type": "map[long]", "required": false }
+            { "name": "required_tags", "type": "[string]", "required": true, "attributes": [] },
+            { "name": "optional_tags", "type": "[string]", "required": false, "attributes": [] },
+            { "name": "data", "type": "map[long]", "required": false, "attributes": [] }
           ]
         }
       ]

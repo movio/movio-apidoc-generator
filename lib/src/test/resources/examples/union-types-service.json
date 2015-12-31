@@ -20,18 +20,22 @@
       "plural": "bars",
       "values": [
         {
-          "name": "b"
+          "name": "b",
+          "attributes": []
         }
-      ]
+      ],
+      "attributes": []
     },
     {
       "name": "foo",
       "plural": "foos",
       "values": [
         {
-          "name": "a"
+          "name": "a",
+          "attributes": []
         }
-      ]
+      ],
+      "attributes": []
     }
   ],
   "unions": [
@@ -40,27 +44,34 @@
       "plural": "foobars",
       "types": [
         {
-          "type": "foo"
+          "type": "foo",
+          "attributes": []
         },
         {
-          "type": "bar"
+          "type": "bar",
+          "attributes": []
         }
-      ]
+      ],
+      "attributes": []
     },
     {
       "name": "user",
       "plural": "users",
       "types": [
         {
-          "type": "registered_user"
+          "type": "registered_user",
+          "attributes": []
         },
         {
-          "type": "guest_user"
+          "type": "guest_user",
+          "attributes": []
         },
         {
-          "type": "uuid"
+          "type": "uuid",
+          "attributes": []
         }
-      ]
+      ],
+      "attributes": []
     }
   ],
   "models": [
@@ -72,14 +83,17 @@
           "name": "guid",
           "type": "uuid",
           "description": "Internal unique identifier for this user.",
-          "required": true
+          "required": true,
+          "attributes": []
         },
         {
           "name": "email",
           "type": "string",
-          "required": true
+          "required": true,
+          "attributes": []
         }
-      ]
+      ],
+      "attributes": []
     },
     {
       "name": "registered_user",
@@ -89,19 +103,23 @@
           "name": "guid",
           "type": "uuid",
           "description": "Internal unique identifier for this user.",
-          "required": true
+          "required": true,
+          "attributes": []
         },
         {
           "name": "email",
           "type": "string",
-          "required": true
+          "required": true,
+          "attributes": []
         },
         {
           "name": "preference",
           "type": "foobar",
-          "required": true
+          "required": true,
+          "attributes": []
         }
-      ]
+      ],
+      "attributes": []
     }
   ],
   "resources": [
@@ -120,9 +138,11 @@
                   "value": 200
                 }
               },
-              "type": "[user]"
+              "type": "[user]",
+              "attributes": []
             }
-          ]
+          ],
+          "attributes": []
         },
         {
           "method": "GET",
@@ -132,7 +152,8 @@
               "name": "guid",
               "type": "uuid",
               "location": "Path",
-              "required": true
+              "required": true,
+              "attributes": []
             }
           ],
           "responses": [
@@ -142,15 +163,18 @@
                   "value": 200
                 }
               },
-              "type": "user"
+              "type": "user",
+              "attributes": []
             }
-          ]
+          ],
+          "attributes": []
         },
         {
           "method": "POST",
           "path": "/users",
           "body": {
-            "type": "user"
+            "type": "user",
+            "attributes": []
           },
           "parameters": [],
           "responses": [
@@ -160,11 +184,14 @@
                   "value": 201
                 }
               },
-              "type": "user"
+              "type": "user",
+              "attributes": []
             }
-          ]
+          ],
+          "attributes": []
         }
-      ]
+      ],
+      "attributes": []
     }
   ]
 }

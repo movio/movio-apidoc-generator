@@ -92,7 +92,7 @@ object GeneratorUtil {
       filter { _ != resourcePlural.toLowerCase }.
       map( name =>lib.Text.initCap(lib.Text.safeName(lib.Text.underscoreAndDashToInitCap(name))) )
 
-    val name = if (named.isEmpty && notNamed.isEmpty) {
+    if (named.isEmpty && notNamed.isEmpty) {
       method.toString.toLowerCase
 
     } else if (named.isEmpty) {
@@ -104,7 +104,6 @@ object GeneratorUtil {
     } else {
       method.toString.toLowerCase + notNamed.mkString("And") + "By" + named.mkString("And")
     }
-    name + bodyName.map("With" + _).getOrElse("")
   }
 
   /**
