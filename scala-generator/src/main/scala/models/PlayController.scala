@@ -37,7 +37,7 @@ trait PlayController extends CodeGenerator {
     val models = ssd.models.filter(_.attribute(MovioCaseClasses.KafkaClassKey).isDefined)
 
     ssd.resources.map{ resource: ScalaResource =>
-      val resourceName = resource.plural
+      val resourceName = resource.plural + "Controller"
       val serviceName = resource.plural + "Service"
 
       val resourceFunctions = resource.operations.map { operation: ScalaOperation =>

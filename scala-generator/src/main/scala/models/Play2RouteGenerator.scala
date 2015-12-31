@@ -92,7 +92,7 @@ private[models] case class Play2Route(
   )
 
   val method = "%s.%s".format(
-    "controllers." + lib.Text.underscoreAndDashToInitCap(resource.plural),
+    "controllers." + lib.Text.underscoreAndDashToInitCap(resource.plural + "Controller"),
     op.name
   )
 

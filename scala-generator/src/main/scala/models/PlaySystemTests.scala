@@ -121,6 +121,7 @@ it("${method.toUpperCase} ${name}") {
     kafkaResult.size shouldBe result.size}
     kafkaResult.map(_.data) shouldBe result
   }
+  consumer.shutdown
 }
 """
         }
