@@ -70,9 +70,8 @@ def ${operation.name}(${argList}) = Action.async${bodyParse} {  request =>
     case Failure(ex) =>
       InternalServerError(Json.toJson(Error("500", ex.toString)))
   })
-}
-"""
-        }.mkString("\n\n")
+}"""
+        }.mkString("\n")
 
 
       val source = s"""$header
@@ -93,7 +92,6 @@ class ${resourceName} @Singleton @Inject() (service: ${serviceName}) extends Con
   import ${ssd.namespaces.models}._
   import ${ssd.namespaces.models}.json._
   import play.api.libs.concurrent.Execution.Implicits.defaultContext
-
   ${resourceFunctions.indent(2)}
 }
 """

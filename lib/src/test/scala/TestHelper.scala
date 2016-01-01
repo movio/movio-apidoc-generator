@@ -88,6 +88,11 @@ object TestHelper {
     }
   }
 
+  def assertEqualsFile(filename: String, contentsFile: File) {
+    val contents = scala.io.Source.fromFile(contentsFile).getLines.mkString("\n")
+    assertEqualsFile(filename, contents)
+  }
+
   def service(json: String): Service = {
     Json.parse(json).validate[Service] match {
       case e: JsError => sys.error("Failed to parse json: " + e)
