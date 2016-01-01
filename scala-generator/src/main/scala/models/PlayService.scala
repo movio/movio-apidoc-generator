@@ -73,13 +73,17 @@ trait PlayService extends CodeGenerator {
           .getOrElse("???")
 
 
-        val bodyScala = method match {
+        val bodyScala = method.toLowerCase match {
           case "post" | "put" => s"""${producerName}.send(data, ${firstParamName})"""
           case "get" => 
             // Create a default Case Class
-            val model = ssd.models.filter(_.qualifiedName == operation.resultType).head
-            val caseClass = KafkaTests.createEntity(model, 1, models)
-            s"Try { ${caseClass.indent(6)} }"
+            ssd.models.filter(_.qualifiedName == operation.resultType).headOption match {
+              case Some(model) =>
+                val caseClass = KafkaTests.createEntity(model, 1, models)
+                s"Try { ${caseClass.indent(6)} }"
+              case None =>
+                "Try { Unit }"
+            }
           case _ => "???"
         }
 
@@ -107,9 +111,7 @@ class ${serviceName} @Inject() (config: Config) {
   import ${ssd.namespaces.models}._
   import ${ssd.namespaces.base}.kafka._
   import play.api.libs.concurrent.Execution.Implicits.defaultContext
-
   ${producers}
-
   ${resourceFunctions.indent(2)}
 }
 """
