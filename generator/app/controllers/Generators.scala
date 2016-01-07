@@ -86,7 +86,7 @@ object Generators {
           language = Some("Scala")
         ),
         status = lib.generator.Status.Beta,
-        codeGenerator = Some(scala.generator.MovioCaseClasses)
+        codeGenerator = Some(scala.models.AdvancedCaseClasses)
       ),
       CodeGenTarget(
         metaData = Generator(

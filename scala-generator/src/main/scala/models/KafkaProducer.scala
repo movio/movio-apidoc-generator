@@ -6,11 +6,12 @@ import lib.Text._
 import lib.generator.CodeGenerator
 import scala.generator.{ScalaEnums, ScalaCaseClasses, ScalaService}
 import generator.ServiceFileNames
-import scala.generator.MovioCaseClasses
 import scala.generator.ScalaUtil
 import play.api.libs.json.JsString
 
 object KafkaProducer extends CodeGenerator {
+  import CaseClassUtil._
+  import KafkaUtil._
 
   override def invoke(
     form: InvocationForm
@@ -29,14 +30,14 @@ object KafkaProducer extends CodeGenerator {
       case true => ApidocComments(form.service.version, form.userAgent).toJavaString() + "\n"
     }
 
-    val models = ssd.models.filter(_.attribute(MovioCaseClasses.KafkaClassKey).isDefined)
+    val kafkaModels = getKafkaModels(ssd)
 
     // Return list of files
-    models.map{ model =>
+    kafkaModels.map{ model =>
       val kafkaClassName = model.name
       val className = ScalaUtil.toClassName((
-        model.attribute(MovioCaseClasses.KafkaClassKey) map {attr: Attribute =>
-          (attr.value \ MovioCaseClasses.KafkaTypeKey).as[JsString].value
+        model.attribute(KafkaClassKey) map {attr: Attribute =>
+          (attr.value \ KafkaTypeKey).as[JsString].value
         }).get)
       val configPath = ssd.namespaces.base.split("\\.").toSeq.dropRight(1).mkString(".")
       val source = s""" $header

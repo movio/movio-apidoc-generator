@@ -1,6 +1,5 @@
-package scala.generator
+package scala.models
 
-import scala.models.ApidocComments
 import com.bryzek.apidoc.generator.v0.models.{File, InvocationForm}
 import com.bryzek.apidoc.spec.v0.models.Attribute
 import com.bryzek.apidoc.spec.v0.models.Service
@@ -10,10 +9,12 @@ import generator.ServiceFileNames
 import play.api.libs.json.JsArray
 import play.api.libs.json.JsString
 import play.api.libs.json.JsObject
+import scala.generator._
 
 // Extended from from ScalaCaseClasses
-object MovioCaseClasses extends MovioCaseClasses 
-trait MovioCaseClasses extends CodeGenerator {
+object AdvancedCaseClasses extends AdvancedCaseClasses 
+trait AdvancedCaseClasses extends CodeGenerator {
+  import KafkaUtil._
 
   private[this] val MaxNumberOfFields = 21
   val ScalaExtensionKey = "scala_extends"
@@ -21,10 +22,6 @@ trait MovioCaseClasses extends CodeGenerator {
   val ScalaClassKey = "class"
   val ScalaDefaultKey = "default"
   val ScalaExampleKey = "example"
-  val KafkaClassKey = "kafka_class"
-  val KafkaMessageKey = "message_key"
-  val KafkaTopicKey = "topic"
-  val KafkaTypeKey = "data_type"
 
   override def invoke(form: InvocationForm): Either[Seq[String], Seq[File]] = invoke(form, addHeader = true)
 
@@ -168,7 +165,8 @@ def key = ${kafkaDataKey}
       val name = ScalaUtil.quoteNameIfKeyword(snakeToCamelCase(field.name))
       val definition = dataType(field)
       val rootedType = field.datatype.name
-      s"$name: ${definition}${getDefault(field)}"
+      val default = getDefault(field)
+      s"$name: ${definition}${default}"
     }.mkString("\n", ",\n", "\n").indent(2) + "\n"
   }
 
@@ -187,7 +185,10 @@ def key = ${kafkaDataKey}
       case None => 
         // Standard Field
         if(field.required)
-          ""
+          field.default match {
+            case Some(d) => " = " + d
+            case None => ""
+          }
         else
           " = None"
     }

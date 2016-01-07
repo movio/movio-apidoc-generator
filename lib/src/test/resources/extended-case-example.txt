@@ -12,7 +12,7 @@ package test.apidoc.apidoctest.v0.models {
 
   object Validation {
 
-    def validateLength(name: String, value: Option[String], length: Int): Unit = {
+    def validateLength(name: String, value: _root_.scala.Option[String], length: Int): Unit = {
       value foreach { value ⇒
         validateLength(name, value, length)
       }
@@ -22,7 +22,7 @@ package test.apidoc.apidoctest.v0.models {
       require(value.length <= length, s"$name must be $length characters or less")
     }
 
-    def validateLengthOfAll(name: String, values: Option[Seq[String]], length: Int): Unit = {
+    def validateLengthOfAll(name: String, values: _root_.scala.Option[Seq[String]], length: Int): Unit = {
       values foreach { values ⇒
         validateLengthOfAll(name, values, length)
       }

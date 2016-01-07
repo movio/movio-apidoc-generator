@@ -1,4 +1,4 @@
-package scala.generator
+package scala.models
 
 import com.bryzek.apidoc.generator.v0.models.{InvocationForm}
 import org.scalatest.{ ShouldMatchers, FunSpec }
@@ -35,7 +35,7 @@ class ExtendedCaseClassesSpec extends FunSpec with ShouldMatchers {
 
   it("generates validation") {
     val form = InvocationForm(service)
-    val contents = MovioCaseClasses.generateCode(form, addHeader = false).map(_.contents).mkString("\n\n")
+    val contents = AdvancedCaseClasses.generateCode(form, addHeader = false).map(_.contents).mkString("\n\n")
     models.TestHelper.assertEqualsFile("/extended-case-example.txt", contents)
   }
 }

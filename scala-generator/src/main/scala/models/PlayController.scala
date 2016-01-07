@@ -7,7 +7,6 @@ import lib.generator.CodeGenerator
 import scala.generator.{ScalaEnums, ScalaCaseClasses, ScalaService, ScalaResource, ScalaOperation, ScalaUtil}
 import scala.generator.ScalaDatatype.Container
 import generator.ServiceFileNames
-import scala.generator.MovioCaseClasses
 import play.api.libs.json.JsString
 
 object PlayController extends PlayController
@@ -33,8 +32,6 @@ trait PlayController extends CodeGenerator {
       case false => ""
       case true => ApidocComments(form.service.version, form.userAgent).toJavaString() + "\n"
     }
-
-    val models = ssd.models.filter(_.attribute(MovioCaseClasses.KafkaClassKey).isDefined)
 
     ssd.resources.map{ resource: ScalaResource =>
       val resourceName = resource.plural + "Controller"

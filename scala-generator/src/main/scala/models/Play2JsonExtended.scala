@@ -2,7 +2,6 @@ package scala.models
 
 import lib.Text._
 import scala.generator.{PrimitiveWrapper, ScalaDatatype, ScalaModel, ScalaPrimitive, ScalaService, ScalaUnion, ScalaUnionType}
-import scala.generator.MovioCaseClasses
 import play.api.libs.json.JsString
 import play.api.libs.json.JsObject
 
@@ -171,7 +170,7 @@ case class Play2JsonExtended(
 
   private[models] def fieldReadersWriters(model: ScalaModel, readWrite: String): List[String] = {
     model.fields.map { field =>
-      field.field.attributes.find(a => a.name == MovioCaseClasses.ScalaTypeKey ) match {
+      field.field.attributes.find(a => a.name == AdvancedCaseClasses.ScalaTypeKey ) match {
         case Some(attr) =>
           val datatype = "_root_." + (attr.value.as[JsObject] \ "class").as[JsString].value
           if(field.required)

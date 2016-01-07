@@ -5,11 +5,12 @@ import lib.Text._
 import lib.generator.CodeGenerator
 import scala.generator.{ ScalaEnums, ScalaCaseClasses, ScalaService, ScalaModel, ScalaField }
 import generator.ServiceFileNames
-import scala.generator.MovioCaseClasses
 import lib.Datatype._
 import play.api.libs.json.JsString
 
 object KafkaTests extends CodeGenerator {
+  import CaseClassUtil._
+  import KafkaUtil._
 
   override def invoke(
     form: InvocationForm
@@ -32,10 +33,10 @@ object KafkaTests extends CodeGenerator {
       case true  ⇒ ApidocComments(form.service.version, form.userAgent).toJavaString() + "\n"
     }
 
-    val models = ssd.models.filter(_.attribute(MovioCaseClasses.KafkaClassKey).isDefined)
+    val kafkaModels = getKafkaModels(ssd)
 
     // Return list of files
-    models.map { model ⇒
+    kafkaModels.map { model ⇒
       val className = model.name
       val configPath = ssd.namespaces.base.split("\\.").toSeq.dropRight(1).mkString(".")
       val source = s""" $header
@@ -165,12 +166,12 @@ class ${className}Tests extends MovioSpec with KafkaTestKit {
 
     val fields = model.fields.map { field ⇒
       val defaultValue =
-        field.field.attributes.find(_.name == MovioCaseClasses.ScalaTypeKey) match {
+        field.field.attributes.find(_.name == AdvancedCaseClasses.ScalaTypeKey) match {
           case Some(attr) ⇒
-            (attr.value \ MovioCaseClasses.ScalaExampleKey).toOption match {
+            (attr.value \ AdvancedCaseClasses.ScalaExampleKey).toOption match {
               case Some(example) ⇒ example.as[JsString].value
               case None ⇒
-                (attr.value \ MovioCaseClasses.ScalaDefaultKey).toOption match {
+                (attr.value \ AdvancedCaseClasses.ScalaDefaultKey).toOption match {
                   case Some(default) ⇒ default.as[JsString].value
                   case None ⇒
                     if (field.required)

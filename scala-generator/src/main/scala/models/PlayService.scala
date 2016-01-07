@@ -6,11 +6,12 @@ import lib.Text._
 import lib.generator.CodeGenerator
 import scala.generator.{ ScalaEnums, ScalaCaseClasses, ScalaService, ScalaResource, ScalaOperation, ScalaUtil }
 import generator.ServiceFileNames
-import scala.generator.MovioCaseClasses
 import play.api.libs.json.JsString
 
 object PlayService extends PlayService
 trait PlayService extends CodeGenerator {
+  import CaseClassUtil._
+  import KafkaUtil._
 
   override def invoke(
     form: InvocationForm
@@ -33,14 +34,14 @@ trait PlayService extends CodeGenerator {
       case true  ⇒ ApidocComments(form.service.version, form.userAgent).toJavaString() + "\n"
     }
 
-    val models = ssd.models.filter(_.attribute(MovioCaseClasses.KafkaClassKey).isDefined)
+    val kafkaModels = getKafkaModels(ssd)
 
     ssd.resources.map { resource: ScalaResource ⇒
       val resourceName = resource.plural
       val serviceName = resource.plural + "Service"
 
       // Find KafkaProducer that contians the model for $resourceName
-      val kafkaProducers = models.flatMap(_.model.attributes.map(attr ⇒ {
+      val kafkaProducers = kafkaModels.flatMap(_.model.attributes.map(attr ⇒ {
         (attr.value \ "data_type").as[JsString].value
       }))
       val resourceBodies = resource.operations.flatMap(_.body.map(_.body.`type`))
@@ -79,7 +80,7 @@ trait PlayService extends CodeGenerator {
             // Create a default Case Class
             ssd.models.filter(_.qualifiedName == operation.resultType).headOption match {
               case Some(model) =>
-                val caseClass = KafkaTests.createEntity(model, 1, models)
+                val caseClass = KafkaTests.createEntity(model, 1, kafkaModels)
                 s"Try { ${caseClass.indent(6)} }"
               case None =>
                 "Try { Unit }"

@@ -7,10 +7,12 @@ import scala.models.Util
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import com.bryzek.apidoc.spec.v0.models.json._
+import scala.models.KafkaUtil._
 
 case class ScalaService(
   val service: Service
 ) {
+
   val namespaces = Namespaces(service.namespace)
 
   private[this] val scalaTypeResolver = ScalaTypeResolver(namespaces)
@@ -152,21 +154,8 @@ case class ScalaModel(val ssd: ScalaService, val model: Model) {
 
   def attribute(name: String) = attributes.filter(_.name == name).headOption
 
-  def getKafkaModelAttribute:Option[KafkaModelAttribute] = {
-    implicit val kafkaModelAttributeFmt = Json.format[KafkaModelAttribute]
-    attribute(MovioCaseClasses.KafkaClassKey).map(a => a.value.as[KafkaModelAttribute])
-  }
 }
 
-case class KafkaModelAttribute (
-  dataType: Model,
-  messageKey: String,
-  topic: String
-)
-object KafkaModelAttribute {
-  implicit val kafkaModelAttributeFmt = Json.format[KafkaModelAttribute]
-  implicit val kafkaModelAttributeWrites = Json.writes[KafkaModelAttribute]
-}
 
 case class ScalaBody(ssd: ScalaService, val body: Body) {
 
@@ -218,7 +207,7 @@ class ScalaResource(ssd: ScalaService, val resource: Resource) {
   def attribute(name: String) = attributes.filter(_.name == name).headOption
 }
 
-class ScalaOperation(val ssd: ScalaService, operation: Operation, resource: ScalaResource) {
+case class ScalaOperation(ssd: ScalaService, operation: Operation, resource: ScalaResource) {
 
   val method: Method = operation.method
 

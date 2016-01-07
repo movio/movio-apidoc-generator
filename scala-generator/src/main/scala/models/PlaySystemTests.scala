@@ -7,11 +7,12 @@ import lib.generator.CodeGenerator
 import scala.generator.{ ScalaEnums, ScalaCaseClasses, ScalaService, ScalaResource, ScalaOperation, ScalaUtil }
 import scala.generator.ScalaDatatype.Container
 import generator.ServiceFileNames
-import scala.generator.MovioCaseClasses
 import play.api.libs.json.JsString
 
 object PlaySystemTests extends PlaySystemTests
 trait PlaySystemTests extends CodeGenerator {
+  import KafkaUtil._
+  import CaseClassUtil._
 
   override def invoke(
     form: InvocationForm
@@ -34,97 +35,12 @@ trait PlaySystemTests extends CodeGenerator {
       case true  ⇒ ApidocComments(form.service.version, form.userAgent).toJavaString() + "\n"
     }
 
-    val models = ssd.models.filter(_.attribute(MovioCaseClasses.KafkaClassKey).isDefined)
-
     ssd.resources.map { resource: ScalaResource ⇒
       val resourceName = resource.plural
       val testName = resource.plural + "Test"
 
-      // Find KafkaProducer that contians the model for $resourceName
-      val kafkaProducers = models.flatMap(_.model.attributes.map(attr ⇒ {
-        (attr.value \ "data_type").as[JsString].value
-      }))
-      val resourceBodies = resource.operations.flatMap(_.body.map(_.body.`type`))
-
-      val producerMap = kafkaProducers.intersect(resourceBodies).map(t ⇒ t → ScalaUtil.toClassName(t)).toMap
-
-      val producers = producerMap.values.map(p ⇒ s"val kafka${p}Producer = new Kafka${p}Producer(config)").mkString("\n")
-
       val tests = resource.operations.map { operation: ScalaOperation ⇒
-        // Only create KafkaTests if result type is model - FIXME for other stuff
-        operation.body match {
-          case None ⇒ ""
-          case Some(body) ⇒
-            val model = ssd.models.filter(body.name contains _.qualifiedName.toString).head
-            val kafkaModel = models.filter(m => m.attribute(model.name).isDefined).headOption
-            val kk = model.getKafkaModelAttribute.map(_.dataType)
-            println(kk) 
-
-            val method = operation.method.toString.toLowerCase
-            val parameters = operation.parameters
-
-            val bodyType = operation.body.map(_.name).getOrElse("Unit")
-
-            val firstParamName = parameters.map(_.name).headOption.getOrElse("")
-
-            val dataArg = bodyType match {
-              case "Unit" ⇒ None
-              case _      ⇒ Some(s"""data: ${bodyType}""")
-            }
-            val additionalArgs = Seq(Some("request: Request[T]"), dataArg).flatten
-            val argList = ScalaUtil.fieldsToArgList(additionalArgs ++ (parameters.map(_.definition()))).mkString(", ")
-
-            val argNameList = (Seq("request.body", "request") ++ operation.parameters.map(_.name)).mkString(", ")
-
-            val producerName = operation.body.map(_.body.`type`)
-              .map(_.replaceAll("[\\[\\]]", ""))
-              .map(clazz ⇒ s"kafka${ScalaUtil.toClassName(clazz)}Producer")
-              .getOrElse("???")
-
-            // Use in service
-            val resultType = operation.resultType
-
-            // val model = ssd.models.filter(_.qualifiedName == operation.resultType).headOption
-            val bodyScala = method match {
-              case "post" | "put" ⇒ s"""${producerName}.send(data, ${firstParamName})"""
-              case "get" ⇒
-                // FIXME will break with Int, String etc
-                // Create a default Case Class
-                val caseClass = KafkaTests.createEntity(model, 1, models)
-                s"Try { ${caseClass.indent(6)} }"
-              case _ ⇒ "???"
-            }
-
-            val resourcePath = snakeToCamelCase(camelCaseToUnderscore(resource.plural).toLowerCase)
-
-            val kafkaClass = "???"
-            val isBatch = operation.body.map(_.datatype match {
-              case _: Container ⇒ true
-              case _            ⇒ false
-            }).getOrElse(false)
-
-            val name = if (isBatch) "Batch" else "Single"
-            val batchSize = if (isBatch) 100 else 1
-            val inputAndResult = if (isBatch) s"a${model.name}Entities" else s"a${model.name}Entity1"
-            val results = if (isBatch) s"a${model.name}Entities" else s"Seq(a${model.name}Entity1)"
-
-            s"""
-it("${method.toUpperCase} ${name}") {
-  val consumer = new ${kafkaClass}Consumer(testConfig, "consumer-group")
-  val client = new Client(apiUrl = s"http://localhost:$$port")
-  val result = client.${resourcePath}.${operation.name}(tenant, ${inputAndResult})
-  await(result) shouldBe ${inputAndResult}
-
-  awaitCondition("Message should be on the queue") {
-    def processor(messages: Map[String, Seq[${kafkaClass}]]): Try[Map[String, Seq[${kafkaClass}]]] = Success(messages)
-    val kafkaResult = consumer.processBatchThenCommit(processor, ${batchSize}).get(tenant)
-    kafkaResult.size shouldBe result.size}
-    kafkaResult.map(_.data) shouldBe result
-  }
-  consumer.shutdown
-}
-"""
-        }
+        generateTest(operation)
       }.mkString("\n")
 
       // Putting in default models
@@ -203,6 +119,48 @@ class ${resourceName}SystemTest extends MovioSpec with KafkaTestKit with OneServ
 }
 """
       File(testName + ".scala", Some("services"), source)
+    }
+  }
+
+  def generateTest(operation: ScalaOperation): String = {
+    val method = operation.method.toString.toLowerCase
+
+    // Only create KafkaTests if result type is model - FIXME for other stuff
+    operation.body match {
+      case None ⇒ ""
+      case Some(body) ⇒
+        val model = operation.ssd.models.filter(body.name contains _.qualifiedName.toString).head
+
+        val isBatch = operation.body.map(_.datatype match {
+          case _: Container ⇒ true
+          case _            ⇒ false
+        }).getOrElse(false)
+
+        val singleBatch = if (isBatch) "Batch" else "Single"
+        val testName = s"${method.toUpperCase} ${model.name} $singleBatch"
+
+        val batchSize = if (isBatch) 100 else 1
+        val inputAndResult = if (isBatch) getInstanceBatchName(model) else getInstanceName(model, 1)
+        val consumerClassName = getConsumerClassName(model)
+        val kafkaClass = getKafkaClass(model, operation.ssd).get
+        val resourcePath = snakeToCamelCase(camelCaseToUnderscore(operation.resource.plural).toLowerCase)
+        val functionName = operation.name
+        val dataKey = getPayloadFieldName(kafkaClass)
+        val expectedResult = s"kafkaResult.map(_.${dataKey}).head shouldBe result"
+        s"""
+it("${testName}") {
+  val consumer = new ${consumerClassName}(testConfig, "consumer-group")
+  val client = new Client(apiUrl = s"http://localhost:$$port")
+  val result = client.${resourcePath}.${functionName}(tenant, ${inputAndResult})
+  await(result) shouldBe ${inputAndResult}
+
+  def processor(messages: Map[String, Seq[${kafkaClass.name}]]): Try[Map[String, Seq[${kafkaClass.name}]]] = Success(messages)
+  awaitCondition("Message should be on the queue", interval = 500 millis) {
+    val kafkaResult = consumer.processBatchThenCommit(processor, ${batchSize}).get(tenant)
+    ${expectedResult}
+  }
+  consumer.shutdown
+}"""
     }
   }
 }
