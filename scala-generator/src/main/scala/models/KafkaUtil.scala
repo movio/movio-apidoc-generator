@@ -11,7 +11,7 @@ import play.api.libs.functional.syntax._
 object KafkaUtil {
   import CaseClassUtil._
 
-  val KafkaClassKey = "kafka_class"
+  val KafkaClassKey = "kafka_props"
   val KafkaMessageKey = "message_key"
   val KafkaTopicKey = "topic"
   val KafkaTypeKey = "data_type"

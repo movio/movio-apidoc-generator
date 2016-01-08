@@ -93,10 +93,6 @@ it("POST Member Single") {
   it("generates kafka publish test") {
     val operation = ssd.resources.head.operations.head
     PlaySystemTests.generateTest(operation) shouldBe expected
-    // models.TestHelper.assertEqualsFile(
-    //   "/generators/play-2-service-full.txt",
-    //   // PlaySystemTest.generateTest(operation)
-    // )
   }
 
 }
