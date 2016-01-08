@@ -30,7 +30,7 @@ class KafkaUtilSpec extends FunSpec with ShouldMatchers {
           "plural": "kafka_members",
           "fields": [{ "name": "v0", "type": "member", "required": true, "attributes": [] }],
           "attributes": [
-            { "name": "kafka_class",
+            { "name": "kafka_props",
               "value": {
                 "data_type": "member",
                 "message_key": "v0.id",

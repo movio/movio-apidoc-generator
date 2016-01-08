@@ -3,7 +3,7 @@ package scala.models
 import com.bryzek.apidoc.generator.v0.models.{InvocationForm}
 import org.scalatest.{ ShouldMatchers, FunSpec }
 
-class ExtendedCaseClassesSpec extends FunSpec with ShouldMatchers {
+class AdvancedCaseClassesSpec extends FunSpec with ShouldMatchers {
 
   val service = models.TestHelper.service(models.TestHelper.buildJson("""
       "imports": [],
@@ -20,14 +20,14 @@ class ExtendedCaseClassesSpec extends FunSpec with ShouldMatchers {
           "fields": [
             { "name": "age", "type": "string", "required": true, "maximum": 10, "attributes": [] },
             { "name": "date_time", "type": "string", "required": true, "attributes": [
-              { "name": "scala_type", "value": { "class": "org.joda.time.LocalDateTime" } }
+              { "name": "scala_props", "value": { "class": "org.joda.time.LocalDateTime" } }
             ]},
             { "name": "optional_date_time", "type": "string", "required": false, "attributes": [
-              { "name": "scala_type", "value": { "class": "org.joda.time.LocalDateTime" } }
+              { "name": "scala_props", "value": { "class": "org.joda.time.LocalDateTime" } }
             ]}
           ],
           "attributes": [
-            { "name": "scala_extends", "value": { "classes": ["com.github.BaseClass"] } }
+            { "name": "scala_props", "value": { "extends": ["com.github.BaseClass"] } }
           ]
         }
       ]

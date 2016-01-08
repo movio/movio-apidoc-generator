@@ -32,7 +32,7 @@ class PlaySystemTestsSpec extends FunSpec with ShouldMatchers {
             { "name": "v0", "type": "member", "required": true, "attributes": [] }
           ],
           "attributes": [
-            { "name": "kafka_class",
+            { "name": "kafka_props",
               "value": {
                 "data_type": "member",
                 "message_key": "v0.id",

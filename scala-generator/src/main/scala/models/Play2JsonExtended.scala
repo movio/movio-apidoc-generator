@@ -170,7 +170,7 @@ case class Play2JsonExtended(
 
   private[models] def fieldReadersWriters(model: ScalaModel, readWrite: String): List[String] = {
     model.fields.map { field =>
-      field.field.attributes.find(a => a.name == AdvancedCaseClasses.ScalaTypeKey ) match {
+      field.attribute(AdvancedCaseClasses.ScalaPropsKey) match {
         case Some(attr) =>
           val datatype = "_root_." + (attr.value.as[JsObject] \ "class").as[JsString].value
           if(field.required)

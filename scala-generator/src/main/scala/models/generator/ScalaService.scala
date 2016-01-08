@@ -324,6 +324,10 @@ case class ScalaField(ssd: ScalaService, modelName: String, field: Field) {
   def definition(varName: String = name): String = {
     datatype.definition(varName, default)
   }
+
+  val attributes = field.attributes
+
+  def attribute(name: String) = attributes.filter(_.name == name).headOption
 }
 
 class ScalaParameter(ssd: ScalaService, val param: Parameter) {

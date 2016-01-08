@@ -1,6 +1,6 @@
 package scala.models
 
-import com.bryzek.apidoc.generator.v0.models.{File, InvocationForm}
+import com.bryzek.apidoc.generator.v0.models.{ File, InvocationForm }
 import com.bryzek.apidoc.spec.v0.models.Attribute
 import com.bryzek.apidoc.spec.v0.models.Service
 import lib.Text._
@@ -9,16 +9,21 @@ import generator.ServiceFileNames
 import play.api.libs.json.JsArray
 import play.api.libs.json.JsString
 import play.api.libs.json.JsObject
+import play.api.libs.json.__
+import play.api.libs.json.Reads
+import play.api.libs.functional.syntax._
+import scala.models.KafkaUtil._
 import scala.generator._
 
 // Extended from from ScalaCaseClasses
-object AdvancedCaseClasses extends AdvancedCaseClasses 
+object AdvancedCaseClasses extends AdvancedCaseClasses
 trait AdvancedCaseClasses extends CodeGenerator {
   import KafkaUtil._
+  import CaseClassUtil._
 
   private[this] val MaxNumberOfFields = 21
-  val ScalaExtensionKey = "scala_extends"
-  val ScalaTypeKey = "scala_type"
+  val ScalaExtendsKey = "extends"
+  val ScalaPropsKey = "scala_props"
   val ScalaClassKey = "class"
   val ScalaDefaultKey = "default"
   val ScalaExampleKey = "example"
@@ -27,8 +32,8 @@ trait AdvancedCaseClasses extends CodeGenerator {
 
   def modelsWithTooManyFieldsErrors(service: Service): Seq[String] = {
     service.models.filter(_.fields.size > MaxNumberOfFields) match {
-      case Nil => Nil
-      case invalidModels => {
+      case Nil ⇒ Nil
+      case invalidModels ⇒ {
         Seq(s"One or more models has more than $MaxNumberOfFields fields. This generator relies on scala case classes and play json serialization which do not yet support a larger number of fields. Models with too many fields: " + invalidModels.map(_.name).mkString(", "))
       }
     }
@@ -39,8 +44,8 @@ trait AdvancedCaseClasses extends CodeGenerator {
     addHeader: Boolean = true
   ): Either[Seq[String], Seq[File]] = {
     modelsWithTooManyFieldsErrors(form.service) match {
-      case Nil => Right(generateCode(form, addHeader))
-      case errors => Left(errors)
+      case Nil    ⇒ Right(generateCode(form, addHeader))
+      case errors ⇒ Left(errors)
     }
   }
 
@@ -51,68 +56,67 @@ trait AdvancedCaseClasses extends CodeGenerator {
     val ssd = new ScalaService(form.service)
 
     val header = addHeader match {
-      case false => ""
-      case true => ApidocComments(form.service.version, form.userAgent).toJavaString() + "\n"
+      case false ⇒ ""
+      case true  ⇒ ApidocComments(form.service.version, form.userAgent).toJavaString() + "\n"
     }
 
     val undefinedModels = UnionTypeUndefinedModel(ssd).models match {
-      case Nil => ""
-      case wrappers => {
-        wrappers.map { w => generateCaseClass(ssd, w.model, Seq(w.union)) }.mkString("\n\n").indent(2) + "\n"
+      case Nil ⇒ ""
+      case wrappers ⇒ {
+        wrappers.map { w ⇒ generateCaseClass(ssd, w.model, Seq(w.union)) }.mkString("\n\n").indent(2) + "\n"
       }
     }
 
     val wrappers = PrimitiveWrapper(ssd).wrappers match {
-      case Nil => ""
-      case wrappers => {
-        wrappers.map { w => generateCaseClass(ssd, w.model, Seq(w.union)) }.mkString("\n\n").indent(2) + "\n"
+      case Nil ⇒ ""
+      case wrappers ⇒ {
+        wrappers.map { w ⇒ generateCaseClass(ssd, w.model, Seq(w.union)) }.mkString("\n\n").indent(2) + "\n"
       }
     }
 
     val generatedClasses = Seq(undefinedModels, wrappers).filter(!_.isEmpty) match {
-      case Nil => ""
-      case code => "\n" + code.mkString("\n\n")
+      case Nil  ⇒ ""
+      case code ⇒ "\n" + code.mkString("\n\n")
     }
 
     val source = s"${header}package ${packageNamespace(ssd)} {\n\n  " +
       Seq(
         ssd.unions.map { generateUnionTraits(ssd.models, _) }.mkString("\n\n").indent(2),
         "",
-        ssd.models.filter(modelFilter).map { m => generateCaseClass(ssd, m, ssd.unionsForModel(m)) }.mkString("\n\n").indent(2),
+        ssd.models.filter(modelFilter).map { m ⇒ generateCaseClass(ssd, m, ssd.unionsForModel(m)) }.mkString("\n\n").indent(2),
         generatedClasses,
         generatePlayEnums(ssd).indent(2)
       ).mkString("\n").trim +
-      additionalClasses(ssd).indent(2) +
-      s"\n\n}"
+        additionalClasses(ssd).indent(2) +
+        s"\n\n}"
 
     Seq(ServiceFileNames.toFile(form.service.namespace, form.service.organization.key, form.service.application.key, form.service.version, filenamePostfix, source, Some("Scala")))
   }
 
   def packageNamespace(ssd: ScalaService): String = ssd.namespaces.models
 
-  def modelFilter(model: ScalaModel):Boolean = true
+  def modelFilter(model: ScalaModel): Boolean = true
 
   def filenamePostfix = "Models"
-
 
   private def generateUnionTraits(models: Seq[ScalaModel], union: ScalaUnion): String = {
     // TODO: handle primitive types
 
-    union.description.map { desc => ScalaUtil.textToComment(desc) + "\n" }.getOrElse("") +
+    union.description.map { desc ⇒ ScalaUtil.textToComment(desc) + "\n" }.getOrElse("") +
       s"sealed trait ${union.name}"
   }
 
   def generateCaseClass(ssd: ScalaService, model: ScalaModel, unions: Seq[ScalaUnion]): String = {
-    model.description.map { desc => ScalaUtil.textToComment(desc) + "\n" }.getOrElse("") +
+    model.description.map { desc ⇒ ScalaUtil.textToComment(desc) + "\n" }.getOrElse("") +
       s"case class ${model.name}(${getArguments(model, unions)})" + extendsClause(model, unions) + generateBody(ssd, model, unions)
   }
 
   def extendsClause(model: ScalaModel, unions: Seq[ScalaUnion]) =
     ScalaUtil.extendsClause(
       manualExtendsClasses ++
-      extendsClasses(model) ++
-        unions.map(_.name)).map(s => s" $s").getOrElse("")
-
+        extendsClasses(model) ++
+        unions.map(_.name)
+    ).map(s ⇒ s" $s").getOrElse("")
 
   private def generatePlayEnums(ssd: ScalaService): String = {
     ssd.enums.map { ScalaEnums(ssd, _).build }.mkString("\n\n")
@@ -122,46 +126,34 @@ trait AdvancedCaseClasses extends CodeGenerator {
     " {\n\n" +
       generateValidation(ssd, model, unions) +
       generateKafkaBody(ssd, model, unions).indent(2) +
-     "\n}"
+      "\n}"
 
   // Add validation
-  def generateValidation(ssd: ScalaService,  model: ScalaModel, unions: Seq[ScalaUnion]): String = {
-      s"import Validation._".indent(2) + "\n" +
-      model.fields.filter(_.field.maximum.isDefined).map{ field: ScalaField =>
+  def generateValidation(ssd: ScalaService, model: ScalaModel, unions: Seq[ScalaUnion]): String = {
+    s"import Validation._".indent(2) + "\n" +
+      model.fields.filter(_.field.maximum.isDefined).map { field: ScalaField ⇒
         s"""validateLength("${field.name}", ${field.name}, ${field.field.maximum.get})""".indent(2)
       }.mkString("\n")
   }
 
-  def generateKafkaBody(ssd: ScalaService,  model: ScalaModel, unions: Seq[ScalaUnion]): String = {
-    containsKafka(model) match {
-      case true =>
-        val (kafkaDataKey:String, topic: String) =
-          (model.attribute(KafkaClassKey) map {attr: Attribute =>
-             (
-               (attr.value \ KafkaMessageKey).as[JsString].value,
-               (attr.value \ KafkaTopicKey).as[JsString].value
-             )
-           }).get
-        val version = ssd.namespaces.last
-        s"""
-def key = ${kafkaDataKey}
-"""
-      case false => ""
+  def generateKafkaBody(ssd: ScalaService, model: ScalaModel, unions: Seq[ScalaUnion]): String = {
+    getKafkaProps(model) match {
+      case Some(kafkaProps) ⇒
+        s"""def key = ${kafkaProps.messageKey}"""
+      case None ⇒ ""
     }
   }
 
-  // Add extends c
-  def extendsClasses(model: ScalaModel): Seq[String] = model.attributes.filter{attr =>
-    attr.name == ScalaExtensionKey
-  }.flatMap { attr =>
-    (attr.value \ "classes").as[JsArray].value.map(_.as[JsString].value)
+  def extendsClasses(model: ScalaModel): Seq[String] = getScalaProps(model) match {
+    case Some(p) ⇒ p.`extends`.getOrElse(Seq.empty)
+    case None    ⇒ Seq.empty
   }
 
   def manualExtendsClasses = Seq.empty[String]
 
   // Override field types
   def getArguments(model: ScalaModel, unions: Seq[ScalaUnion]): String = {
-    model.fields.map {field =>
+    model.fields.map { field ⇒
       val name = ScalaUtil.quoteNameIfKeyword(snakeToCamelCase(field.name))
       val definition = dataType(field)
       val rootedType = field.datatype.name
@@ -171,23 +163,23 @@ def key = ${kafkaDataKey}
   }
 
   def getDefault(field: ScalaField): String = {
-    field.field.attributes.find(a => a.name == ScalaTypeKey ) match {
-      case Some(attr) =>
+    field.field.attributes.find(a ⇒ a.name == ScalaPropsKey) match {
+      case Some(attr) ⇒
         // Custom Type
         (attr.value.as[JsObject] \ ScalaDefaultKey).toOption match {
-          case Some(v) => " = " + v.as[JsString].value
-          case None => 
-            if(field.required)
+          case Some(v) ⇒ " = " + v.as[JsString].value
+          case None ⇒
+            if (field.required)
               ""
             else
               " = None"
         }
-      case None => 
+      case None ⇒
         // Standard Field
-        if(field.required)
+        if (field.required)
           field.default match {
-            case Some(d) => " = " + d
-            case None => ""
+            case Some(d) ⇒ " = " + d
+            case None    ⇒ ""
           }
         else
           " = None"
@@ -195,14 +187,14 @@ def key = ${kafkaDataKey}
   }
 
   def dataType(field: ScalaField) = {
-    field.field.attributes.find(a => a.name == ScalaTypeKey ) match {
-      case Some(attr) =>
+    field.field.attributes.find(a ⇒ a.name == ScalaPropsKey) match {
+      case Some(attr) ⇒
         val rootedType = "_root_." + (attr.value.as[JsObject] \ ScalaClassKey).as[JsString].value
-        if(field.required)
+        if (field.required)
           rootedType
         else
           s"_root_.scala.Option[${rootedType}]"
-      case None => field.datatype.name
+      case None ⇒ field.datatype.name
     }
   }
 
@@ -237,14 +229,9 @@ object Validation {
 }
 """
 
-  def containsKafka(ssd: ScalaService):Boolean = 
-    ssd.models.exists(containsKafka(_))
-
-  def containsKafka(model: ScalaModel):Boolean = model.attribute(KafkaClassKey).isDefined
-
   def kafkaMessageTrait(ssd: ScalaService): String = {
-    containsKafka(ssd) match {
-      case true => """
+    getKafkaModels(ssd).nonEmpty match {
+      case true ⇒ """
 
 trait KafkaMessage {
 
@@ -255,9 +242,8 @@ trait KafkaMessage {
   def key: String
 }
 """
-      case false => ""
+      case false ⇒ ""
     }
   }
 
 }
-

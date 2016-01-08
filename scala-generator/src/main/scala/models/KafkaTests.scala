@@ -166,7 +166,7 @@ class ${className}Tests extends MovioSpec with KafkaTestKit {
 
     val fields = model.fields.map { field ⇒
       val defaultValue =
-        field.field.attributes.find(_.name == AdvancedCaseClasses.ScalaTypeKey) match {
+        field.field.attributes.find(_.name == AdvancedCaseClasses.ScalaPropsKey) match {
           case Some(attr) ⇒
             (attr.value \ AdvancedCaseClasses.ScalaExampleKey).toOption match {
               case Some(example) ⇒ example.as[JsString].value

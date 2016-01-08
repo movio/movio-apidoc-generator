@@ -11,46 +11,46 @@ import play.api.libs.functional.syntax._
 object KafkaUtil {
   import CaseClassUtil._
 
-  val KafkaClassKey = "kafka_props"
+  val KafkaPropsKey = "kafka_props"
   val KafkaMessageKey = "message_key"
   val KafkaTopicKey = "topic"
   val KafkaTypeKey = "data_type"
 
-  def isKafkaClass(model: ScalaModel): Boolean = model.attribute(KafkaClassKey).isDefined
+  def isKafkaClass(model: ScalaModel): Boolean = model.attribute(KafkaPropsKey).isDefined
 
   def getKafkaModels(ssd: ScalaService): Seq[ScalaModel] = ssd.models.filter(isKafkaClass(_))
 
   def getKafkaClass(payload: ScalaModel, ssd: ScalaService): Option[ScalaModel] = {
-    getKafkaModels(ssd).filter(getKafkaAttribute(_) match {
+    getKafkaModels(ssd).filter(getKafkaProps(_) match {
       case Some(attr) ⇒ attr.dataType == payload.originalName
       case None       ⇒ false
     }).headOption
   }
 
-  def getKafkaAttribute(model: ScalaModel): Option[KafkaModelAttribute] = {
-    model.attribute(KafkaClassKey).map(attr ⇒ attr.value.as[KafkaModelAttribute])
+  def getKafkaProps(model: ScalaModel): Option[KafkaProps] = {
+    model.attribute(KafkaPropsKey).map(attr ⇒ attr.value.as[KafkaProps])
   }
 
   def getConsumerClassName(payload: ScalaModel): String = s"Kafka${payload.name}Consumer"
 
   def getPayloadFieldName(kafkaClass: ScalaModel): String = {
-    val payload = getKafkaAttribute(kafkaClass).get.dataType
+    val payload = getKafkaProps(kafkaClass).get.dataType
     kafkaClass.fields.filter(_.`type`.name == payload).head.name
   }
 
 }
 
-case class KafkaModelAttribute(
+case class KafkaProps(
   dataType: String,
   messageKey: String,
   topic: String
 )
-object KafkaModelAttribute {
-  implicit def kafkaModelAttributeFmt: Reads[KafkaModelAttribute] = {
+object KafkaProps {
+  implicit def kafkaModelAttributeFmt: Reads[KafkaProps] = {
     (
       (__ \ "data_type").read[String] and
       (__ \ "message_key").read[String] and
       (__ \ "topic").read[String]
-    )(KafkaModelAttribute.apply _)
+    )(KafkaProps.apply _)
   }
 }

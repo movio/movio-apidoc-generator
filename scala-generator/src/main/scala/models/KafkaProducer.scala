@@ -35,10 +35,8 @@ object KafkaProducer extends CodeGenerator {
     // Return list of files
     kafkaModels.map{ model =>
       val kafkaClassName = model.name
-      val className = ScalaUtil.toClassName((
-        model.attribute(KafkaClassKey) map {attr: Attribute =>
-          (attr.value \ KafkaTypeKey).as[JsString].value
-        }).get)
+      val kafkaProps = getKafkaProps(model).get
+      val className = kafkaProps.dataType
       val configPath = ssd.namespaces.base.split("\\.").toSeq.dropRight(1).mkString(".")
       val source = s""" $header
 import kafka.producer._

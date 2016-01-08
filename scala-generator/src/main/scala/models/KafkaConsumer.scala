@@ -39,10 +39,9 @@ object KafkaConsumer extends CodeGenerator {
     kafkaModels.map{ model =>
       val className = model.name
       val configPath = ssd.namespaces.base.split("\\.").toSeq.dropRight(1).mkString(".")
-      val topicFn = (model.attribute(KafkaClassKey) map {attr: Attribute =>
-             (attr.value \ KafkaTopicKey).as[JsString].value
-         }).get
+      val kafkaProps = getKafkaProps(model).get
       val apiVersion = ssd.namespaces.last
+      val topicFn = kafkaProps.topic
       val topicRegex = topicFn.
         replace("${apiVersion}", apiVersion).
         replace("$apiVersion", apiVersion).
