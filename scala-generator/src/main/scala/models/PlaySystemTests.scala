@@ -49,9 +49,9 @@ trait PlaySystemTests extends CodeGenerator {
       }
       val usedModelsString = Seq(1, 2).flatMap(i ⇒
         usedModels.map(x ⇒
-          s"""val a${x.name}Entity${i} = ${KafkaTests.createEntity(x, i, ssd.models).indent(4)}""")).mkString("\n")
+          s"""val ${getInstanceName(x, i)} = ${KafkaTests.createEntity(x, i, ssd.models).indent(4)}""")).mkString("\n")
       val usedModelsSeq = usedModels.map(m ⇒
-        s"val a${m.name}Entities = Seq(a${m.name}Entity1, a${m.name}Entity2)").mkString("\n")
+        s"val ${getInstanceBatchName(m)} = Seq(${getInstanceName(m, 1)}, ${getInstanceName(m, 2)})").mkString("\n")
 
       val source = s"""$header
 package services
@@ -62,6 +62,8 @@ import play.api.test._
 import play.api.Configuration
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import scala.util.{ Try, Success }
+import scala.concurrent.duration._
+import scala.language.postfixOps
 
 import movio.testtools.MovioSpec
 import movio.testtools.kafka.{ KafkaTestKit, KafkaTestKitUtils }

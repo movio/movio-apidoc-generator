@@ -144,9 +144,16 @@ trait AdvancedCaseClasses extends CodeGenerator {
     }
   }
 
-  def extendsClasses(model: ScalaModel): Seq[String] = getScalaProps(model) match {
-    case Some(p) ⇒ p.`extends`.getOrElse(Seq.empty)
-    case None    ⇒ Seq.empty
+  def extendsClasses(model: ScalaModel): Seq[String] = {
+    val defined = getScalaProps(model) match {
+      case Some(p) ⇒ p.`extends`.getOrElse(Seq.empty)
+      case None    ⇒ Seq.empty
+    }
+    if (isKafkaClass(model)) {
+      defined :+ "KafkaMessage"
+    } else {
+      defined
+    }
   }
 
   def manualExtendsClasses = Seq.empty[String]
@@ -163,11 +170,11 @@ trait AdvancedCaseClasses extends CodeGenerator {
   }
 
   def getDefault(field: ScalaField): String = {
-    field.field.attributes.find(a ⇒ a.name == ScalaPropsKey) match {
-      case Some(attr) ⇒
+    getScalaProps(field) match {
+      case Some(scalaFieldProps) ⇒
         // Custom Type
-        (attr.value.as[JsObject] \ ScalaDefaultKey).toOption match {
-          case Some(v) ⇒ " = " + v.as[JsString].value
+        scalaFieldProps.default match {
+          case Some(v) ⇒ " = " + v
           case None ⇒
             if (field.required)
               ""

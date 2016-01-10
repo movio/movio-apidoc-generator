@@ -1,0 +1,40 @@
+{
+  "name": "apidoc-generator-attributes",
+  "description": "",
+  "models": {
+    "scala_model_props": {
+      "fields": [
+        {
+          "name": "extends",
+          "type": "[string]",
+          "required": false,
+          "description": "A list of Scala/Java classes that this model extends",
+          "example": "[com.github.BaseClass1, com.github.BaseClass2]"
+        }
+      ]
+    },
+    "scala_field_props": {
+      "fields": [
+        {
+          "name": "class",
+          "type": "string",
+          "required": false,
+          "description": "The fully qualified Scala/Java class to use during implementation. Note that this class must have a json formatter defined in the generator code. Currenly only org.joda.time.LocalDate and org.joda.time.LocalDateTime are implemented",
+          "example": "org.joda.time.LocalDate"
+        },
+        {
+          "name": "default",
+          "type": "string",
+          "required": false,
+          "description": "
+        },
+        {
+          "name": "example",
+          "type": "string",
+          "required": false,
+          "description": "
+        }
+      ]
+    }
+  }
+}

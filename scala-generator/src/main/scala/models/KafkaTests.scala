@@ -131,17 +131,17 @@ class ${className}Tests extends MovioSpec with KafkaTestKit {
       |}
       |
       |${configPath}.kafka {
+      |  producer {
+      |    broker-connection-string : "$$brokerConnectionString"
+      |  }
+      |}
+      |
+      |${configPath}.kafka {
       |  consumer {
       |    offset-storage-type = "kafka"
       |    offset-storage-dual-commit = false
       |    timeout.ms = "100"
       |    zookeeper.connection = "$${zkServer.getConnectString}"
-      |  }
-      |}
-      |
-      |${configPath}.kafka {
-      |  producer {
-      |    broker-connection-string : "$$brokerConnectionString"
       |  }
       |}
       |\"\"\".stripMargin)

@@ -81,7 +81,7 @@ object Generators {
       CodeGenTarget(
         metaData = Generator(
           key = "movio_scala_models",
-          name = "Movio Scala Models",
+          name = "Advanced Scala Models",
           description = Some("Validated Scala Models"),
           language = Some("Scala")
         ),
@@ -137,6 +137,16 @@ object Generators {
         ),
         status = lib.generator.Status.Beta,
         codeGenerator = Some(scala.models.PlayController)
+      ),
+      CodeGenTarget(
+        metaData = Generator(
+          key = "play_app_module",
+          name = "Play Application Module",
+          description = Some("TBC"),
+          language = Some("Scala")
+        ),
+        status = lib.generator.Status.Beta,
+        codeGenerator = Some(scala.models.PlayApplicationModule)
       ),
       CodeGenTarget(
         metaData = Generator(
