@@ -35,6 +35,8 @@ trait PlaySystemTests extends CodeGenerator {
       case true  ⇒ ApidocComments(form.service.version, form.userAgent).toJavaString() + "\n"
     }
 
+    val configPath = ssd.namespaces.base.split("\\.").toSeq.dropRight(1).mkString(".")
+
     ssd.resources.map { resource: ScalaResource ⇒
       val resourceName = resource.plural
       val testName = resource.plural + "Test"
@@ -96,18 +98,18 @@ class ${resourceName}SystemTest extends MovioSpec with KafkaTestKit with OneServ
       |  log-on-startup = false
       |}
       |
-      |movio.cinema.movie.core.all.kafka {
+      |${configPath}.kafka {
+      |  producer {
+      |    broker-connection-string : "$$brokerConnectionString"
+      |  }
+      |}
+      |
+      |${configPath}.kafka {
       |  consumer {
       |    offset-storage-type = "kafka"
       |    offset-storage-dual-commit = false
       |    timeout.ms = "100"
       |    zookeeper.connection = "$${zkServer.getConnectString}"
-      |  }
-      |}
-      |
-      |movio.cinema.movie.core.all.kafka {
-      |  producer {
-      |    broker-connection-string : "$$brokerConnectionString"
       |  }
       |}
       |\"\"\".stripMargin)
@@ -142,19 +144,24 @@ class ${resourceName}SystemTest extends MovioSpec with KafkaTestKit with OneServ
         val testName = s"${method.toUpperCase} ${model.name} $singleBatch"
 
         val batchSize = if (isBatch) 100 else 1
-        val inputAndResult = if (isBatch) getInstanceBatchName(model) else getInstanceName(model, 1)
+        val input = if (isBatch) getInstanceBatchName(model) else getInstanceName(model, 1)
+        val result = if (isBatch) input + ".size" else input
         val consumerClassName = getConsumerClassName(model)
         val kafkaClass = getKafkaClass(model, operation.ssd).get
         val resourcePath = snakeToCamelCase(camelCaseToUnderscore(operation.resource.plural).toLowerCase)
         val functionName = operation.name
         val dataKey = getPayloadFieldName(kafkaClass)
-        val expectedResult = s"kafkaResult.map(_.${dataKey}).head shouldBe result"
+        val expectedResult = if (isBatch)
+          s"kafkaResult.map(_.${dataKey}) shouldBe $input"
+        else
+          s"kafkaResult.map(_.${dataKey}).head shouldBe result"
         s"""
 it("${testName}") {
   val consumer = new ${consumerClassName}(testConfig, "consumer-group")
   val client = new Client(apiUrl = s"http://localhost:$$port")
-  val result = client.${resourcePath}.${functionName}(tenant, ${inputAndResult})
-  await(result) shouldBe ${inputAndResult}
+  val promise = client.${resourcePath}.${functionName}(tenant, ${input})
+  val result = await(promise)
+  result shouldBe ${result}
 
   def processor(messages: Map[String, Seq[${kafkaClass.name}]]): Try[Map[String, Seq[${kafkaClass.name}]]] = Success(messages)
   awaitCondition("Message should be on the queue", interval = 500 millis) {
