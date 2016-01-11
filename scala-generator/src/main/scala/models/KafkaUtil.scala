@@ -42,15 +42,15 @@ object KafkaUtil {
 
 case class KafkaProps(
   dataType: String,
-  messageKey: String,
-  topic: String
+  topic: String,
+  messageKey: String = "java.util.UUID.randomUUID().toString"
 )
 object KafkaProps {
   implicit def kafkaModelAttributeFmt: Reads[KafkaProps] = {
     (
       (__ \ "data_type").read[String] and
-      (__ \ "message_key").read[String] and
-      (__ \ "topic").read[String]
+      (__ \ "topic").read[String] and
+      (__ \ "message_key").read[String]
     )(KafkaProps.apply _)
   }
 }

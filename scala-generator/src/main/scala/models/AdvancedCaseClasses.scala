@@ -139,7 +139,7 @@ trait AdvancedCaseClasses extends CodeGenerator {
   def generateKafkaBody(ssd: ScalaService, model: ScalaModel, unions: Seq[ScalaUnion]): String = {
     getKafkaProps(model) match {
       case Some(kafkaProps) ⇒
-        s"""def key = ${kafkaProps.messageKey}"""
+        s"""def generateKey(tenant: String) = ${kafkaProps.messageKey}"""
       case None ⇒ ""
     }
   }
@@ -246,7 +246,7 @@ trait KafkaMessage {
     A scala statement/code that returns the kafka key to use
     Usually something like `data.exhibitorId`
     */
-  def key: String
+  def generateKey(tenant: String): String
 }
 """
       case false ⇒ ""

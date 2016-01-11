@@ -1,8 +1,9 @@
 {
   "name": "apidoc-generator-attributes",
-  "description": "",
+  "description": "This specified additional options that can be specified when using Movio's scala generators",
   "models": {
     "scala_model_props": {
+      "description": "Additional code generation information for case classes",
       "fields": [
         {
           "name": "extends",
@@ -14,25 +15,50 @@
       ]
     },
     "scala_field_props": {
+      "description": "Additional code generation information for case class fields",
       "fields": [
         {
           "name": "class",
           "type": "string",
           "required": false,
-          "description": "The fully qualified Scala/Java class to use during implementation. Note that this class must have a json formatter defined in the generator code. Currenly only org.joda.time.LocalDate and org.joda.time.LocalDateTime are implemented",
+          "description": "The fully qualified Scala/Java class to use during implementation. Note that this class must have a json formatter defined in the generator code. Currenly only org.joda.time.LocalDate and org.joda.time.LocalDateTime are implemented. In the future this maybe a defined list of supported classes",
           "example": "org.joda.time.LocalDate"
         },
         {
           "name": "default",
           "type": "string",
           "required": false,
-          "description": "
+          "description": "Used as the default in a case class."
         },
         {
           "name": "example",
           "type": "string",
           "required": false,
-          "description": "
+          "description": "Used in documentation and as a default implementation when creating example implementation's of case classes"
+        }
+      ]
+    },
+    "kafka_props": {
+      "description": "Information needed for generating Kafka wrappers, consumers and producers.",
+      "fields": [
+        {
+          "name": "data_type",
+          "type": "string",
+          "required": true,
+          "description": "This is the name of the model that this kafka wrapper encapsulated. Model name is the same as defined in the models section",
+          "example": "person_address"
+        },
+        {
+          "name": "topic",
+          "type": "string",
+          "required": true,
+          "description": "[scala] This is a scala snippet that returns a string with the topic name for kafka. The generator creates a function on the kafka topic object `def topic(tenant: String) = <definition-goes-here>`"
+        },
+        {
+          "name": "message_generate_key",
+          "type": "string",
+          "default": "java.util.UUID.randomUUID().toString",
+          "description": "[scala] This is a scala snippet that creates a string used as the message ID. The message ID is used as the kafka message ID. The generator creates a function on the case class `def generateKey(tenant: String) = <definition-goes-here>`"
         }
       ]
     }

@@ -1,12 +1,18 @@
 code:
-  bryzek:
-    apidoc-generator:
-      version: latest
+  # bryzek:
+  #   apidoc-generator:
+  #     version: latest
+  #     generators:
+  #       play_2_4_client: generated/app/ApidocGeneratorClient.scala
+  #       play_2_x_routes: generator/conf/routes
+  #   apidoc-spec:
+  #     version: latest
+  #     generators:
+  #       play_2_4_client: generated/app/ApidocSpecClient.scala
+  movio:
+    apidoc-generator-attributes:
+      version: 0.1.0-SNAPSHOT
       generators:
-        play_2_4_client: generated/app/ApidocGeneratorClient.scala
-        play_2_x_routes: generator/conf/routes
-    apidoc-spec:
-      version: latest
-      generators:
-        play_2_4_client: generated/app/ApidocSpecClient.scala
+        movio_scala_models: generated
+        play_2_x_json_standalone: generated
   

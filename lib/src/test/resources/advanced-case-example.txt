@@ -1,5 +1,14 @@
 package test.apidoc.apidoctest.v0.models {
 
+  case class KafkaUser(
+    v0: test.apidoc.apidoctest.v0.models.User,
+    utcGeneratedTime: _root_.org.joda.time.LocalDateTime = org.joda.time.LocalDateTime.now(org.joda.time.DateTimeZone.UTC)
+  ) extends KafkaMessage {
+
+    import Validation._
+    def generateKey(tenant: String) = java.util.UUID.randomUUID().toString
+  }
+
   case class User(
     age: String,
     dateTime: _root_.org.joda.time.LocalDateTime,
@@ -34,6 +43,16 @@ package test.apidoc.apidoctest.v0.models {
       }
     }
 
+  }
+
+
+  trait KafkaMessage {
+
+    /**
+      A scala statement/code that returns the kafka key to use
+      Usually something like `data.exhibitorId`
+      */
+    def generateKey(tenant: String): String
   }
 
 }
