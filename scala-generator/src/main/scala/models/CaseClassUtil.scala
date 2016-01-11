@@ -8,8 +8,11 @@ import play.api.libs.functional.syntax._
 import AdvancedCaseClasses._
 import lib.Datatype._
 import lib.Text._
+import movio.apidoc.generator.attributes.v0.models._
+import movio.apidoc.generator.attributes.v0.models.json._
 
 object CaseClassUtil {
+  val ScalaPropsKey = "scala_props"
 
   def getInstanceName(model: ScalaModel, id: Int): String = {
     val name = model.originalName + "_entity"
@@ -32,11 +35,6 @@ object CaseClassUtil {
     ssd.models.find(model => model.originalName == name)
 
   def generateInstance(model: ScalaModel, id: Int, ssd: ScalaService): String = {
-  // def createEntity(model: ScalaModel, number: Int, models: Seq[ScalaModel]): String = {
-    // def getModelForField(name: String): ScalaModel = {
-    //   models.find(model ⇒ model.originalName == name).get
-    // }
-
     val fields = model.fields.map { field ⇒
       val defaultValue =
         getScalaProps(field) match {
@@ -94,33 +92,5 @@ ${model.name} (
 $fields
 )
 """
-  }
-}
-
-case class ScalaModelProps(
-  `extends`: Option[Seq[String]],
-  tbc: Option[String]
-)
-object ScalaModelProps {
-  implicit def scalaModelPropsFmt: Reads[ScalaModelProps] = {
-    (
-      (__ \ ScalaExtendsKey).readNullable[Seq[String]] and
-      (__ \ "tbc").readNullable[String]
-    )(ScalaModelProps.apply _)
-  }
-}
-
-case class ScalaFieldProps(
-  `class`: Option[String],
-  default: Option[String],
-  example: Option[String]
-)
-object ScalaFieldProps {
-  implicit def kafkaModelAttributeFmt: Reads[ScalaFieldProps] = {
-    (
-      (__ \ ScalaClassKey).readNullable[String] and
-      (__ \ ScalaDefaultKey).readNullable[String] and
-      (__ \ ScalaExampleKey).readNullable[String]
-    )(ScalaFieldProps.apply _)
   }
 }

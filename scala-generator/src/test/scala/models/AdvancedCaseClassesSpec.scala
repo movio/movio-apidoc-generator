@@ -54,7 +54,7 @@ class AdvancedCaseClassesSpec extends FunSpec with ShouldMatchers {
               "value": {
                 "data_type": "user",
                 "topic": "s\"mc-person-master-${tenant}\"",
-                "message_key": "java.util.UUID.randomUUID().toString"
+                "message_generate_key": "java.util.UUID.randomUUID().toString"
               }
             }
           ]

@@ -33,7 +33,7 @@ class KafkaUtilSpec extends FunSpec with ShouldMatchers {
             { "name": "kafka_props",
               "value": {
                 "data_type": "member",
-                "message_key": "v0.id",
+                "message_generate_key": "v0.id",
                 "topic": "s\"master-movie-${tenant}\""
               }
             }

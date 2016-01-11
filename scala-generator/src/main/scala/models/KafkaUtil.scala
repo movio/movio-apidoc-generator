@@ -7,14 +7,13 @@ import scala.generator.ScalaUtil._
 import play.api.libs.json.__
 import play.api.libs.json.Reads
 import play.api.libs.functional.syntax._
+import movio.apidoc.generator.attributes.v0.models._
+import movio.apidoc.generator.attributes.v0.models.json._
 
 object KafkaUtil {
   import CaseClassUtil._
 
   val KafkaPropsKey = "kafka_props"
-  val KafkaMessageKey = "message_key"
-  val KafkaTopicKey = "topic"
-  val KafkaTypeKey = "data_type"
 
   def isKafkaClass(model: ScalaModel): Boolean = model.attribute(KafkaPropsKey).isDefined
 
@@ -38,19 +37,4 @@ object KafkaUtil {
     kafkaClass.fields.filter(_.`type`.name == payload).head.name
   }
 
-}
-
-case class KafkaProps(
-  dataType: String,
-  topic: String,
-  messageKey: String = "java.util.UUID.randomUUID().toString"
-)
-object KafkaProps {
-  implicit def kafkaModelAttributeFmt: Reads[KafkaProps] = {
-    (
-      (__ \ "data_type").read[String] and
-      (__ \ "topic").read[String] and
-      (__ \ "message_key").read[String]
-    )(KafkaProps.apply _)
-  }
 }

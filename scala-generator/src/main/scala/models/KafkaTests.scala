@@ -166,13 +166,13 @@ class ${className}Tests extends MovioSpec with KafkaTestKit {
 
     val fields = model.fields.map { field ⇒
       val defaultValue =
-        field.field.attributes.find(_.name == AdvancedCaseClasses.ScalaPropsKey) match {
-          case Some(attr) ⇒
-            (attr.value \ AdvancedCaseClasses.ScalaExampleKey).toOption match {
-              case Some(example) ⇒ example.as[JsString].value
+        getScalaProps(field) match {
+          case Some(scalaFieldProps) ⇒
+            scalaFieldProps.example match {
+              case Some(example) ⇒ example
               case None ⇒
-                (attr.value \ AdvancedCaseClasses.ScalaDefaultKey).toOption match {
-                  case Some(default) ⇒ default.as[JsString].value
+                scalaFieldProps.default match {
+                  case Some(default) ⇒ default
                   case None ⇒
                     if (field.required)
                       throw new RuntimeException("manditory fields must provide examples")
@@ -180,7 +180,6 @@ class ${className}Tests extends MovioSpec with KafkaTestKit {
                       "None"
                 }
             }
-
           case None ⇒
             field.`type` match {
               case t: Primitive ⇒ t match {

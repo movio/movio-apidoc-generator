@@ -14,6 +14,8 @@ import play.api.libs.json.Reads
 import play.api.libs.functional.syntax._
 import scala.models.KafkaUtil._
 import scala.generator._
+import movio.apidoc.generator.attributes.v0.models._
+import movio.apidoc.generator.attributes.v0.models.json._
 
 // Extended from from ScalaCaseClasses
 object AdvancedCaseClasses extends AdvancedCaseClasses
@@ -22,11 +24,6 @@ trait AdvancedCaseClasses extends CodeGenerator {
   import CaseClassUtil._
 
   private[this] val MaxNumberOfFields = 21
-  val ScalaExtendsKey = "extends"
-  val ScalaPropsKey = "scala_props"
-  val ScalaClassKey = "class"
-  val ScalaDefaultKey = "default"
-  val ScalaExampleKey = "example"
 
   override def invoke(form: InvocationForm): Either[Seq[String], Seq[File]] = invoke(form, addHeader = true)
 
@@ -139,7 +136,7 @@ trait AdvancedCaseClasses extends CodeGenerator {
   def generateKafkaBody(ssd: ScalaService, model: ScalaModel, unions: Seq[ScalaUnion]): String = {
     getKafkaProps(model) match {
       case Some(kafkaProps) ⇒
-        s"""def generateKey(tenant: String) = ${kafkaProps.messageKey}"""
+        s"""def generateKey(tenant: String) = ${kafkaProps.messageGenerateKey}"""
       case None ⇒ ""
     }
   }
@@ -194,9 +191,9 @@ trait AdvancedCaseClasses extends CodeGenerator {
   }
 
   def dataType(field: ScalaField) = {
-    field.field.attributes.find(a ⇒ a.name == ScalaPropsKey) match {
-      case Some(attr) ⇒
-        val rootedType = "_root_." + (attr.value.as[JsObject] \ ScalaClassKey).as[JsString].value
+    getScalaProps(field) match {
+      case Some(scalaFieldProps) ⇒
+        val rootedType = "_root_." + scalaFieldProps.`class`.get
         if (field.required)
           rootedType
         else

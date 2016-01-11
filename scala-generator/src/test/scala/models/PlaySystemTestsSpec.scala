@@ -35,7 +35,7 @@ class PlaySystemTestsSpec extends FunSpec with ShouldMatchers {
             { "name": "kafka_props",
               "value": {
                 "data_type": "member",
-                "message_key": "v0.id",
+                "message_generate_key": "v0.id",
                 "topic": "s\"master-movie-${tenant}\""
               }
             }
@@ -79,8 +79,9 @@ class PlaySystemTestsSpec extends FunSpec with ShouldMatchers {
 it("POST Member Single") {
   val consumer = new KafkaMemberConsumer(testConfig, "consumer-group")
   val client = new Client(apiUrl = s"http://localhost:$$port")
-  val result = client.members.postMember(tenant, memberEntity1)
-  await(result) shouldBe memberEntity1
+  val promise = client.members.postMember(tenant, memberEntity1)
+  val result = await(promise)
+  result shouldBe memberEntity1
 
   def processor(messages: Map[String, Seq[KafkaMember]]): Try[Map[String, Seq[KafkaMember]]] = Success(messages)
   awaitCondition("Message should be on the queue", interval = 500 millis) {
