@@ -6,6 +6,21 @@
 package movio.apidoc.generator.attributes.v0.models {
 
   /**
+   * Additional validation options not currently in the standard apidoc spec
+   */
+  case class FieldValidation(
+    regex: _root_.scala.Option[String] = None,
+    maximum: _root_.scala.Option[Long] = None,
+    minimum: _root_.scala.Option[Long] = None
+  ) {
+
+  import Validation._
+
+
+
+  }
+
+  /**
    * Information needed for generating Kafka wrappers, consumers and producers.
    */
   case class KafkaProps(
@@ -14,7 +29,9 @@ package movio.apidoc.generator.attributes.v0.models {
     messageGenerateKey: String = "java.util.UUID.randomUUID().toString"
   ) {
 
-    import Validation._
+  import Validation._
+
+
 
   }
 
@@ -27,7 +44,9 @@ package movio.apidoc.generator.attributes.v0.models {
     example: _root_.scala.Option[String] = None
   ) {
 
-    import Validation._
+  import Validation._
+
+
 
   }
 
@@ -38,7 +57,9 @@ package movio.apidoc.generator.attributes.v0.models {
     `extends`: _root_.scala.Option[Seq[String]] = None
   ) {
 
-    import Validation._
+  import Validation._
+
+
 
   }
 
@@ -64,6 +85,10 @@ package movio.apidoc.generator.attributes.v0.models {
       values foreach { value ⇒
         validateLength(name, value, length)
       }
+    }
+
+    def validateRegex(name: String, value: String, regex: String): Unit = {
+      require(regex.r.findFirstIn(value).isDefined, s"$name did not match regex: $regex")
     }
 
   }

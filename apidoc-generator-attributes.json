@@ -61,6 +61,30 @@
           "description": "[scala] This is a scala snippet that creates a string used as the message ID. The message ID is used as the kafka message ID. The generator creates a function on the case class `def generateKey(tenant: String) = <definition-goes-here>`"
         }
       ]
+    },
+    "field_validation": {
+      "description": "Additional validation options not currently in the standard apidoc spec",
+      "fields": [
+        {
+          "name": "regex",
+          "type": "string",
+          "required": false,
+          "description": "Regex string to validate the field with. The field must be a `string` or `[string]`. If the field is a `[string]` all elements in the array will be validated",
+          "example": "^[A-Za-z]+$"
+        },
+        {
+          "name": "maximum",
+          "type": "long",
+          "required": false,
+          "description": "This applies only to `[string]`, `[integer]` and `[long]`. The current apidoc spec includes maximum however for an array this the maxium size of the array. This validates the max length or number of each element of the array. The field must be a `[string]`, `[integer]` or `[long]`. All elements in the array will be validated as per standard apidoc specs"
+        },
+        {
+          "name": "minimum",
+          "type": "long",
+          "required": false,
+          "description": "This applies only to `[string]`, `[integer]` and `[long]`. The current apidoc spec includes minimum however for an array this the minimum size of the array. This validates the minimum length or number of each element of the array. The field must be a `[string]`, `[integer]` or `[long]`. All elements in the array will be validated as per standard apidoc specs"
+        }
+      ]
     }
   }
 }

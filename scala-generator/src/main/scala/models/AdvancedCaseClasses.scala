@@ -127,10 +127,21 @@ trait AdvancedCaseClasses extends CodeGenerator {
 
   // Add validation
   def generateValidation(ssd: ScalaService, model: ScalaModel, unions: Seq[ScalaUnion]): String = {
-    s"import Validation._".indent(2) + "\n" +
-      model.fields.filter(_.field.maximum.isDefined).map { field: ScalaField ⇒
-        s"""validateLength("${field.name}", ${field.name}, ${field.field.maximum.get})""".indent(2)
-      }.mkString("\n")
+    val fields = model.fields.map(generateFieldValidation(_)).flatten.mkString("\n")
+    s"""import Validation._
+
+${fields}
+"""
+  }
+
+  def generateFieldValidation(field: ScalaField): Seq[String] = {
+    def toOption(test: Boolean, fn: ScalaField => String) = if (test) Option(fn(field)) else None
+    val fieldValidation = getFieldValidation(field)
+    val result = Seq.empty :+
+      toOption(field.field.maximum.isDefined, field => s"""validateLength("${field.name}", ${field.name}, ${field.field.maximum.get})""") :+
+      fieldValidation.flatMap(_.regex.flatMap(regex => Some(s"""validateRegex("${field.name}", ${field.name}, "${regex}")""")))
+
+    result.flatten
   }
 
   def generateKafkaBody(ssd: ScalaService, model: ScalaModel, unions: Seq[ScalaUnion]): String = {
@@ -228,6 +239,10 @@ object Validation {
     values foreach { value ⇒
       validateLength(name, value, length)
     }
+  }
+
+  def validateRegex(name: String, value: String, regex: String): Unit = {
+    require(regex.r.findFirstIn(value).isDefined, s"$$name did not match regex: $$regex")
   }
 
 }

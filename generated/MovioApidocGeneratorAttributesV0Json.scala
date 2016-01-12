@@ -45,6 +45,22 @@ package movio.apidoc.generator.attributes.v0.models {
       }
     }
 
+    implicit def jsonReadsApidocGeneratorAttributesFieldValidation: play.api.libs.json.Reads[FieldValidation] = {
+      (
+        (__ \ "regex").readNullable[String] and
+        (__ \ "maximum").readNullable[Long] and
+        (__ \ "minimum").readNullable[Long]
+      )(FieldValidation.apply _)
+    }
+
+    implicit def jsonWritesApidocGeneratorAttributesFieldValidation: play.api.libs.json.Writes[FieldValidation] = {
+      (
+        (__ \ "regex").writeNullable[String] and
+        (__ \ "maximum").writeNullable[Long] and
+        (__ \ "minimum").writeNullable[Long]
+      )(unlift(FieldValidation.unapply _))
+    }
+
     implicit def jsonReadsApidocGeneratorAttributesKafkaProps: play.api.libs.json.Reads[KafkaProps] = {
       (
         (__ \ "data_type").read[String] and

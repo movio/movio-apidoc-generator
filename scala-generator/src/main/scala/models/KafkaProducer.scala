@@ -88,7 +88,7 @@ package ${ssd.namespaces.base}.kafka {
       val messages = batch.map(${kafkaClassName}(_))
       Try {
         producer.send(messages map { message =>
-                        new KeyedMessage[String, String](topic, message.key, Json.stringify(Json.toJson(message)))
+                        new KeyedMessage[String, String](topic, message.generateKey(tenant), Json.stringify(Json.toJson(message)))
                       }: _*)
         batch
       } andThen {

@@ -13,6 +13,7 @@ import movio.apidoc.generator.attributes.v0.models.json._
 
 object CaseClassUtil {
   val ScalaPropsKey = "scala_props"
+  val FieldValidationKey = "field_validation"
 
   def getInstanceName(model: ScalaModel, id: Int): String = {
     val name = model.originalName + "_entity"
@@ -30,6 +31,9 @@ object CaseClassUtil {
 
   def getScalaProps(scalaField: ScalaField): Option[ScalaFieldProps] =
     scalaField.attribute(ScalaPropsKey).map(_.value.as[ScalaFieldProps])
+
+  def getFieldValidation(scalaField: ScalaField): Option[FieldValidation] =
+    scalaField.attribute(FieldValidationKey).map(_.value.as[FieldValidation])
 
   def getModelFromOriginalName(name: String, ssd: ScalaService): Option[ScalaModel] =
     ssd.models.find(model => model.originalName == name)
