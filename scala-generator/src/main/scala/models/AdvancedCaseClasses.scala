@@ -135,11 +135,26 @@ ${fields}
   }
 
   def generateFieldValidation(field: ScalaField): Seq[String] = {
-    def toOption(test: Boolean, fn: ScalaField => String) = if (test) Option(fn(field)) else None
+    def toOption(test: Boolean, fn: ScalaField ⇒ String) = if (test) Option(fn(field)) else None
     val fieldValidation = getFieldValidation(field)
     val result = Seq.empty :+
-      toOption(field.field.maximum.isDefined, field => s"""validateLength("${field.name}", ${field.name}, ${field.field.maximum.get})""") :+
-      fieldValidation.flatMap(_.regex.flatMap(regex => Some(s"""validateRegex("${field.name}", ${field.name}, "${regex}")""")))
+      toOption(field.field.maximum.isDefined, field ⇒ s"""validateLength("${field.name}", ${field.name}, ${field.field.maximum.get})""") :+
+      fieldValidation.flatMap(_.regex.flatMap(regex ⇒ Some(s"""validateRegex("${field.name}", ${field.name}, "${regex}")"""))) :+
+      fieldValidation.flatMap(_.maximum.flatMap(max ⇒ {
+        val dataType = field.`type`
+        // FIXME - cleanup
+        dataType match {
+          case d: lib.Datatype.Container ⇒
+            d.inner match {
+              case s: lib.Datatype.Primitive ⇒
+                if (s.name == "string") 
+                  Some(s"""validateLengthOfAll("${field.name}", ${field.name}, ${max})""")
+                else None
+              case _ ⇒ None
+            }
+          case _ ⇒ None
+        }
+      }))
 
     result.flatten
   }
