@@ -128,9 +128,8 @@ trait AdvancedCaseClasses extends CodeGenerator {
   // Add validation
   def generateValidation(ssd: ScalaService, model: ScalaModel, unions: Seq[ScalaUnion]): String = {
     val fields = model.fields.map(generateFieldValidation(_)).flatten.mkString("\n")
-    s"""import Validation._
-
-${fields}
+    s"""  import Validation._
+${fields.indent(2)}
 """
   }
 
@@ -142,7 +141,6 @@ ${fields}
       fieldValidation.flatMap(_.regex.flatMap(regex ⇒ Some(s"""validateRegex("${field.name}", ${field.name}, "${regex}")"""))) :+
       fieldValidation.flatMap(_.maximum.flatMap(max ⇒ {
         val dataType = field.`type`
-        // FIXME - cleanup
         dataType match {
           case d: lib.Datatype.Container ⇒
             d.inner match {

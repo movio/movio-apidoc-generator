@@ -80,7 +80,7 @@ object Generators {
       ),
       CodeGenTarget(
         metaData = Generator(
-          key = "movio_scala_models",
+          key = "advanced_scala_models",
           name = "Advanced Scala Models",
           description = Some("Validated Scala Models"),
           language = Some("Scala")

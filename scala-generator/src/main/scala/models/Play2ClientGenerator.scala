@@ -122,14 +122,44 @@ ${JsonImports(form.service).mkString("\n").indent(4)}
 
     logger.info(s"Initializing ${ssd.namespaces.base}.Client for url $$apiUrl")
 
+    val client = play.api.Play.maybeApplication match {
+      case Some(_) => // Don't need a client when in a play app
+        logger.trace("Play app found - using that it to configure play client")
+        None
+      case None =>
+        autoClose match {
+          case true => // Don't need a client, we'll create one for each request
+            logger.trace("Auto close set - will create a new connection for each request")
+            None
+          case false =>
+            logger.trace("Auto close not set - creating a new client - will need to be closed manually")
+            val builder = new com.ning.http.client.AsyncHttpClientConfig.Builder()
+            Some(new play.api.libs.ws.ning.NingWSClient(builder.build()))
+        }
+    }
+
 ${methodGenerator.accessors().indent(4)}
 
 ${methodGenerator.objects().indent(4)}
 
     def _requestHolder(path: String): ${version.requestHolderClass} = {
-      import play.api.Play.current
+      val url:play.api.libs.ws.WSRequest = play.api.Play.maybeApplication match {
+        case Some(app) => // We have a running Play App use built in client for url
+          import play.api.Play.current
+          play.api.libs.ws.WS.url(apiUrl + path)
+        case None =>
+          val builder = new com.ning.http.client.AsyncHttpClientConfig.Builder()
+          client match {
+            case Some(c) => // using existing client
+              c.url(apiUrl + path)
+            case None => // we need to create a new client for each request
+              val c = new play.api.libs.ws.ning.NingWSClient(builder.build())
+              c.url(apiUrl + path)
+          }
+      }
 
-      val holder = play.api.libs.ws.WS.url(apiUrl + path)$headerString
+      val holder = url$headerString
+
       auth.fold(holder) {
         case Authorization.Basic(username, password) => {
           holder.withAuth(username, password.getOrElse(""), ${version.authSchemeClass}.BASIC)
@@ -156,7 +186,7 @@ ${methodGenerator.objects().indent(4)}
       queryParameters: Seq[(String, String)] = Seq.empty,
       body: Option[play.api.libs.json.JsValue] = None
     )(implicit ec: scala.concurrent.ExecutionContext): scala.concurrent.Future[${version.config.responseClass}] = {
-      method.toUpperCase match {
+      val result = method.toUpperCase match {
         case "GET" => {
           _logRequest("GET", _requestHolder(path).withQueryString(queryParameters:_*)).get()
         }
@@ -182,6 +212,31 @@ ${methodGenerator.objects().indent(4)}
           _logRequest(method, _requestHolder(path).withQueryString(queryParameters:_*))
           sys.error("Unsupported method[%s]".format(method))
         }
+      }
+      // Close connection if needed
+      result.onComplete {
+        case _ => // 
+          client match {
+            case Some(c) =>
+              if (autoClose) {
+                logger.trace("Auto closing client connection")
+                c.close
+              }
+            case _ => // No client - don't need to close
+          }
+      }
+      result
+    }
+
+    def close: Unit = {
+      client match {
+        case Some(c) => 
+          if (! autoClose)
+            c.close
+          else
+            throw new RuntimeException("Connection set to autoClose - do not call close")
+        case None =>
+          throw new RuntimeException("Connection managed by the running Play App - do not call close")
       }
     }
 

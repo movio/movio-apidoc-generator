@@ -152,7 +152,7 @@ case class ScalaModel(val ssd: ScalaService, val model: Model) {
 
   val attributes = model.attributes
 
-  def attribute(name: String) = attributes.filter(_.name == name).headOption
+  def attribute(name: String) = attributes.find(_.name == name)
 
 }
 

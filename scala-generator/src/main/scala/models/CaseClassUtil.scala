@@ -12,7 +12,8 @@ import movio.apidoc.generator.attributes.v0.models._
 import movio.apidoc.generator.attributes.v0.models.json._
 
 object CaseClassUtil {
-  val ScalaPropsKey = "scala_props"
+  val ScalaModelPropsKey = "scala_model_props"
+  val ScalaFieldPropsKey = "scala_field_props"
   val FieldValidationKey = "field_validation"
 
   def getInstanceName(model: ScalaModel, id: Int): String = {
@@ -27,10 +28,10 @@ object CaseClassUtil {
     ssd.models.filter(_.originalName == specName).headOption
 
   def getScalaProps(scalaModel: ScalaModel): Option[ScalaModelProps] =
-    scalaModel.attribute(ScalaPropsKey).map(_.value.as[ScalaModelProps])
+    scalaModel.attribute(ScalaModelPropsKey).map(_.value.as[ScalaModelProps])
 
   def getScalaProps(scalaField: ScalaField): Option[ScalaFieldProps] =
-    scalaField.attribute(ScalaPropsKey).map(_.value.as[ScalaFieldProps])
+    scalaField.attribute(ScalaFieldPropsKey).map(_.value.as[ScalaFieldProps])
 
   def getFieldValidation(scalaField: ScalaField): Option[FieldValidation] =
     scalaField.attribute(FieldValidationKey).map(_.value.as[FieldValidation])

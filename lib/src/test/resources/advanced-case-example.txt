@@ -6,17 +6,21 @@ package test.apidoc.apidoctest.v0.models {
   ) extends KafkaMessage {
 
     import Validation._
+
     def generateKey(tenant: String) = java.util.UUID.randomUUID().toString
   }
 
   case class User(
     age: String,
+    tags: Seq[String],
     dateTime: _root_.org.joda.time.LocalDateTime,
     optionalDateTime: _root_.scala.Option[_root_.org.joda.time.LocalDateTime] = None
   ) extends com.github.BaseClass {
 
     import Validation._
     validateLength("age", age, 10)
+    validateLengthOfAll("tags", tags, 10)
+
   }
 
   object Validation {
@@ -41,6 +45,10 @@ package test.apidoc.apidoctest.v0.models {
       values foreach { value ⇒
         validateLength(name, value, length)
       }
+    }
+
+    def validateRegex(name: String, value: String, regex: String): Unit = {
+      require(regex.r.findFirstIn(value).isDefined, s"$name did not match regex: $regex")
     }
 
   }

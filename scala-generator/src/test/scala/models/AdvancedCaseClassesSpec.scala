@@ -19,15 +19,18 @@ class AdvancedCaseClassesSpec extends FunSpec with ShouldMatchers {
           "plural": "users",
           "fields": [
             { "name": "age", "type": "string", "required": true, "maximum": 10, "attributes": [] },
+            { "name": "tags", "type": "[string]", "required": true, "attributes": [
+              { "name": "field_validation", "value": { "maximum": 10 } }
+            ]},
             { "name": "date_time", "type": "string", "required": true, "attributes": [
-              { "name": "scala_props", "value": { "class": "org.joda.time.LocalDateTime" } }
+              { "name": "scala_field_props", "value": { "class": "org.joda.time.LocalDateTime" } }
             ]},
             { "name": "optional_date_time", "type": "string", "required": false, "attributes": [
-              { "name": "scala_props", "value": { "class": "org.joda.time.LocalDateTime" } }
+              { "name": "scala_field_props", "value": { "class": "org.joda.time.LocalDateTime" } }
             ]}
           ],
           "attributes": [
-            { "name": "scala_props", "value": { "extends": ["com.github.BaseClass"] } }
+            { "name": "scala_model_props", "value": { "extends": ["com.github.BaseClass"] } }
           ]
         },
         {
@@ -39,7 +42,7 @@ class AdvancedCaseClassesSpec extends FunSpec with ShouldMatchers {
               "type": "date-iso8601",
               "required": true,
               "attributes": [
-                { "name": "scala_props", "value":
+                { "name": "scala_field_props", "value":
                   {
                     "class": "org.joda.time.LocalDateTime",
                     "default": "org.joda.time.LocalDateTime.now(org.joda.time.DateTimeZone.UTC)"
