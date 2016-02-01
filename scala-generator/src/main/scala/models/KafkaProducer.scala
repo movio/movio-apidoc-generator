@@ -109,6 +109,8 @@ package ${ssd.namespaces.base}.kafka {
           throw new KafkaProducerException(s"Failed to publish $$topic message, to kafka queue.", ex)
       }
     }
+
+    def shutdown() = producer.close()
   }
 
 }

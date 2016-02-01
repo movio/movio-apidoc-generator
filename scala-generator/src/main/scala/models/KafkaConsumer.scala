@@ -171,7 +171,7 @@ package ${ssd.namespaces.base}.kafka {
       }
     }
 
-    def shutdown = { consumer.shutdown }
+    def shutdown() = consumer.shutdown()
   }
 }
 
