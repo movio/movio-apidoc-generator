@@ -157,6 +157,16 @@ object Generators {
         ),
         status = lib.generator.Status.Beta,
         codeGenerator = Some(scala.models.PlaySystemTests)
+      ),
+      CodeGenTarget(
+        metaData = Generator(
+          key = "samza_serde",
+          name = "Samza Serde",
+          description = Some("Samza Serde adaptors around Play JSON serdes. Requires Advanced Scala Models and Play JSON Standalone."),
+          language = Some("Scala")
+        ),
+        status = lib.generator.Status.Beta,
+        codeGenerator = Some(scala.models.SamzaSerde)
       )
   ).sortBy(_.metaData.key)
 }
