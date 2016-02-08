@@ -1,6 +1,10 @@
 apidoc-generator
 ================
 
+## Usage
+
+Run with `sbt 'generator/run <port>'`.
+
 ## Custom Attributes
 
 ### Kafka Props
