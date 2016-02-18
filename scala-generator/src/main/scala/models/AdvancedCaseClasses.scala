@@ -136,24 +136,36 @@ ${fields.indent(2)}
   def generateFieldValidation(field: ScalaField): Seq[String] = {
     def toOption(test: Boolean, fn: ScalaField ⇒ String) = if (test) Option(fn(field)) else None
     val fieldValidation = getFieldValidation(field)
+    // FIXME - should be using typeclasses for this
     val result = Seq.empty :+
       toOption(field.field.maximum.isDefined, {
                  val dataType = field.`type`
                  dataType match {
                    case _: lib.Datatype.Container ⇒
                      field ⇒ s"""validateMaxSize("${field.name}", ${field.name}, ${field.field.maximum.get})"""
-                   case _ ⇒
-                     field ⇒ s"""validateMaxLength("${field.name}", ${field.name}, ${field.field.maximum.get})"""
+                   case s: lib.Datatype.Primitive ⇒
+                     s.name match {
+                       case "string" => field ⇒ s"""validateMaxLength("${field.name}", ${field.name}, ${field.field.maximum.get})"""
+                       case "integer" => field ⇒ s"""validateMax("${field.name}", ${field.name}, ${field.field.maximum.get})"""
+                       case "long" => field ⇒ s"""validateMax("${field.name}", ${field.name}, ${field.field.maximum.get})"""
+                       case _ => field => ""
+                     }
+                   case _ ⇒ field => ""
                  }
                }) :+
-      // toOption(field.field.minimum.isDefined, field ⇒ s"""validateMinLength("${field.name}", ${field.name}, ${field.field.minimum.get})""") :+
       toOption(field.field.minimum.isDefined, {
                  val dataType = field.`type`
                  dataType match {
                    case _: lib.Datatype.Container ⇒
                      field ⇒ s"""validateMinSize("${field.name}", ${field.name}, ${field.field.minimum.get})"""
-                   case _ ⇒
-                     field ⇒ s"""validateMinLength("${field.name}", ${field.name}, ${field.field.minimum.get})"""
+                   case s: lib.Datatype.Primitive ⇒
+                     s.name match {
+                       case "string" => field ⇒ s"""validateMinLength("${field.name}", ${field.name}, ${field.field.minimum.get})"""
+                       case "integer" => field ⇒ s"""validateMin("${field.name}", ${field.name}, ${field.field.minimum.get})"""
+                       case "long" => field ⇒ s"""validateMin("${field.name}", ${field.name}, ${field.field.minimum.get})"""
+                       case _ => field => ""
+                     }
+                   case _ ⇒ field => ""
                  }
                }) :+
       fieldValidation.flatMap(_.regex.flatMap(regex ⇒ Some(s"""validateRegex("${field.name}", ${field.name}, "${regex}")"""))) :+
