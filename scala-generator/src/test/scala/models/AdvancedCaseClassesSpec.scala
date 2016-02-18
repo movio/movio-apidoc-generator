@@ -18,9 +18,13 @@ class AdvancedCaseClassesSpec extends FunSpec with ShouldMatchers {
           "name": "user",
           "plural": "users",
           "fields": [
-            { "name": "age", "type": "string", "required": true, "maximum": 10, "attributes": [] },
-            { "name": "tags", "type": "[string]", "required": true, "attributes": [
-              { "name": "field_validation", "value": { "maximum": 10 } }
+            { "name": "string_max", "type": "string", "required": true, "maximum": 10, "attributes": [] },
+            { "name": "string_min", "type": "string", "required": true, "minimum": 11, "attributes": [] },
+            { "name": "string_max_list", "type": "[string]", "required": true, "maximum": 12, "attributes": [
+              { "name": "field_validation", "value": { "maximum": 13 } }
+            ]},
+            { "name": "string_min_list", "type": "[string]", "required": true, "minimum": 14, "attributes": [
+              { "name": "field_validation", "value": { "minimum": 15 } }
             ]},
             { "name": "date_time", "type": "string", "required": true, "attributes": [
               { "name": "scala_field_props", "value": { "class": "org.joda.time.LocalDateTime" } }

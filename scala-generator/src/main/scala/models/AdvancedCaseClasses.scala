@@ -137,7 +137,25 @@ ${fields.indent(2)}
     def toOption(test: Boolean, fn: ScalaField ⇒ String) = if (test) Option(fn(field)) else None
     val fieldValidation = getFieldValidation(field)
     val result = Seq.empty :+
-      toOption(field.field.maximum.isDefined, field ⇒ s"""validateLength("${field.name}", ${field.name}, ${field.field.maximum.get})""") :+
+      toOption(field.field.maximum.isDefined, {
+                 val dataType = field.`type`
+                 dataType match {
+                   case _: lib.Datatype.Container ⇒
+                     field ⇒ s"""validateMaxSize("${field.name}", ${field.name}, ${field.field.maximum.get})"""
+                   case _ ⇒
+                     field ⇒ s"""validateMaxLength("${field.name}", ${field.name}, ${field.field.maximum.get})"""
+                 }
+               }) :+
+      // toOption(field.field.minimum.isDefined, field ⇒ s"""validateMinLength("${field.name}", ${field.name}, ${field.field.minimum.get})""") :+
+      toOption(field.field.minimum.isDefined, {
+                 val dataType = field.`type`
+                 dataType match {
+                   case _: lib.Datatype.Container ⇒
+                     field ⇒ s"""validateMinSize("${field.name}", ${field.name}, ${field.field.minimum.get})"""
+                   case _ ⇒
+                     field ⇒ s"""validateMinLength("${field.name}", ${field.name}, ${field.field.minimum.get})"""
+                 }
+               }) :+
       fieldValidation.flatMap(_.regex.flatMap(regex ⇒ Some(s"""validateRegex("${field.name}", ${field.name}, "${regex}")"""))) :+
       fieldValidation.flatMap(_.maximum.flatMap(max ⇒ {
         val dataType = field.`type`
@@ -145,9 +163,29 @@ ${fields.indent(2)}
           case d: lib.Datatype.Container ⇒
             d.inner match {
               case s: lib.Datatype.Primitive ⇒
-                if (s.name == "string") 
-                  Some(s"""validateLengthOfAll("${field.name}", ${field.name}, ${max})""")
-                else None
+                s.name match {
+                  case "string" => Some(s"""validateMaxLengthOfAll("${field.name}", ${field.name}, ${max})""")
+                  case "integer" => Some(s"""validateMaxLengthOfAll("${field.name}", ${field.name}, ${max})""")
+                  case "long" => Some(s"""validateMaxLengthOfAll("${field.name}", ${field.name}, ${max})""")
+                  case _ => None
+                }
+              case _ ⇒ None
+            }
+          case _ ⇒ None
+        }
+      })) :+
+      fieldValidation.flatMap(_.minimum.flatMap(max ⇒ {
+        val dataType = field.`type`
+        dataType match {
+          case d: lib.Datatype.Container ⇒
+            d.inner match {
+              case s: lib.Datatype.Primitive ⇒
+                s.name match {
+                  case "string" => Some(s"""validateMinLengthOfAll("${field.name}", ${field.name}, ${max})""")
+                  case "integer" => Some(s"""validateMinLengthOfAll("${field.name}", ${field.name}, ${max})""")
+                  case "long" => Some(s"""validateMinLengthOfAll("${field.name}", ${field.name}, ${max})""")
+                  case _ => None
+                }
               case _ ⇒ None
             }
           case _ ⇒ None
@@ -232,25 +270,57 @@ ${fields.indent(2)}
 
 object Validation {
 
-  def validateLength(name: String, value: _root_.scala.Option[String], length: Int): Unit = {
+  def validateMaxLength(name: String, value: _root_.scala.Option[String], length: Int): Unit = {
     value foreach { value ⇒
-      validateLength(name, value, length)
+      validateMaxLength(name, value, length)
     }
   }
 
-  def validateLength(name: String, value: String, length: Int): Unit = {
+  def validateMax[T](name: String, value: T, max: T)(implicit n:Numeric[T]): Unit = {
+    require(n.lteq(value , max), s"$$name must be less than or equal to $$max")
+  }
+
+  def validateMin[T](name: String, value: T, min: T)(implicit n:Numeric[T]): Unit = {
+    require(n.gteq(value , min), s"$$name must be greater than or equal to $$min")
+  }
+
+  def validateMaxLength(name: String, value: String, length: Int): Unit = {
     require(value.length <= length, s"$$name must be $$length characters or less")
   }
 
-  def validateLengthOfAll(name: String, values: _root_.scala.Option[Seq[String]], length: Int): Unit = {
+  def validateMaxLengthOfAll(name: String, values: _root_.scala.Option[Seq[String]], length: Int): Unit = {
     values foreach { values ⇒
-      validateLengthOfAll(name, values, length)
+      validateMaxLengthOfAll(name, values, length)
     }
   }
 
-  def validateLengthOfAll(name: String, values: Seq[String], length: Int): Unit = {
+  def validateMaxLengthOfAll(name: String, values: Seq[String], length: Int): Unit = {
     values foreach { value ⇒
-      validateLength(name, value, length)
+      validateMaxLength(name, value, length)
+    }
+  }
+
+  def validateMaxOfAll[T](name: String, values: Seq[T], max: T)(implicit n: Numeric[T]): Unit = {
+    values foreach { value ⇒
+      validateMax(name, value, max)
+    }
+  }
+
+  def validateMinOfAll[T](name: String, values: Seq[T], min: T)(implicit n: Numeric[T]): Unit = {
+    values foreach { value ⇒
+      validateMin(name, value, min)
+    }
+  }
+
+  def validateMaxOfAll[T](name: String, values: _root_.scala.Option[Seq[T]], max: T)(implicit n: Numeric[T]): Unit = {
+    values foreach { values ⇒
+      validateMaxOfAll(name, values, max)
+    }
+  }
+
+  def validateMinOfAll[T](name: String, values: _root_.scala.Option[Seq[T]], min: T)(implicit n: Numeric[T]): Unit = {
+    values foreach { values ⇒
+      validateMinOfAll(name, values, min)
     }
   }
 

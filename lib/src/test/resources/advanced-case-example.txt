@@ -11,39 +11,77 @@ package test.apidoc.apidoctest.v0.models {
   }
 
   case class User(
-    age: String,
-    tags: Seq[String],
+    stringMax: String,
+    stringMin: String,
+    stringMaxList: Seq[String],
+    stringMinList: Seq[String],
     dateTime: _root_.org.joda.time.LocalDateTime,
     optionalDateTime: _root_.scala.Option[_root_.org.joda.time.LocalDateTime] = None
   ) extends com.github.BaseClass {
 
     import Validation._
-    validateLength("age", age, 10)
-    validateLengthOfAll("tags", tags, 10)
+    validateMaxLength("stringMax", stringMax, 10)
+    validateMinLength("stringMin", stringMin, 11)
+    validateMaxSize("stringMaxList", stringMaxList, 12)
+    validateMaxLengthOfAll("stringMaxList", stringMaxList, 13)
+    validateMinSize("stringMinList", stringMinList, 14)
+    validateMinLengthOfAll("stringMinList", stringMinList, 15)
 
   }
 
   object Validation {
 
-    def validateLength(name: String, value: _root_.scala.Option[String], length: Int): Unit = {
+    def validateMaxLength(name: String, value: _root_.scala.Option[String], length: Int): Unit = {
       value foreach { value ⇒
-        validateLength(name, value, length)
+        validateMaxLength(name, value, length)
       }
     }
 
-    def validateLength(name: String, value: String, length: Int): Unit = {
+    def validateMax[T](name: String, value: T, max: T)(implicit n:Numeric[T]): Unit = {
+      require(n.lteq(value , max), s"$name must be less than or equal to $max")
+    }
+
+    def validateMin[T](name: String, value: T, min: T)(implicit n:Numeric[T]): Unit = {
+      require(n.gteq(value , min), s"$name must be greater than or equal to $min")
+    }
+
+    def validateMaxLength(name: String, value: String, length: Int): Unit = {
       require(value.length <= length, s"$name must be $length characters or less")
     }
 
-    def validateLengthOfAll(name: String, values: _root_.scala.Option[Seq[String]], length: Int): Unit = {
+    def validateMaxLengthOfAll(name: String, values: _root_.scala.Option[Seq[String]], length: Int): Unit = {
       values foreach { values ⇒
-        validateLengthOfAll(name, values, length)
+        validateMaxLengthOfAll(name, values, length)
       }
     }
 
-    def validateLengthOfAll(name: String, values: Seq[String], length: Int): Unit = {
+    def validateMaxLengthOfAll(name: String, values: Seq[String], length: Int): Unit = {
       values foreach { value ⇒
-        validateLength(name, value, length)
+        validateMaxLength(name, value, length)
+      }
+    }
+
+    def validateMaxOfAll[T](name: String, values: Seq[T], max: T)(implicit n: Numeric[T]): Unit = {
+      values foreach { value ⇒
+        validateMax(name, value, max)
+      }
+    }
+
+    def validateMinOfAll[T](name: String, values: Seq[T], min: T)(implicit n: Numeric[T]): Unit = {
+      values foreach { value ⇒
+        validateMin(name, value, min)
+      }
+    }
+
+    def validateMaxOfAll[T](name: String, values: _root_.scala.Option[Seq[T]], max: T)(implicit n: Numeric[T]): Unit = {
+      values foreach { values ⇒
+        validateMaxOfAll(name, values, max)
+      }
+    }
+
+    def validateMinOfAll[T](name: String, values: _root_.scala.Option[Seq[T]], min: T)(implicit n: Numeric[T]): Unit = {
+      values foreach { values ⇒
+        validateMinOfAll(name, values, min)
       }
     }
 
