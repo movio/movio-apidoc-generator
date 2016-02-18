@@ -296,6 +296,10 @@ object Validation {
     require(value.length <= length, s"$$name must be $$length characters or less")
   }
 
+  def validateMinLength(name: String, value: String, length: Int): Unit = {
+    require(value.length >= length, s"$$name must be more than $$length characters")
+  }
+
   def validateMaxLengthOfAll(name: String, values: _root_.scala.Option[Seq[String]], length: Int): Unit = {
     values foreach { values ⇒
       validateMaxLengthOfAll(name, values, length)
@@ -305,6 +309,18 @@ object Validation {
   def validateMaxLengthOfAll(name: String, values: Seq[String], length: Int): Unit = {
     values foreach { value ⇒
       validateMaxLength(name, value, length)
+    }
+  }
+
+  def validateMinLengthOfAll(name: String, values: _root_.scala.Option[Seq[String]], length: Int): Unit = {
+    values foreach { values ⇒
+      validateMinLengthOfAll(name, values, length)
+    }
+  }
+
+  def validateMinLengthOfAll(name: String, values: Seq[String], length: Int): Unit = {
+    values foreach { value ⇒
+      validateMinLength(name, value, length)
     }
   }
 
@@ -322,13 +338,13 @@ object Validation {
 
   def validateMaxLengthOfAll[T](name: String, values: _root_.scala.Option[Seq[T]], max: T)(implicit n: Numeric[T]): Unit = {
     values foreach { values ⇒
-      validateMaxOfAll(name, values, max)
+      validateMaxLengthOfAll(name, values, max)
     }
   }
 
   def validateMinLengthOfAll[T](name: String, values: _root_.scala.Option[Seq[T]], min: T)(implicit n: Numeric[T]): Unit = {
     values foreach { values ⇒
-      validateMinOfAll(name, values, min)
+      validateMinLengthOfAll(name, values, min)
     }
   }
 
