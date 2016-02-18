@@ -45,6 +45,14 @@ package test.apidoc.apidoctest.v0.models {
       require(n.gteq(value , min), s"$name must be greater than or equal to $min")
     }
 
+    def validateMaxSize(name: String, value: Seq[_], size: Int): Unit = {
+      require(value.size <= size, s"$name must have less than $size items")
+    }
+
+    def validateMinSize(name: String, value: Seq[_], size: Int): Unit = {
+      require(value.size >= size, s"$name must have less than $size items")
+    }
+
     def validateMaxLength(name: String, value: String, length: Int): Unit = {
       require(value.length <= length, s"$name must be $length characters or less")
     }
@@ -61,25 +69,25 @@ package test.apidoc.apidoctest.v0.models {
       }
     }
 
-    def validateMaxOfAll[T](name: String, values: Seq[T], max: T)(implicit n: Numeric[T]): Unit = {
+    def validateMaxLengthOfAll[T](name: String, values: Seq[T], max: T)(implicit n: Numeric[T]): Unit = {
       values foreach { value ⇒
         validateMax(name, value, max)
       }
     }
 
-    def validateMinOfAll[T](name: String, values: Seq[T], min: T)(implicit n: Numeric[T]): Unit = {
+    def validateMinLengthOfAll[T](name: String, values: Seq[T], min: T)(implicit n: Numeric[T]): Unit = {
       values foreach { value ⇒
         validateMin(name, value, min)
       }
     }
 
-    def validateMaxOfAll[T](name: String, values: _root_.scala.Option[Seq[T]], max: T)(implicit n: Numeric[T]): Unit = {
+    def validateMaxLengthOfAll[T](name: String, values: _root_.scala.Option[Seq[T]], max: T)(implicit n: Numeric[T]): Unit = {
       values foreach { values ⇒
         validateMaxOfAll(name, values, max)
       }
     }
 
-    def validateMinOfAll[T](name: String, values: _root_.scala.Option[Seq[T]], min: T)(implicit n: Numeric[T]): Unit = {
+    def validateMinLengthOfAll[T](name: String, values: _root_.scala.Option[Seq[T]], min: T)(implicit n: Numeric[T]): Unit = {
       values foreach { values ⇒
         validateMinOfAll(name, values, min)
       }
