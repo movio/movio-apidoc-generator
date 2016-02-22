@@ -102,7 +102,7 @@ case class Play2JsonExtended(
 
   private[models] def readers(model: ScalaModel): String = {
     Seq(
-      s"${identifier(model.name, Reads)} = {",
+      s"${identifier(model.name, Reads)} = new play.api.libs.json.Reads[${model.name}] {",
       fieldReaders(model).indent(2),
       s"}"
     ).mkString("\n")
@@ -131,18 +131,24 @@ case class Play2JsonExtended(
     // }
     val serializations = fieldReadersWriters(model, "read")
 
-    model.fields match {
+    val fields = model.fields match {
       case field :: Nil ⇒ {
-        serializations.head + s""".map { x => new ${model.name}(${field.name} = x) }"""
+        serializations.head + s""".map { x => new ${model.name}(${field.name} = x) }.reads(json)"""
       }
       case fields ⇒ {
-        Seq(
-          "(",
-          serializations.mkString(" and\n").indent(2),
-          s")(${model.name}.apply _)"
-        ).mkString("\n")
+        s"""(
+${serializations.mkString(" and\n").indent(6)}
+    )(${model.name}.apply _).reads(json)"""
       }
     }
+    s"""def reads(json: play.api.libs.json.JsValue) = {
+  try {
+    ${fields}
+  } catch {
+    // Catch Validation Errors
+    case ex: IllegalArgumentException => play.api.libs.json.JsError(s"$${ex.getMessage}")
+  }
+}"""
   }
 
   private[models] def writers(model: ScalaModel): String = {
