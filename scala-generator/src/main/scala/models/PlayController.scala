@@ -42,13 +42,14 @@ trait PlayController extends CodeGenerator {
         val argList = ScalaUtil.fieldsToArgList(operation.parameters.map(_.definition())).getOrElse("")
 
         // Only include request.body if body present
-        val bodyParam = operation.body.map(_ => "request.body")
+        val bodyParam = operation.body.map(_ => "body.get")
         val argNameList = (
           Seq(Some("request"), bodyParam).flatten ++
             operation.parameters.map(_.name)
         ).mkString(", ")
 
-        val bodyParse = operation.body.map(o => s"(BodyParsers.parse.json[${o.name}])").getOrElse("")
+        // val bodyParse = operation.body.map(o => s"(BodyParsers.parse.json[${o.name}])").getOrElse("")
+        val bodyParse = operation.body.map(o => s"(BodyParsers.parse.json)").getOrElse("")
 
         // If we're posting a big collection - just return the size
         val returnSizeIfCollection = operation.body.map(_.datatype match {
@@ -59,16 +60,29 @@ trait PlayController extends CodeGenerator {
         // Use in service
         val resultType = operation.resultType
 
-        s"""
-def ${operation.name}(${argList}) = Action.async${bodyParse} {  request =>
-  service.${method}(${argNameList}).map(_ match {
-    case Success(result) =>
-      Ok(Json.toJson(result${returnSizeIfCollection}))
-    case Failure(ex) =>
-      InternalServerError(Json.toJson(Error("500", ex.toString)))
-  })
+        val block = s"""
+service.${method}(${argNameList}).map{_ match {
+  case Success(result) =>
+    Ok(Json.toJson(result${returnSizeIfCollection}))
+  case Failure(ex) =>
+    errorResponse(ex, msg => Error("500", msg))
+}}"""
+
+        operation.body match {
+          case Some(body) => s"""
+def ${operation.name}(${argList}) = Action.async(BodyParsers.parse.json) {  request =>
+  request.body.validate[${body.name}] match {
+    case errors: JsError =>
+      errorResponse(errors, msg => Error("500", msg))
+    case body: JsSuccess[${body.name}] =>${block.indent(6)}
+    }
+  }
 }"""
-        }.mkString("\n")
+        case None => s"""
+def ${operation.name}(${argList}) = Action.async {  request =>${block.indent(2)}
+}"""
+        }
+      }.mkString("\n") 
 
 
       val source = s"""$header
@@ -90,6 +104,19 @@ class ${resourceName} @Singleton @Inject() (service: ${serviceName}) extends Con
   import ${ssd.namespaces.models}.json._
   import play.api.libs.concurrent.Execution.Implicits.defaultContext
   ${resourceFunctions.indent(2)}
+
+  private def errorResponse[A: Writes](errors: JsError, create: String => A): Future[Result] = {
+    val msg = errors.errors.flatMap(node => {
+      val nodeName = node._1.path.map(_.toString + ": ").mkString
+      val message = node._2.map(_.message).mkString
+      s"$$nodeName$$message"
+    }).mkString
+    scala.concurrent.Future(InternalServerError(Json.toJson(create(msg))))
+  }
+
+  private def errorResponse[A: Writes](ex: Throwable, create: String => A): Result =
+    InternalServerError(Json.toJson(create(ex.getMessage)))
+
 }
 """
       File(resourceName + ".scala", Some("controllers"), source)

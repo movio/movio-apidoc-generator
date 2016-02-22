@@ -45,4 +45,17 @@ class EchoesController @Singleton @Inject() (service: EchoesService) extends Con
         InternalServerError(Json.toJson(Error("500", ex.toString)))
     })
   }
+
+  private def errorResponse[A: Writes](errors: JsError, create: String => A): Future[Result] = {
+    val msg = errors.errors.flatMap(node => {
+      val nodeName = node._1.path.map(_.toString + ": ").mkString
+      val message = node._2.map(_.message).mkString
+      s"$nodeName$message"
+    }).mkString
+    scala.concurrent.Future(InternalServerError(Json.toJson(create(msg))))
+  }
+
+  private def errorResponse[A: Writes](ex: Throwable, create: String => A): Result =
+    InternalServerError(Json.toJson(create(ex.getMessage)))
+
 }
