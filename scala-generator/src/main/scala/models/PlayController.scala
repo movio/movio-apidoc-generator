@@ -75,7 +75,6 @@ def ${operation.name}(${argList}) = Action.async(BodyParsers.parse.json) {  requ
     case errors: JsError =>
       errorResponse(errors, msg => Error("500", msg))
     case body: JsSuccess[${body.name}] =>${block.indent(6)}
-    }
   }
 }"""
         case None => s"""
@@ -95,6 +94,7 @@ import play.api.mvc._
 import play.api.libs.json._
 
 import scala.concurrent.duration._
+import scala.concurrent.Future
 import scala.util.{Success, Failure}
 
 import services.${serviceName}

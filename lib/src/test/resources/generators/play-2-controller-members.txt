@@ -12,6 +12,7 @@ import play.api.mvc._
 import play.api.libs.json._
 
 import scala.concurrent.duration._
+import scala.concurrent.Future
 import scala.util.{Success, Failure}
 
 import services.MembersService
@@ -73,7 +74,6 @@ class MembersController @Singleton @Inject() (service: MembersService) extends C
           case Failure(ex) =>
             errorResponse(ex, msg => Error("500", msg))
         }}
-      }
     }
   }
 
@@ -90,7 +90,6 @@ class MembersController @Singleton @Inject() (service: MembersService) extends C
           case Failure(ex) =>
             errorResponse(ex, msg => Error("500", msg))
         }}
-      }
     }
   }
 
