@@ -33,7 +33,8 @@ class AdvancedCaseClassesSpec extends FunSpec with ShouldMatchers {
             ]},
             { "name": "optional_date_time", "type": "string", "required": false, "attributes": [
               { "name": "scala_field_props", "value": { "class": "org.joda.time.LocalDateTime" } }
-            ]}
+            ]},
+            { "name": "string_option_max", "type": "string", "required": false, "maximum": 18, "attributes": [] }
           ],
           "attributes": [
             { "name": "scala_model_props", "value": { "extends": ["com.github.BaseClass"] } }

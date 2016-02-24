@@ -141,8 +141,10 @@ ${fields.indent(2)}
       toOption(field.field.maximum.isDefined, {
                  val dataType = field.`type`
                  dataType match {
-                   case _: lib.Datatype.Container ⇒
+                   case _: lib.Datatype.Container.List | _: lib.Datatype.Container.Map ⇒
                      field ⇒ s"""validateMaxSize("${field.name}", ${field.name}, ${field.field.maximum.get})"""
+                   case _: lib.Datatype.Container.Option ⇒
+                     field ⇒ s"""validateMaxLength("${field.name}", ${field.name}, ${field.field.maximum.get})"""
                    case s: lib.Datatype.Primitive ⇒
                      s.name match {
                        case "string" => field ⇒ s"""validateMaxLength("${field.name}", ${field.name}, ${field.field.maximum.get})"""

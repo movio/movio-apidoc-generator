@@ -18,7 +18,8 @@ package test.apidoc.apidoctest.v0.models {
     intMax: Int,
     longMin: Long,
     dateTime: _root_.org.joda.time.LocalDateTime,
-    optionalDateTime: _root_.scala.Option[_root_.org.joda.time.LocalDateTime] = None
+    optionalDateTime: _root_.scala.Option[_root_.org.joda.time.LocalDateTime] = None,
+    stringOptionMax: _root_.scala.Option[String] = None
   ) extends com.github.BaseClass {
 
     import Validation._
@@ -30,6 +31,7 @@ package test.apidoc.apidoctest.v0.models {
     validateMinLengthOfAll("stringMinList", stringMinList, 15)
     validateMax("intMax", intMax, 16)
     validateMin("longMin", longMin, 17)
+    validateMaxLength("stringOptionMax", stringOptionMax, 18)
 
   }
 
