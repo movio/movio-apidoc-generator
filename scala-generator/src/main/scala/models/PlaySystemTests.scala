@@ -51,7 +51,7 @@ trait PlaySystemTests extends CodeGenerator {
       }
       val usedModelsString = Seq(1, 2).flatMap(i ⇒
         usedModels.map(x ⇒
-          s"""val ${getInstanceName(x, i)} = ${KafkaTests.createEntity(x, i, ssd.models).indent(4)}""")).mkString("\n")
+          s"""val ${getInstanceName(x, i)} = ${generateInstance(x, i, ssd).indent(4)}""")).mkString("\n")
       val usedModelsSeq = usedModels.map(m ⇒
         s"val ${getInstanceBatchName(m)} = Seq(${getInstanceName(m, 1)}, ${getInstanceName(m, 2)})").mkString("\n")
 

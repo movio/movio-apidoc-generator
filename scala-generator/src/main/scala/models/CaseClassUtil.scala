@@ -43,14 +43,11 @@ object CaseClassUtil {
     val fields = model.fields.map { field ⇒
       val defaultValue =
         getScalaProps(field) match {
-        // field.field.attributes.find(_.name == AdvancedCaseClasses.ScalaPropsKey) match {
           case Some(props) ⇒
             props.example match {
-            // (attr.value \ AdvancedCaseClasses.ScalaExampleKey).toOption match {
               case Some(example) ⇒ example
               case None ⇒
                 props.default match {
-                // (attr.value \ AdvancedCaseClasses.ScalaDefaultKey).toOption match {
                   case Some(default) ⇒ default
                   case None ⇒
                     if (field.required)
@@ -64,12 +61,12 @@ object CaseClassUtil {
             field.`type` match {
               case t: Primitive ⇒ t match {
                 case Primitive.Boolean         ⇒ true
-                case Primitive.Double          ⇒ 2.0 + id
-                case Primitive.Integer         ⇒ 21 + id
-                case Primitive.Long            ⇒ 101L + id
+                case Primitive.Double          ⇒ 0.1 + id
+                case Primitive.Integer         ⇒ 1 + id
+                case Primitive.Long            ⇒ 2L + id
                 case Primitive.DateIso8601     ⇒ "new org.joda.time.Date()"
                 case Primitive.DateTimeIso8601 ⇒ "new org.joda.time.DateTime()"
-                case Primitive.Decimal         ⇒ 1.31 + id
+                case Primitive.Decimal         ⇒ 0.31 + id
                 case Primitive.Object          ⇒ ""
                 case Primitive.String          ⇒ s""""${field.name}${id}""""
                 case Primitive.Unit            ⇒ ""

@@ -80,7 +80,7 @@ trait PlayService extends CodeGenerator {
             // Create a default Case Class
             ssd.models.filter(_.qualifiedName == operation.resultType).headOption match {
               case Some(model) =>
-                val caseClass = KafkaTests.createEntity(model, 1, kafkaModels)
+                val caseClass = generateInstance(model, 1, ssd)
                 s"Try { ${caseClass.indent(6)} }"
               case None =>
                 "Try { Unit }"

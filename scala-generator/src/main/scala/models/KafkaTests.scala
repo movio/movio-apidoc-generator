@@ -151,71 +151,12 @@ class ${className}Tests extends MovioSpec with KafkaTestKit {
     val consumer = new ${className}Consumer(testConfig, new java.util.Random().nextInt.toString)
   }
 
-  val entity1 = ${createEntity(model, 1, ssd.models).indent(4)}
-  val entity2 = ${createEntity(model, 2, ssd.models).indent(4)}
+  val entity1 = ${generateInstance(model, 1, ssd).indent(4)}
+  val entity2 = ${generateInstance(model, 2, ssd).indent(4)}
 }
 """
       ServiceFileNames.toFile(form.service.namespace, form.service.organization.key, form.service.application.key, form.service.version, s"${className}Test", source, Some("Scala"))
     }
   }
 
-  def createEntity(model: ScalaModel, number: Int, models: Seq[ScalaModel]): String = {
-    def getModelForField(name: String): ScalaModel = {
-      models.find(model ⇒ model.originalName == name).get
-    }
-
-    val fields = model.fields.map { field ⇒
-      val defaultValue =
-        getScalaProps(field) match {
-          case Some(scalaFieldProps) ⇒
-            scalaFieldProps.example match {
-              case Some(example) ⇒ example
-              case None ⇒
-                scalaFieldProps.default match {
-                  case Some(default) ⇒ default
-                  case None ⇒
-                    if (field.required)
-                      throw new RuntimeException("manditory fields must provide examples")
-                    else
-                      "None"
-                }
-            }
-          case None ⇒
-            field.`type` match {
-              case t: Primitive ⇒ t match {
-                case Primitive.Boolean         ⇒ true
-                case Primitive.Double          ⇒ 2.0 + number
-                case Primitive.Integer         ⇒ 21 + number
-                case Primitive.Long            ⇒ 101L + number
-                case Primitive.DateIso8601     ⇒ "new org.joda.time.Date()"
-                case Primitive.DateTimeIso8601 ⇒ "new org.joda.time.DateTime()"
-                case Primitive.Decimal         ⇒ 1.31 + number
-                case Primitive.Object          ⇒ ""
-                case Primitive.String          ⇒ s""""${field.name}${number}""""
-                case Primitive.Unit            ⇒ ""
-                case Primitive.Uuid            ⇒ "new java.util.UUID()"
-                case _                         ⇒ "???"
-              }
-              case t: Container ⇒ t match {
-                case Container.List(name)   ⇒ "List.empty"
-                case Container.Map(name)    ⇒ "Map.empty"
-                case Container.Option(name) ⇒ "None"
-              }
-              case t: UserDefined ⇒ t match {
-                case UserDefined.Model(name) ⇒ createEntity(getModelForField(name), number, models).indent(2)
-                case UserDefined.Enum(name)  ⇒ "" // TBC
-                case UserDefined.Union(name) ⇒ "" // TBC
-              }
-              case e ⇒ "???"
-            }
-        }
-
-      s"""${field.name} = $defaultValue"""
-    }.mkString("", ",\n", "").indent(2)
-    s"""
-${model.name} (
-$fields
-)
-"""
-  }
 }
