@@ -1,6 +1,6 @@
 package scala.models
 
-import scala.generator.{ ScalaModel, ScalaService, ScalaField }
+import scala.generator.{ ScalaModel, ScalaService, ScalaField, ScalaEnum }
 import scala.generator.ScalaUtil
 import play.api.libs.json.__
 import play.api.libs.json.Reads
@@ -80,7 +80,7 @@ object CaseClassUtil {
               }
               case t: UserDefined ⇒ t match {
                 case UserDefined.Model(name) ⇒ generateInstance(getModelFromOriginalName(name, ssd).get, id, ssd).indent(2)
-                case UserDefined.Enum(name)  ⇒ "???" // TBC
+                case UserDefined.Enum(name)  ⇒ generateEnum(name, ssd)
                 case UserDefined.Union(name) ⇒ "???" // TBC
               }
               case e ⇒ "???"
@@ -94,5 +94,14 @@ ${model.name} (
 $fields
 )
 """
+  }
+
+  def generateEnum(name: String, ssd: ScalaService): String = {
+    val result = ssd.enums.find(_.enum.name == name) map (enum => {
+      val enumValue = enum.values(0).name
+      s"${enum.name}.${enumValue}"
+      }
+    )
+    result.getOrElse("")
   }
 }
