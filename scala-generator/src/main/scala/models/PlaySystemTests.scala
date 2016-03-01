@@ -135,27 +135,31 @@ class ${resourceName}SystemTest extends MovioSpec with KafkaTestKit with OneServ
       case Some(body) ⇒
         val model = operation.ssd.models.filter(body.name contains _.qualifiedName.toString).head
 
-        val isBatch = operation.body.map(_.datatype match {
-          case _: Container ⇒ true
-          case _            ⇒ false
-        }).getOrElse(false)
+        // Only generate kafka tests if there is a kafka class
+        getKafkaClass(model, operation.ssd) match {
+          case None => ""
+          case Some(kafkaClass) =>
 
-        val singleBatch = if (isBatch) "Batch" else "Single"
-        val testName = s"${method.toUpperCase} ${model.name} $singleBatch"
+          val isBatch = operation.body.map(_.datatype match {
+            case _: Container ⇒ true
+            case _            ⇒ false
+          }).getOrElse(false)
 
-        val batchSize = if (isBatch) 100 else 1
-        val input = if (isBatch) getInstanceBatchName(model) else getInstanceName(model, 1)
-        val result = if (isBatch) input + ".size" else input
-        val consumerClassName = getConsumerClassName(model)
-        val kafkaClass = getKafkaClass(model, operation.ssd).get
-        val resourcePath = snakeToCamelCase(camelCaseToUnderscore(operation.resource.plural).toLowerCase)
-        val functionName = operation.name
-        val dataKey = getPayloadFieldName(kafkaClass)
-        val expectedResult = if (isBatch)
-          s"kafkaResult.map(_.${dataKey}) shouldBe $input"
-        else
-          s"kafkaResult.map(_.${dataKey}).head shouldBe result"
-        s"""
+          val singleBatch = if (isBatch) "Batch" else "Single"
+          val testName = s"${method.toUpperCase} ${model.name} $singleBatch"
+
+          val batchSize = if (isBatch) 100 else 1
+          val input = if (isBatch) getInstanceBatchName(model) else getInstanceName(model, 1)
+          val result = if (isBatch) input + ".size" else input
+          val consumerClassName = getConsumerClassName(model)
+          val resourcePath = snakeToCamelCase(camelCaseToUnderscore(operation.resource.plural).toLowerCase)
+          val functionName = operation.name
+          val dataKey = getPayloadFieldName(kafkaClass)
+          val expectedResult = if (isBatch)
+            s"kafkaResult.map(_.${dataKey}) shouldBe $input"
+          else
+            s"kafkaResult.map(_.${dataKey}).head shouldBe result"
+          s"""
 it("${testName}") {
   val consumer = new ${consumerClassName}(testConfig, "consumer-group")
   val client = new Client(apiUrl = s"http://localhost:$$port")
@@ -170,6 +174,7 @@ it("${testName}") {
   }
   consumer.shutdown
 }"""
+      }
     }
   }
 }
