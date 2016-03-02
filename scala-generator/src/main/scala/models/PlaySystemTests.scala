@@ -63,7 +63,6 @@ import org.scalatestplus.play.OneServerPerSuite
 import play.api.test._
 import play.api.Configuration
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import scala.util.{ Try, Success }
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
@@ -167,7 +166,7 @@ it("${testName}") {
   val result = await(promise)
   result shouldBe ${result}
 
-  def processor(messages: Map[String, Seq[${kafkaClass.name}]]): Try[Map[String, Seq[${kafkaClass.name}]]] = Success(messages)
+  def processor(messages: Map[String, Seq[${kafkaClass.name}]]): scala.util.Try[Map[String, Seq[${kafkaClass.name}]]] = scala.util.Success(messages)
   awaitCondition("Message should be on the queue", interval = 500 millis) {
     val kafkaResult = consumer.processBatchThenCommit(processor, ${batchSize}).get(tenant)
     ${expectedResult}

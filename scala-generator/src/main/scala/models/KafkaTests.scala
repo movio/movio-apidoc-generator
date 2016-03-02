@@ -42,9 +42,6 @@ object KafkaTests extends CodeGenerator {
       val source = s""" $header
 package ${ssd.namespaces.base}.kafka
 
-import scala.util.Try
-import scala.util.Success
-
 import org.joda.time.LocalDateTime
 import org.mockito.Matchers.any
 import org.mockito.Matchers.{ eq ⇒ is }
@@ -70,8 +67,8 @@ class ${className}Tests extends MovioSpec with KafkaTestKit {
     it("should timeout with no messages") {
       new Fixture {
         awaitCondition("Message should get processed") {
-          def processor(messages: Map[String, Seq[${className}]]): Try[Map[String, Seq[${className}]]] =  Success(messages)
-          consumer.processBatchThenCommit(processor) shouldBe Success(Map.empty)
+          def processor(messages: Map[String, Seq[${className}]]): scala.util.Try[Map[String, Seq[${className}]]] =  scala.util.Success(messages)
+          consumer.processBatchThenCommit(processor) shouldBe scala.util.Success(Map.empty)
         }
 
         consumer.shutdown
@@ -85,10 +82,10 @@ class ${className}Tests extends MovioSpec with KafkaTestKit {
 
         // And consume it
         awaitCondition("Message should get processed") {
-          def processor(messages: Map[String, Seq[${className}]]): Try[Map[String, Seq[${className}]]] = {
+          def processor(messages: Map[String, Seq[${className}]]): scala.util.Try[Map[String, Seq[${className}]]] = {
             println(messages)
             println("do some side effecting stuff here")
-            Success(messages)
+            scala.util.Success(messages)
           }
           consumer.processBatchThenCommit(processor).get(tenant) shouldBe Seq(entity1)
         }
@@ -106,10 +103,10 @@ class ${className}Tests extends MovioSpec with KafkaTestKit {
 
         // And consume it
         awaitCondition("Message should get processed") {
-          def processor(messages: Map[String, Seq[${className}]]): Try[Map[String, Seq[${className}]]] =  {
+          def processor(messages: Map[String, Seq[${className}]]): scala.util.Try[Map[String, Seq[${className}]]] =  {
             println(messages)
             println("do some side effecting stuff here")
-            Success(messages)
+            scala.util.Success(messages)
           }
           // Use distinct because there are items in the queue from other tests
           consumer.processBatchThenCommit(processor, 100).get(tenant) shouldBe entities

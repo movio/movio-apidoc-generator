@@ -48,8 +48,6 @@ import play.api.libs.json.Writes
 import java.util.Properties
 import com.typesafe.config.Config
 
-import scala.util.{ Failure, Try }
-
 import movio.api.kafka_0_8.KafkaProducer
 import movio.api.kafka_0_8.KafkaProducerException
 import movio.core.utils.TryHelpers.TryOps
@@ -75,37 +73,37 @@ package ${ssd.namespaces.base}.kafka {
       properties
     }
 
-    def send(single: ${className}, tenant: String): Try[${className}] = {
+    def send(single: ${className}, tenant: String): scala.util.Try[${className}] = {
       send(Seq(single), tenant).map(_.head)
     }
 
-    def sendWrapped(single: ${kafkaClassName}, tenant: String): Try[${kafkaClassName}] = {
+    def sendWrapped(single: ${kafkaClassName}, tenant: String): scala.util.Try[${kafkaClassName}] = {
       sendWrapped(Seq(single), tenant).map(_.head)
     }
 
-    def send(batch: Seq[${className}], tenant: String): Try[Seq[${className}]] = {
+    def send(batch: Seq[${className}], tenant: String): scala.util.Try[Seq[${className}]] = {
       val topic = ${kafkaClassName}Topic.topic(tenant)
       val messages = batch.map(${kafkaClassName}(_))
-      Try {
+      scala.util.Try {
         producer.send(messages map { message =>
                         new KeyedMessage[String, String](topic, message.generateKey(tenant), Json.stringify(Json.toJson(message)))
                       }: _*)
         batch
       } andThen {
-        case Failure(ex) ⇒
+        case scala.util.Failure(ex) ⇒
           throw new KafkaProducerException(s"Failed to publish $$topic message, to kafka queue.", ex)
       }
     }
 
-    def sendWrapped(batch: Seq[${kafkaClassName}], tenant: String): Try[Seq[${kafkaClassName}]] = {
+    def sendWrapped(batch: Seq[${kafkaClassName}], tenant: String): scala.util.Try[Seq[${kafkaClassName}]] = {
       val topic = ${kafkaClassName}Topic.topic(tenant)
-      Try {
+      scala.util.Try {
         producer.send(batch map { message =>
                         new KeyedMessage[String, String](topic, message.generateKey(tenant), Json.stringify(Json.toJson(message)))
                       }: _*)
         batch
       } andThen {
-        case Failure(ex) ⇒
+        case scala.util.Failure(ex) ⇒
           throw new KafkaProducerException(s"Failed to publish $$topic message, to kafka queue.", ex)
       }
     }

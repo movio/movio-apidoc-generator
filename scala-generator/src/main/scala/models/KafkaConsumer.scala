@@ -52,7 +52,6 @@ object KafkaConsumer extends CodeGenerator {
 import java.util.Properties
 
 import scala.language.postfixOps
-import scala.util.{ Try, Success, Failure }
 import scala.annotation.tailrec
 
 import com.typesafe.config.Config
@@ -130,19 +129,19 @@ package ${ssd.namespaces.base}.kafka {
     }
 
     def processBatchThenCommit(
-      processor: Map[String, Seq[${className}]] ⇒ Try[Map[String, Seq[${className}]]],
+      processor: Map[String, Seq[${className}]] ⇒ scala.util.Try[Map[String, Seq[${className}]]],
       batchSize: Int = 1
-    ): Try[Map[String, Seq[${className}]]] = {
+    ): scala.util.Try[Map[String, Seq[${className}]]] = {
       @tailrec
-      def fetchBatch(remainingInBatch: Int, messages: Map[String, Seq[${className}]]): Try[Map[String, Seq[${className}]]] ={
+      def fetchBatch(remainingInBatch: Int, messages: Map[String, Seq[${className}]]): scala.util.Try[Map[String, Seq[${className}]]] ={
         if (remainingInBatch == 0) {
-          Success(messages)
+          scala.util.Success(messages)
         } else {
           // FIXME test
-          Try {
+          scala.util.Try {
             iterator.next()
           } match {
-            case Success(message) =>
+            case scala.util.Success(message) =>
               val entity = Json.parse(message.message).as[${className}]
               val ${className}Topic.topicRegex.r(tenant) = message.topic
 
@@ -150,24 +149,24 @@ package ${ssd.namespaces.base}.kafka {
               val newMessages = messages + (tenant -> newSeq)
 
               fetchBatch(remainingInBatch - 1, newMessages)
-            case Failure(ex) => ex match {
+            case scala.util.Failure(ex) => ex match {
               case ex: ConsumerTimeoutException ⇒
                 // Consumer timed out waiting for a message. Ending batch.
-                Success(messages)
+                scala.util.Success(messages)
               case ex =>
-                Failure(ex)
+                scala.util.Failure(ex)
             }
           }
         }
       }
 
       fetchBatch(batchSize, Map.empty) match {
-        case Success(messages) =>
+        case scala.util.Success(messages) =>
           processor(messages) map { allMessages =>
             consumer.commitOffsets(true)
             allMessages
           }
-        case Failure(ex) => Failure(ex)
+        case scala.util.Failure(ex) => scala.util.Failure(ex)
       }
     }
 

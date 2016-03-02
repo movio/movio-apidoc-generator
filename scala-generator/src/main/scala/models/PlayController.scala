@@ -62,15 +62,15 @@ trait PlayController extends CodeGenerator {
 
         val block = s"""
 service.${method}(${argNameList}).map{_ match {
-  case Success(result) =>
+  case scala.util.Success(result) =>
     Ok(Json.toJson(result${returnSizeIfCollection}))
-  case Failure(ex) =>
+  case scala.util.Failure(ex) =>
     errorResponse(ex, msg => Error("500", msg))
 }}"""
 
         operation.body match {
           case Some(body) => s"""
-def ${operation.name}(${argList}) = Action.async(BodyParsers.parse.json) {  request =>
+def ${operation.name}(${argList}) = play.api.mvc.Action.async(BodyParsers.parse.json) {  request =>
   request.body.validate[${body.name}] match {
     case errors: JsError =>
       errorResponse(errors, msg => Error("500", msg))
@@ -78,7 +78,7 @@ def ${operation.name}(${argList}) = Action.async(BodyParsers.parse.json) {  requ
   }
 }"""
         case None => s"""
-def ${operation.name}(${argList}) = Action.async {  request =>${block.indent(2)}
+def ${operation.name}(${argList}) = play.api.mvc.Action.async {  request =>${block.indent(2)}
 }"""
         }
       }.mkString("\n") 
@@ -90,22 +90,21 @@ package controllers
 import javax.inject.Inject
 import javax.inject.Singleton
 
-import play.api.mvc._
+// import play.api.mvc._
 import play.api.libs.json._
 
 import scala.concurrent.duration._
 import scala.concurrent.Future
-import scala.util.{Success, Failure}
 
 import services.${serviceName}
 
-class ${resourceName} @Singleton @Inject() (service: ${serviceName}) extends Controller {
+class ${resourceName} @Singleton @Inject() (service: ${serviceName}) extends play.api.mvc.Controller {
   import ${ssd.namespaces.models}._
   import ${ssd.namespaces.models}.json._
   import play.api.libs.concurrent.Execution.Implicits.defaultContext
   ${resourceFunctions.indent(2)}
 
-  private def errorResponse[A: Writes](errors: JsError, create: String => A): Future[Result] = {
+  private def errorResponse[A: Writes](errors: JsError, create: String => A): Future[play.api.mvc.Result] = {
     val msg = errors.errors.flatMap(node => {
       val nodeName = node._1.path.map(_.toString + ": ").mkString
       val message = node._2.map(_.message).mkString
@@ -114,7 +113,7 @@ class ${resourceName} @Singleton @Inject() (service: ${serviceName}) extends Con
     scala.concurrent.Future(InternalServerError(Json.toJson(create(msg))))
   }
 
-  private def errorResponse[A: Writes](ex: Throwable, create: String => A): Result =
+  private def errorResponse[A: Writes](ex: Throwable, create: String => A): play.api.mvc.Result =
     InternalServerError(Json.toJson(create(ex.getMessage)))
 
 }
