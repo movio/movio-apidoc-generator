@@ -74,7 +74,7 @@ class PlaySystemTestsSpec extends FunSpec with ShouldMatchers {
 
   lazy val service = models.TestHelper.service(json)
   lazy val ssd = ScalaService(service)
-  // lazy val form = InvocationForm(service)
+
   val expected = s"""
 it("POST Member Single") {
   val consumer = new KafkaMemberConsumer(testConfig, "consumer-group")
@@ -83,7 +83,7 @@ it("POST Member Single") {
   val result = await(promise)
   result shouldBe memberEntity1
 
-  def processor(messages: Map[String, Seq[KafkaMember]]): Try[Map[String, Seq[KafkaMember]]] = Success(messages)
+  def processor(messages: Map[String, Seq[KafkaMember]]): scala.util.Try[Map[String, Seq[KafkaMember]]] = scala.util.Success(messages)
   awaitCondition("Message should be on the queue", interval = 500 millis) {
     val kafkaResult = consumer.processBatchThenCommit(processor, 1).get(tenant)
     kafkaResult.map(_.v0).head shouldBe result
