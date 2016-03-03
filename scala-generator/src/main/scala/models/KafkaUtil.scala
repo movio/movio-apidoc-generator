@@ -23,21 +23,21 @@ object KafkaUtil {
   def getKafkaModels(ssd: ScalaService): Seq[ScalaModel] = ssd.models.filter(isKafkaClass(_))
 
   def getKafkaClass(payload: ScalaModel, ssd: ScalaService): Option[ScalaModel] = {
-    getKafkaModels(ssd).filter(getKafkaProps(_) match {
+    getKafkaModels(ssd).filter(model => getKafkaProps(model.model) match {
       case Some(attr) ⇒ attr.dataType == payload.originalName
       case None       ⇒ false
     }).headOption
   }
 
-  def getKafkaProps(model: ScalaModel): Option[KafkaProps] = {
-    model.model.findAttribute(KafkaPropsKey).map(attr ⇒ attr.value.as[KafkaProps])
+  def getKafkaProps(model: Model): Option[KafkaProps] = {
+    model.findAttribute(KafkaPropsKey).map(attr ⇒ attr.value.as[KafkaProps])
   }
 
   def getConsumerClassName(payload: ScalaModel): String = s"Kafka${payload.name}Consumer"
 
-  def getPayloadFieldName(kafkaClass: ScalaModel): String = {
-    val payload = getKafkaProps(kafkaClass).get.dataType
-    kafkaClass.fields.filter(_.`type`.name == payload).head.name
+  def getPayloadFieldName(kafkaModel: ScalaModel): String = {
+    val payload = getKafkaProps(kafkaModel.model).get.dataType
+    kafkaModel.fields.filter(_.`type`.name == payload).head.name
   }
 
 }

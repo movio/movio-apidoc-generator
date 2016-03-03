@@ -61,7 +61,7 @@ class MembersController @Singleton @Inject() (service: MembersService) extends p
 
   def postMembersBulkByOrganization(
     organization: _root_.java.util.UUID
-  ) = play.api.mvc.Action.async(BodyParsers.parse.json) {  request =>
+  ) = play.api.mvc.Action.async(play.api.mvc.BodyParsers.parse.json) {  request =>
     request.body.validate[Seq[com.bryzek.apidoc.reference.api.v0.models.Member]] match {
       case errors: JsError =>
         errorResponse(errors, msg => Error("500", msg))
@@ -77,7 +77,7 @@ class MembersController @Singleton @Inject() (service: MembersService) extends p
 
   def postMembersMapByOrganization(
     organization: _root_.java.util.UUID
-  ) = play.api.mvc.Action.async(BodyParsers.parse.json) {  request =>
+  ) = play.api.mvc.Action.async(play.api.mvc.BodyParsers.parse.json) {  request =>
     request.body.validate[Map[String, com.bryzek.apidoc.reference.api.v0.models.Member]] match {
       case errors: JsError =>
         errorResponse(errors, msg => Error("500", msg))

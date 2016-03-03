@@ -210,7 +210,7 @@ ${fields.indent(2)}
   }
 
   def generateKafkaBody(ssd: ScalaService, model: ScalaModel, unions: Seq[ScalaUnion]): String = {
-    getKafkaProps(model) match {
+    getKafkaProps(model.model) match {
       case Some(kafkaProps) ⇒
         s"""def generateKey(tenant: String) = ${kafkaProps.messageGenerateKey}"""
       case None ⇒ ""
