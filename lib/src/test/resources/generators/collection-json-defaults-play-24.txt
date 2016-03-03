@@ -204,7 +204,7 @@ package com.gilt.test.v0 {
       }
     }
 
-    def _requestHolder(path: String): play.api.libs.ws.WSRequestHolder = {
+    def _requestHolder(path: String): play.api.libs.ws.WSRequest = {
       val url:play.api.libs.ws.WSRequest = play.api.Play.maybeApplication match {
         case Some(app) => // We have a running Play App use built in client for url
           import play.api.Play.current
@@ -234,7 +234,7 @@ package com.gilt.test.v0 {
       }
     }
 
-    def _logRequest(method: String, req: play.api.libs.ws.WSRequestHolder)(implicit ec: scala.concurrent.ExecutionContext): play.api.libs.ws.WSRequestHolder = {
+    def _logRequest(method: String, req: play.api.libs.ws.WSRequest)(implicit ec: scala.concurrent.ExecutionContext): play.api.libs.ws.WSRequest = {
       val queryComponents = for {
         (name, values) <- req.queryString
         value <- values
