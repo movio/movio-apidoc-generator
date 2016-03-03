@@ -177,7 +177,7 @@ ${serializations.mkString(" and\n").indent(6)}
 
   private[models] def fieldReadersWriters(model: ScalaModel, readWrite: String): List[String] = {
     model.fields.map { field ⇒
-      getScalaProps(field) match {
+      getScalaProps(field.field) match {
         case Some(scalaFieldProps) ⇒
           val datatype = "_root_." + scalaFieldProps.`class`.getOrElse("???")
           if (field.required)

@@ -11,6 +11,10 @@ import lib.Text._
 import movio.apidoc.generator.attributes.v0.models._
 import movio.apidoc.generator.attributes.v0.models.json._
 
+import HasAttributes.ops._
+import HasAttributesI._
+import com.bryzek.apidoc.spec.v0.models._
+
 object CaseClassUtil {
   val ScalaModelPropsKey = "scala_model_props"
   val ScalaFieldPropsKey = "scala_field_props"
@@ -27,14 +31,15 @@ object CaseClassUtil {
   def getModelByName(specName: String, ssd: ScalaService): Option[ScalaModel] =
     ssd.models.filter(_.originalName == specName).headOption
 
-  def getScalaProps(scalaModel: ScalaModel): Option[ScalaModelProps] =
-    scalaModel.attribute(ScalaModelPropsKey).map(_.value.as[ScalaModelProps])
 
-  def getScalaProps(scalaField: ScalaField): Option[ScalaFieldProps] =
-    scalaField.attribute(ScalaFieldPropsKey).map(_.value.as[ScalaFieldProps])
+  def getScalaProps(model: Model): Option[ScalaModelProps] =
+    model.findAttribute(ScalaModelPropsKey).map(_.value.as[ScalaModelProps])
 
-  def getFieldValidation(scalaField: ScalaField): Option[FieldValidation] =
-    scalaField.attribute(FieldValidationKey).map(_.value.as[FieldValidation])
+  def getScalaProps(field: Field): Option[ScalaFieldProps] =
+    field.findAttribute(ScalaFieldPropsKey).map(_.value.as[ScalaFieldProps])
+
+  def getFieldValidation(field: Field): Option[FieldValidation] =
+    field.findAttribute(FieldValidationKey).map(_.value.as[FieldValidation])
 
   def getModelFromOriginalName(name: String, ssd: ScalaService): Option[ScalaModel] =
     ssd.models.find(model => model.originalName == name)
@@ -42,7 +47,7 @@ object CaseClassUtil {
   def generateInstance(model: ScalaModel, id: Int, ssd: ScalaService): String = {
     val fields = model.fields.map { field ⇒
       val defaultValue =
-        getScalaProps(field) match {
+        getScalaProps(field.field) match {
           case Some(props) ⇒
             props.example match {
               case Some(example) ⇒ example

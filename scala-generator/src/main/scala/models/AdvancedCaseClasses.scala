@@ -135,7 +135,7 @@ ${fields.indent(2)}
 
   def generateFieldValidation(field: ScalaField): Seq[String] = {
     def toOption(test: Boolean, fn: ScalaField ⇒ String) = if (test) Option(fn(field)) else None
-    val fieldValidation = getFieldValidation(field)
+    val fieldValidation = getFieldValidation(field.field)
     // FIXME - should be using typeclasses for this
     val result = Seq.empty :+
       toOption(field.field.maximum.isDefined, {
@@ -218,7 +218,7 @@ ${fields.indent(2)}
   }
 
   def extendsClasses(model: ScalaModel): Seq[String] = {
-    val defined = getScalaProps(model) match {
+    val defined = getScalaProps(model.model) match {
       case Some(p) ⇒ p.`extends`.getOrElse(Seq.empty)
       case None    ⇒ Seq.empty
     }
@@ -243,7 +243,7 @@ ${fields.indent(2)}
   }
 
   def getDefault(field: ScalaField): String = {
-    getScalaProps(field) match {
+    getScalaProps(field.field) match {
       case Some(scalaFieldProps) ⇒
         // Custom Type
         scalaFieldProps.default match {
@@ -267,7 +267,7 @@ ${fields.indent(2)}
   }
 
   def dataType(field: ScalaField) = {
-    getScalaProps(field) match {
+    getScalaProps(field.field) match {
       case Some(scalaFieldProps) ⇒
         val rootedType = "_root_." + scalaFieldProps.`class`.get
         if (field.required)

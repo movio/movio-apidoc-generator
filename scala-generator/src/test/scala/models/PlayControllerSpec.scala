@@ -13,11 +13,6 @@ class PlayControllerSpec extends FunSpec with ShouldMatchers {
   it("generates play controller") {
     val generated = PlayController.generateCode(form)
 
-    // models.TestHelper.assertEqualsFile(
-    //   "/generators/play-2-controller-echos.txt",
-    //   generated(0).contents // echos
-    // )
-
     models.TestHelper.assertEqualsFile(
       "/generators/play-2-controller-members.txt",
       generated(1).contents // members

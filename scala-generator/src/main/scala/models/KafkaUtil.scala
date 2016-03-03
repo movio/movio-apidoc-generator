@@ -10,12 +10,15 @@ import play.api.libs.functional.syntax._
 import movio.apidoc.generator.attributes.v0.models._
 import movio.apidoc.generator.attributes.v0.models.json._
 
+import HasAttributes.ops._
+import HasAttributesI._
+
 object KafkaUtil {
   import CaseClassUtil._
 
   val KafkaPropsKey = "kafka_props"
 
-  def isKafkaClass(model: ScalaModel): Boolean = model.attribute(KafkaPropsKey).isDefined
+  def isKafkaClass(model: ScalaModel): Boolean = model.model.findAttribute(KafkaPropsKey).isDefined
 
   def getKafkaModels(ssd: ScalaService): Seq[ScalaModel] = ssd.models.filter(isKafkaClass(_))
 
@@ -27,7 +30,7 @@ object KafkaUtil {
   }
 
   def getKafkaProps(model: ScalaModel): Option[KafkaProps] = {
-    model.attribute(KafkaPropsKey).map(attr ⇒ attr.value.as[KafkaProps])
+    model.model.findAttribute(KafkaPropsKey).map(attr ⇒ attr.value.as[KafkaProps])
   }
 
   def getConsumerClassName(payload: ScalaModel): String = s"Kafka${payload.name}Consumer"

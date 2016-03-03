@@ -150,10 +150,6 @@ case class ScalaModel(val ssd: ScalaService, val model: Model) {
 
   val argList: Option[String] = ScalaUtil.fieldsToArgList(fields.map(_.definition()))
 
-  val attributes = model.attributes
-
-  def attribute(name: String) = attributes.find(_.name == name)
-
 }
 
 
@@ -202,9 +198,6 @@ class ScalaResource(ssd: ScalaService, val resource: Resource) {
 
   val operations = resource.operations.map { new ScalaOperation(ssd, _, this)}
 
-  val attributes = resource.attributes
-
-  def attribute(name: String) = attributes.filter(_.name == name).headOption
 }
 
 case class ScalaOperation(ssd: ScalaService, operation: Operation, resource: ScalaResource) {
@@ -254,9 +247,6 @@ case class ScalaOperation(ssd: ScalaService, operation: Operation, resource: Sca
 
   lazy val resultType = responses.find(_.isSuccess).map(_.resultType).getOrElse("Unit")
 
-  val attributes = operation.attributes
-
-  def attribute(name: String) = attributes.filter(_.name == name).headOption
 }
 
 class ScalaResponse(ssd: ScalaService, method: Method, response: Response) {
@@ -325,9 +315,6 @@ case class ScalaField(ssd: ScalaService, modelName: String, field: Field) {
     datatype.definition(varName, default)
   }
 
-  val attributes = field.attributes
-
-  def attribute(name: String) = attributes.filter(_.name == name).headOption
 }
 
 class ScalaParameter(ssd: ScalaService, val param: Parameter) {
