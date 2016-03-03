@@ -48,8 +48,7 @@ trait PlayController extends CodeGenerator {
             operation.parameters.map(_.name)
         ).mkString(", ")
 
-        // val bodyParse = operation.body.map(o => s"(BodyParsers.parse.json[${o.name}])").getOrElse("")
-        val bodyParse = operation.body.map(o => s"(BodyParsers.parse.json)").getOrElse("")
+        val bodyParse = operation.body.map(o => s"(play.api.mvc.BodyParsers.parse.json)").getOrElse("")
 
         // If we're posting a big collection - just return the size
         val returnSizeIfCollection = operation.body.map(_.datatype match {
@@ -70,7 +69,7 @@ service.${method}(${argNameList}).map{_ match {
 
         operation.body match {
           case Some(body) => s"""
-def ${operation.name}(${argList}) = play.api.mvc.Action.async(BodyParsers.parse.json) {  request =>
+def ${operation.name}(${argList}) = play.api.mvc.Action.async(play.api.mvc.BodyParsers.parse.json) {  request =>
   request.body.validate[${body.name}] match {
     case errors: JsError =>
       errorResponse(errors, msg => Error("500", msg))
