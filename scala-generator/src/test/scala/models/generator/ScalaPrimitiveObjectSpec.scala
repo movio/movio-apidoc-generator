@@ -18,7 +18,7 @@ class ScalaPrimitiveObjectSpec extends FunSpec with ShouldMatchers {
       "enums": [],
       "unions": [],
       "resources": [],
-
+      "attributes": [],
       "models": [
         {
           "name": "content",
@@ -99,7 +99,7 @@ class ScalaPrimitiveObjectSpec extends FunSpec with ShouldMatchers {
       "info": [],
       "enums": [],
       "unions": [],
-
+      "attributes": [],
       "models": [
         {
           "name": "content",

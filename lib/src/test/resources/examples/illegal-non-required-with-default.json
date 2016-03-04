@@ -18,6 +18,7 @@
   "imports": [],
   "enums": [],
   "unions": [],
+  "attributes": [],
   "models": [
     {
       "name": "user",

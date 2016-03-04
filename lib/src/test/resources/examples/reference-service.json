@@ -16,6 +16,7 @@
   "headers": [],
   "info": [],
   "imports": [],
+  "attributes": [],
   "enums": [
     {
       "name": "age_group",

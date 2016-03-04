@@ -14,6 +14,7 @@ class Play2JsonSpec extends FunSpec with ShouldMatchers {
       "unions": [],
       "enums": [],
       "resources": [],
+      "attributes": [],
       "models": [
         {
           "name": "content",

@@ -14,7 +14,7 @@ class ScalaEnumsSpec extends FunSpec with ShouldMatchers {
       "info": [],
       "unions": [],
       "resources": [],
-
+      "attributes": [],
       "enums": [
         {
           "name": "age_group",

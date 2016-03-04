@@ -13,6 +13,7 @@ class AdvancedCaseClassesSpec extends FunSpec with ShouldMatchers {
       "enums": [],
       "unions": [],
       "resources": [],
+      "attributes": [],
       "models": [
         {
           "name": "user",

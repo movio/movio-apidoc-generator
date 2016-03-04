@@ -16,7 +16,7 @@ class ScalaUnionSpec extends FunSpec with ShouldMatchers {
       "info": [],
       "enums": [],
       "resources": [],
-
+      "attributes": [],
       "unions": [
         {
           "name": "user",
@@ -94,6 +94,7 @@ class ScalaUnionSpec extends FunSpec with ShouldMatchers {
       "info": [],
       "models": [],
       "resources": [],
+      "attributes": [],
 
       "enums": [
         {

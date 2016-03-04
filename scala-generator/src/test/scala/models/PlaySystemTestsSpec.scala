@@ -12,6 +12,7 @@ class PlaySystemTestsSpec extends FunSpec with ShouldMatchers {
       "info": [],
       "enums": [],
       "unions": [],
+      "attributes": [],
       "models": [
         {
           "name": "member",

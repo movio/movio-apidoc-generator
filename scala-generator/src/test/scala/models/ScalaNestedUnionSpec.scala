@@ -14,6 +14,7 @@ class ScalaNestedUnionSpec extends FunSpec with ShouldMatchers {
       "info": [],
       "enums": [],
       "resources": [],
+      "attributes": [],
       "unions": [
         {
           "name": "inner_type",

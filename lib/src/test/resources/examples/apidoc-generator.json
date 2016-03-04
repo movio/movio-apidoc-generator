@@ -15,6 +15,7 @@
   "description": "Documentation for an apidoc code generator API",
   "headers": [],
   "info": [],
+  "attributes": [],
   "imports": [
     {
       "uri": "http://localhost:9000/gilt/apidoc-spec/0.9.6/service.json",

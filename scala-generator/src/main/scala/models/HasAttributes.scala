@@ -35,14 +35,8 @@ object HasAttributesI {
   implicit val operationHasAttributes = new HasAttributes[Operation] {
     def getAttributes(t: Operation) = t.attributes
   }
-  implicit val parameterHasAttributes = new HasAttributes[Parameter] {
-    def getAttributes(t: Parameter) = t.attributes
-  }
   implicit val resourceHasAttributes = new HasAttributes[Resource] {
     def getAttributes(t: Resource) = t.attributes
-  }
-  implicit val responseHasAttributes = new HasAttributes[Response] {
-    def getAttributes(t: Response) = t.attributes
   }
   implicit val unionHasAttributes = new HasAttributes[Union] {
     def getAttributes(t: Union) = t.attributes

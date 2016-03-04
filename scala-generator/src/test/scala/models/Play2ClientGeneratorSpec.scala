@@ -31,7 +31,7 @@ class Play2ClientGeneratorSpec extends FunSpec with ShouldMatchers {
       "models": [],
       "enums": [],
       "unions": [],
-
+      "attributes": [],
       "models": [
         {
           "name": "user",

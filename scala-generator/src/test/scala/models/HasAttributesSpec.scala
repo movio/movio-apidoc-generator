@@ -16,6 +16,7 @@ class HasAttributesSpec extends FunSpec with ShouldMatchers {
       "enums": [],
       "unions": [],
       "resources": [],
+      "attributes": [],
       "models": [
         {
           "name": "user",

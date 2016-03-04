@@ -10,6 +10,7 @@ class CaseClassUtilSpec extends FunSpec with ShouldMatchers {
       "imports": [],
       "headers": [],
       "info": [],
+      "attributes": [],
       "enums": [{
         "name": "status",
         "plural": "statuses",
