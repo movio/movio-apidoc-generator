@@ -94,7 +94,7 @@ it("POST Member Single") {
 
   it("generates kafka publish test") {
     val operation = ssd.resources.head.operations.head
-    PlaySystemTests.generateTest(operation) shouldBe expected
+    PlaySystemTests.generateTest(operation, service) shouldBe expected
   }
 
 }

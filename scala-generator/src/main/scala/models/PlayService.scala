@@ -8,6 +8,9 @@ import scala.generator.{ ScalaEnums, ScalaCaseClasses, ScalaService, ScalaResour
 import generator.ServiceFileNames
 import play.api.libs.json.JsString
 
+import HasClassName.ops._
+import HasClassNames._
+
 object PlayService extends PlayService
 trait PlayService extends CodeGenerator {
   import CaseClassUtil._
@@ -23,7 +26,8 @@ trait PlayService extends CodeGenerator {
     form: InvocationForm,
     addHeader: Boolean = true
   ): Seq[File] = {
-    val ssd = ScalaService(form.service)
+    val service = form.service
+    val ssd = ScalaService(service)
 
     val prefix = underscoreAndDashToInitCap(ssd.name)
     val enumJson: String = ssd.enums.map { ScalaEnums(ssd, _).buildJson() }.mkString("\n\n")
@@ -78,7 +82,7 @@ trait PlayService extends CodeGenerator {
           case "post" | "put" => s"""${producerName}.send(data, ${firstParamName})"""
           case "get" => 
             // Create a default Case Class
-            ssd.models.filter(_.qualifiedName == operation.resultType).headOption match {
+            ssd.models.filter(_.model.qualifiedName(service) == operation.resultType).headOption match {
               case Some(model) =>
                 val caseClass = generateInstance(model, 1, ssd)
                 s"Try { ${caseClass.indent(6)} }"

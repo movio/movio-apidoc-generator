@@ -1,13 +1,16 @@
 package scala.models
 
 import com.bryzek.apidoc.generator.v0.models.{ File, InvocationForm }
-import com.bryzek.apidoc.spec.v0.models.Attribute
+import com.bryzek.apidoc.spec.v0.models.{ Attribute, Service }
 import lib.Text._
 import lib.generator.CodeGenerator
 import scala.generator.{ ScalaEnums, ScalaCaseClasses, ScalaService, ScalaResource, ScalaOperation, ScalaUtil }
 import scala.generator.ScalaDatatype.Container
 import generator.ServiceFileNames
 import play.api.libs.json.JsString
+
+import HasClassName.ops._
+import HasClassNames._
 
 object PlaySystemTests extends PlaySystemTests
 trait PlaySystemTests extends CodeGenerator {
@@ -24,7 +27,8 @@ trait PlaySystemTests extends CodeGenerator {
     form: InvocationForm,
     addHeader: Boolean = true
   ): Seq[File] = {
-    val ssd = ScalaService(form.service)
+    val service = form.service
+    val ssd = ScalaService(service)
 
     val prefix = underscoreAndDashToInitCap(ssd.name)
     val enumJson: String = ssd.enums.map { ScalaEnums(ssd, _).buildJson() }.mkString("\n\n")
@@ -42,12 +46,12 @@ trait PlaySystemTests extends CodeGenerator {
       val testName = resource.plural + "Test"
 
       val tests = resource.operations.map { operation: ScalaOperation ⇒
-        generateTest(operation)
+        generateTest(operation, service)
       }.mkString("\n")
 
       // Putting in default models
       val usedModels = resource.operations.flatMap { operation: ScalaOperation ⇒
-        ssd.models.filter(_.qualifiedName == operation.resultType)
+        ssd.models.filter(_.model.qualifiedName(service) == operation.resultType)
       }
       val usedModelsString = Seq(1, 2).flatMap(i ⇒
         usedModels.map(x ⇒
@@ -125,14 +129,14 @@ class ${resourceName}SystemTest extends MovioSpec with KafkaTestKit with OneServ
     }
   }
 
-  def generateTest(operation: ScalaOperation): String = {
+  def generateTest(operation: ScalaOperation, service: Service): String = {
     val method = operation.method.toString.toLowerCase
 
     // Only create KafkaTests if result type is model - FIXME for other stuff
     operation.body match {
       case None ⇒ ""
       case Some(body) ⇒
-        val model = operation.ssd.models.filter(body.name contains _.qualifiedName.toString).head
+        val model = operation.ssd.models.filter(body.name contains _.model.qualifiedName(service).toString).head
 
         // Only generate kafka tests if there is a kafka class
         getKafkaClass(model, operation.ssd) match {

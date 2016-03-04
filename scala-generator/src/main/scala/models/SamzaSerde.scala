@@ -10,6 +10,9 @@ import scala.generator.ScalaPrimitive
 import scala.generator.ScalaService
 import generator.ServiceFileNames
 
+import HasClassName.ops._
+import HasClassNames._
+
 // Copied from Play2Models
 object SamzaSerde extends SamzaSerde
 trait SamzaSerde extends CodeGenerator {
@@ -49,7 +52,7 @@ trait SamzaSerde extends CodeGenerator {
     }
 
     val models = ssd.models map { model ⇒
-      generateSerdeClasses(model.name, model.qualifiedName)
+      generateSerdeClasses(model.name, model.model.qualifiedName(form.service))
     }
 
     val source = s"""$header

@@ -291,22 +291,18 @@ object ScalaTypeResolver {
       case n :: Nil => (defaultNamespaces, ScalaUtil.toClassName(name))
       case multiple =>
         val n = multiple.last
-        val objectType = GeneratorUtil.ObjectType.fromString(multiple.reverse.drop(1).reverse.last).getOrElse {
-          Logger.warn(s"Could not resolve object type[${multiple.reverse.drop(1).reverse.last}]. Defaults to models")
-          GeneratorUtil.ObjectType.Model
-        }
         val baseNamespace = multiple.reverse.drop(2).reverse.mkString(".")
         (Namespaces(baseNamespace), ScalaUtil.toClassName(n))
     }
   }
 
-}
+// }
 
-case class ScalaTypeResolver(
-  namespaces: Namespaces
-) {
+// case class ScalaTypeResolver(
+//   namespaces: Namespaces
+// ) {
 
-  def scalaDatatype(datatype: Datatype): ScalaDatatype = {
+  def scalaDatatype(datatype: Datatype, namespaces: Namespaces): ScalaDatatype = {
     datatype match {
       case Datatype.Primitive.Boolean => ScalaPrimitive.Boolean
       case Datatype.Primitive.Decimal => ScalaPrimitive.Decimal
@@ -320,9 +316,9 @@ case class ScalaTypeResolver(
       case Datatype.Primitive.Uuid => ScalaPrimitive.Uuid
       case Datatype.Primitive.Unit => ScalaPrimitive.Unit
 
-      case Datatype.Container.List(t) => ScalaDatatype.List(scalaDatatype(t))
-      case Datatype.Container.Map(t) => ScalaDatatype.Map(scalaDatatype(t))
-      case Datatype.Container.Option(inner) => ScalaDatatype.Option(scalaDatatype(inner))
+      case Datatype.Container.List(t) => ScalaDatatype.List(scalaDatatype(t, namespaces))
+      case Datatype.Container.Map(t) => ScalaDatatype.Map(scalaDatatype(t, namespaces))
+      case Datatype.Container.Option(inner) => ScalaDatatype.Option(scalaDatatype(inner, namespaces))
 
       case Datatype.UserDefined.Model(name) => {
         name.split("\\.").toList match {

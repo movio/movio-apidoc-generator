@@ -15,7 +15,7 @@ case class ScalaService(
 
   val namespaces = Namespaces(service.namespace)
 
-  private[this] val scalaTypeResolver = ScalaTypeResolver(namespaces)
+  // private[this] val scalaTypeResolver = ScalaTypeResolver(namespaces)
 
   val datatypeResolver = GeneratorUtil.datatypeResolver(service)
 
@@ -34,7 +34,7 @@ case class ScalaService(
   val resources = service.resources.map { r => new ScalaResource(this, r) }
 
   def scalaDatatype(t: Datatype): ScalaDatatype = {
-    scalaTypeResolver.scalaDatatype(t)
+    ScalaTypeResolver.scalaDatatype(t, namespaces)
   }
 
   def unionsForModel(model: ScalaModel): Seq[ScalaUnion] = {
@@ -62,6 +62,9 @@ case class ScalaService(
       ).mkString("\n")
     ).mkString("\n")
   }
+
+}
+object ScalaService {
 
 }
 
@@ -140,7 +143,7 @@ case class ScalaModel(val ssd: ScalaService, val model: Model) {
 
   val name: String = ScalaUtil.toClassName(model.name)
 
-  val qualifiedName: String = ssd.modelClassName(name)
+  // val qualifiedName: String = ssd.modelClassName(name)
 
   val plural: String = ScalaUtil.toClassName(model.plural)
 
