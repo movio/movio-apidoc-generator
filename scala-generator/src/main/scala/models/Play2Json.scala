@@ -94,9 +94,25 @@ case class Play2Json(
   }
 
   private[models] def readersAndWriters(model: ScalaModel): String = {
-    readers(model) ++ "\n\n" ++ writers(model)
+    fieldsObject(model) ++ "\n\n" ++ readers(model) ++ "\n\n" ++ writers(model)
   }
 
+  private[models] def fieldsIdentifier(model: ScalaModel): String = s"${model.name}Fields"
+
+  private[models] def fieldsObject(model: ScalaModel): String = {
+    val b = StringBuilder.newBuilder
+    def add(s: String) = { b ++= s; b += '\n' }
+    
+    add(s"object ${fieldsIdentifier(model)} {")
+
+    model.fields.foreach { f ⇒
+      add(s"val ${f.originalName} = ${"\""}${f.originalName}${"\""}".indent(2))
+    }
+    
+    b ++= "}"
+    b.toString()
+  }
+  
   private[models] def readers(model: ScalaModel): String = {
     Seq(
       s"${identifier(model.name, Reads)} = {",
@@ -106,13 +122,15 @@ case class Play2Json(
   }
 
   private[models] def fieldReaders(model: ScalaModel): String = {
+    val fieldsIdent = fieldsIdentifier(model)
+    
     val serializations = model.fields.map { field =>
       field.datatype match {
         case ScalaDatatype.Option(inner) => {
-          s"""(__ \\ "${field.originalName}").readNullable[${inner.name}]"""
+          s"""(__ \\ ${fieldsIdent}.${field.originalName}).readNullable[${inner.name}]"""
         }
         case datatype => {
-          s"""(__ \\ "${field.originalName}").read[${datatype.name}]"""
+          s"""(__ \\ ${fieldsIdent}.${field.originalName}).read[${datatype.name}]"""
         }
       }
     }
@@ -132,12 +150,14 @@ case class Play2Json(
   }
 
   private[models] def writers(model: ScalaModel): String = {
+    val fieldsIdent = fieldsIdentifier(model)
+    
     model.fields match {
       case field :: Nil => {
         Seq(
           s"${identifier(model.name, Writes)} = new play.api.libs.json.Writes[${model.name}] {",
           s"  def writes(x: ${model.name}) = play.api.libs.json.Json.obj(",
-          s"""    "${field.originalName}" -> play.api.libs.json.Json.toJson(x.${field.name})""",
+          s"""    ${fieldsIdent}.${field.originalName} -> play.api.libs.json.Json.toJson(x.${field.name})""",
           "  )",
           "}"
         ).mkString("\n")
@@ -150,9 +170,9 @@ case class Play2Json(
           model.fields.map { field =>
             field.datatype match {
               case ScalaDatatype.Option(inner) =>
-                s"""(__ \\ "${field.originalName}").writeNullable[${inner.name}]"""
+                s"""(__ \\ ${fieldsIdent}.${field.originalName}).writeNullable[${inner.name}]"""
               case datatype =>
-                s"""(__ \\ "${field.originalName}").write[${datatype.name}]"""
+                s"""(__ \\ ${fieldsIdent}.${field.originalName}).write[${datatype.name}]"""
             }
           }.mkString(" and\n").indent(4),
           s"  )(unlift(${model.name}.unapply _))",
