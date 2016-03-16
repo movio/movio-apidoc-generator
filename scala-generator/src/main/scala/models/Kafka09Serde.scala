@@ -11,8 +11,8 @@ import scala.generator.ScalaService
 import generator.ServiceFileNames
 
 // Copied from Play2Models
-object KafkaSerde extends KafkaSerde
-trait KafkaSerde extends CodeGenerator {
+object Kafka09Serde extends Kafka09Serde
+trait Kafka09Serde extends CodeGenerator {
 
   override def invoke(form: InvocationForm): Either[Seq[String], Seq[File]] = {
     ScalaCaseClasses.modelsWithTooManyFieldsErrors(form.service) match {
