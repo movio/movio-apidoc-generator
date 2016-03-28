@@ -1,0 +1,73 @@
+package scala.models
+
+import com.bryzek.apidoc.generator.v0.models.{File, InvocationForm}
+import lib.Text._
+import lib.generator.CodeGenerator
+import scala.generator.ScalaCaseClasses
+import scala.generator.ScalaDatatype
+import scala.generator.ScalaField
+import scala.generator.ScalaPrimitive
+import scala.generator.ScalaService
+import generator.ServiceFileNames
+
+object Kafka09SerdeTest extends Kafka09SerdeTest
+trait Kafka09SerdeTest extends CodeGenerator {
+
+  override def invoke(form: InvocationForm): Either[Seq[String], Seq[File]] = {
+    ScalaCaseClasses.modelsWithTooManyFieldsErrors(form.service) match {
+      case Nil    => Right(generateCode(form = form, addBindables = true, addHeader = true))
+      case errors => Left(errors)
+    }
+  }
+
+  def generateCode(form: InvocationForm, addBindables: Boolean, addHeader: Boolean): Seq[File] = {
+    val ssd = ScalaService(form.service)
+
+    val header = addHeader match {
+      case false => ""
+      case true => ApidocComments(form.service.version, form.userAgent).toJavaString() + "\n"
+    }
+
+    def generateTest(simpleName: String, fullName: String): String = {
+      s"""class ${simpleName}SerdeTest extends WordSpec with Matchers with PropertyChecks {
+         |  import arbitrary._
+         |
+         |  "${simpleName} serde" should {
+         |    "round trip" in {
+         |      val _ser = new serde.${simpleName}Serializer()
+         |      val _de = new serde.${simpleName}Deserializer()
+         |      forAll { (topic: String, obj: ${fullName}) =>
+         |        _de.deserialize(topic, _ser.serialize(topic, obj)) shouldBe obj
+         |      }
+         |    }
+         |  }
+         |}
+      """.stripMargin
+    }
+
+    val models = ssd.models map { model ⇒
+      generateTest(model.name, model.qualifiedName)
+    }
+
+    val source = s"""$header
+package ${ssd.namespaces.models} {
+  import org.scalatest.Matchers
+  import org.scalatest.WordSpec
+  import org.scalatest.prop.PropertyChecks
+
+${models.mkString("\n\n").indent(2)}
+}
+"""
+    Seq(
+      ServiceFileNames.toFile(
+        form.service.namespace,
+        form.service.organization.key,
+        form.service.application.key,
+        form.service.version,
+        "SerdeTest",
+        source,
+        Some("Scala")
+      )
+    )
+  }
+}

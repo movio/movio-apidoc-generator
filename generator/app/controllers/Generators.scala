@@ -162,11 +162,51 @@ object Generators {
         metaData = Generator(
           key = "samza_serde",
           name = "Samza Serde",
-          description = Some("Samza Serde adaptors around Play JSON serdes. Requires Advanced Scala Models and Play JSON Standalone."),
+          description = Some("Samza Serde adapters around Play JSON serdes. Requires Advanced Scala Models and Play JSON Standalone."),
           language = Some("Scala")
         ),
         status = lib.generator.Status.Beta,
         codeGenerator = Some(scala.models.SamzaSerde)
+      ),
+      CodeGenTarget(
+        metaData = Generator(
+          key = "samza_serde_test",
+          name = "Samza Serde Test",
+          description = Some("Basic round trip test for Samza serdes. Requires Samza Serde."),
+          language = Some("Scala")
+        ),
+        status = lib.generator.Status.Beta,
+        codeGenerator = Some(scala.models.SamzaSerdeTest)
+      ),
+      CodeGenTarget(
+        metaData = Generator(
+          key = "kafka_0_9_serde",
+          name = "Kafka 0.9 Serde",
+          description = Some("Kafka Serde adapters around Play JSON serdes. Requires Advanced Scala Models and Play JSON Standalone."),
+          language = Some("Scala")
+        ),
+        status = lib.generator.Status.Beta,
+        codeGenerator = Some(scala.models.Kafka09Serde)
+      ),
+      CodeGenTarget(
+        metaData = Generator(
+          key = "kafka_0_9_serde_test",
+          name = "Kafka 0.9 Serde Test",
+          description = Some("Basic round trip test for Kafka 0.9 serdes. Requires Kafka 0.9 Serde."),
+          language = Some("Scala")
+        ),
+        status = lib.generator.Status.Beta,
+        codeGenerator = Some(scala.models.Kafka09SerdeTest)
+      ),
+      CodeGenTarget(
+        metaData = Generator(
+          key = "scalacheck_arbitrary",
+          name = "ScalaCheck Arbitrary",
+          description = Some("Arbitrary instances for case classes and enums for use with ScalaCheck. Requires Advanced Scala Models and static classes in generator-apidoc-libs."),
+          language = Some("Scala")
+        ),
+        status = lib.generator.Status.Beta,
+        codeGenerator = Some(scala.models.ScalaCheckArbitrary)
       )
   ).sortBy(_.metaData.key)
 }
