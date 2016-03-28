@@ -26,7 +26,7 @@ trait PlayController extends CodeGenerator {
 
     val prefix = underscoreAndDashToInitCap(ssd.name)
     val enumJson: String = ssd.enums.map { ScalaEnums(ssd, _).buildJson() }.mkString("\n\n")
-    val play2Json = Play2Json(ssd).generate()
+    val play2Json = Play2JsonExtended(ssd).generate()
 
     val header = addHeader match {
       case false => ""

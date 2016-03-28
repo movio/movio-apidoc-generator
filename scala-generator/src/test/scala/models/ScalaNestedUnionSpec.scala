@@ -61,13 +61,13 @@ class ScalaNestedUnionSpec extends FunSpec with ShouldMatchers {
 
   it("generates valid inner type readers") {
     val innerType = ssd.unions.find(_.name == "InnerType").get
-    val code = Play2Json(ssd).readers(innerType)
+    val code = Play2JsonExtended(ssd).readers(innerType)
     models.TestHelper.assertEqualsFile("/scala-nested-union-models-json-union-type-readers-inner-type.txt", code)
   }
 
   it("generates valid outer type readers") {
     val outerType = ssd.unions.find(_.name == "OuterType").get
-    val code = Play2Json(ssd).readers(outerType)
+    val code = Play2JsonExtended(ssd).readers(outerType)
     models.TestHelper.assertEqualsFile("/scala-nested-union-models-json-union-type-readers-outer-type.txt", code)
   }
 }
