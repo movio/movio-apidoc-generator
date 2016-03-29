@@ -14,16 +14,20 @@
   "info": {},
   "headers": [],
   "imports": [],
+  "attributes": [],
   "enums": [
     {
       "name": "system_user",
       "plural": "system_users",
+      "attributes": [],
       "values": [
         {
-          "name": "system"
+          "name": "system",
+          "attributes": []
         },
         {
-          "name": "anonymous"
+          "name": "anonymous",
+          "attributes": []
         }
       ]
     }
@@ -33,18 +37,23 @@
       "name": "user",
       "plural": "users",
       "discriminator": "discriminator",
+      "attributes": [],
       "types": [
         {
-          "type": "registered_user"
+          "type": "registered_user",
+          "attributes": []
         },
         {
-          "type": "guest_user"
+          "type": "guest_user",
+          "attributes": []
         },
         {
-          "type": "system_user"
+          "type": "system_user",
+          "attributes": []
         },
         {
-          "type": "string"
+          "type": "string",
+          "attributes": []
         }
       ]
     }
@@ -53,16 +62,19 @@
     {
       "name": "guest_user",
       "plural": "guest_users",
+      "attributes": [],
       "fields": [
         {
           "name": "id",
           "type": "string",
           "description": "Internal unique identifier for this user.",
+          "attributes": [],
           "required": true
         },
         {
           "name": "email",
           "type": "string",
+          "attributes": [],
           "required": false
         }
       ]
@@ -70,15 +82,18 @@
     {
       "name": "registered_user",
       "plural": "registered_users",
+      "attributes": [],
       "fields": [
         {
           "name": "id",
           "type": "string",
+          "attributes": [],
           "required": true
         },
         {
           "name": "email",
           "type": "string",
+          "attributes": [],
           "required": true
         }
       ]
@@ -88,11 +103,13 @@
     {
       "type": "user",
       "plural": "users",
+      "attributes": [],
       "operations": [
         {
           "method": "GET",
           "path": "/users",
           "parameters": [],
+          "attributes": [],
           "responses": [
             {
               "code": {
@@ -107,11 +124,13 @@
         {
           "method": "GET",
           "path": "/users/:id",
+          "attributes": [],
           "parameters": [
             {
               "name": "id",
               "type": "string",
               "location": "Path",
+              "attributes": [],
               "required": true
             }
           ],
@@ -138,8 +157,10 @@
           "method": "POST",
           "path": "/users",
           "body": {
-            "type": "user"
+            "type": "user",
+            "attributes": []
           },
+          "attributes": [],
           "parameters": [],
           "responses": [
             {

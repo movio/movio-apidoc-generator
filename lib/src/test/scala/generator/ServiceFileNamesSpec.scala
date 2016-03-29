@@ -33,7 +33,6 @@ class ServiceFileNamesSpec extends FunSpec with ShouldMatchers {
   it("getSuffix for known languages") {
     ServiceFileNames.toLanguages("scala").map(_.extension) should be(Seq("scala"))
     ServiceFileNames.toLanguages(" SCALA ").map(_.extension) should be(Seq("scala"))
-    ServiceFileNames.toLanguages("java").map(_.extension) should be(Seq("java"))
     ServiceFileNames.toLanguages("javascript").map(_.extension) should be(Seq("js"))
     ServiceFileNames.toLanguages("go").map(_.extension) should be(Seq("go"))
   }

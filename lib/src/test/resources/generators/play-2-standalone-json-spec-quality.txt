@@ -535,8 +535,19 @@ package com.gilt.quality.v0.models {
       def writes(x: Task) = JsString(x.toString)
     }
 
-    implicit def jsonReadsQualityAdjournForm: play.api.libs.json.Reads[AdjournForm] = {
-      (__ \ "adjourned_at").readNullable[_root_.org.joda.time.DateTime].map { x => new AdjournForm(adjournedAt = x) }
+    object AdjournFormFields {
+      val adjourned_at = "adjourned_at"
+    }
+
+    implicit def jsonReadsQualityAdjournForm: play.api.libs.json.Reads[AdjournForm] = new play.api.libs.json.Reads[AdjournForm] {
+      def reads(json: play.api.libs.json.JsValue) = {
+        try {
+          (__ \ AdjournFormFields.adjourned_at).readNullable[_root_.org.joda.time.DateTime].map { x => new AdjournForm(adjournedAt = x) }.reads(json)
+        } catch {
+          // Catch Validation Errors
+          case ex: IllegalArgumentException => play.api.libs.json.JsError(s"${ex.getMessage}")
+        }
+      }
     }
 
     implicit def jsonWritesQualityAdjournForm: play.api.libs.json.Writes[AdjournForm] = new play.api.libs.json.Writes[AdjournForm] {
@@ -545,42 +556,80 @@ package com.gilt.quality.v0.models {
       )
     }
 
-    implicit def jsonReadsQualityAgendaItem: play.api.libs.json.Reads[AgendaItem] = {
-      (
-        (__ \ "id").read[Long] and
-        (__ \ "meeting").read[com.gilt.quality.v0.models.Meeting] and
-        (__ \ "incident").read[com.gilt.quality.v0.models.Incident] and
-        (__ \ "task").read[com.gilt.quality.v0.models.Task]
-      )(AgendaItem.apply _)
+    object AgendaItemFields {
+      val id = "id"
+      val meeting = "meeting"
+      val incident = "incident"
+      val task = "task"
+    }
+
+    implicit def jsonReadsQualityAgendaItem: play.api.libs.json.Reads[AgendaItem] = new play.api.libs.json.Reads[AgendaItem] {
+      def reads(json: play.api.libs.json.JsValue) = {
+        try {
+          (
+            (__ \ AgendaItemFields.id).read[Long] and
+            (__ \ AgendaItemFields.meeting).read[com.gilt.quality.v0.models.Meeting] and
+            (__ \ AgendaItemFields.incident).read[com.gilt.quality.v0.models.Incident] and
+            (__ \ AgendaItemFields.task).read[com.gilt.quality.v0.models.Task]
+          )(AgendaItem.apply _).reads(json)
+        } catch {
+          // Catch Validation Errors
+          case ex: IllegalArgumentException => play.api.libs.json.JsError(s"${ex.getMessage}")
+        }
+      }
     }
 
     implicit def jsonWritesQualityAgendaItem: play.api.libs.json.Writes[AgendaItem] = {
       (
-        (__ \ "id").write[Long] and
-        (__ \ "meeting").write[com.gilt.quality.v0.models.Meeting] and
-        (__ \ "incident").write[com.gilt.quality.v0.models.Incident] and
-        (__ \ "task").write[com.gilt.quality.v0.models.Task]
+        (__ \ AgendaItemFields.id).write[Long] and
+        (__ \ AgendaItemFields.meeting).write[com.gilt.quality.v0.models.Meeting] and
+        (__ \ AgendaItemFields.incident).write[com.gilt.quality.v0.models.Incident] and
+        (__ \ AgendaItemFields.task).write[com.gilt.quality.v0.models.Task]
       )(unlift(AgendaItem.unapply _))
     }
 
-    implicit def jsonReadsQualityAgendaItemForm: play.api.libs.json.Reads[AgendaItemForm] = {
-      (
-        (__ \ "meeting_id").read[Long] and
-        (__ \ "incident_id").read[Long] and
-        (__ \ "task").read[com.gilt.quality.v0.models.Task]
-      )(AgendaItemForm.apply _)
+    object AgendaItemFormFields {
+      val meeting_id = "meeting_id"
+      val incident_id = "incident_id"
+      val task = "task"
+    }
+
+    implicit def jsonReadsQualityAgendaItemForm: play.api.libs.json.Reads[AgendaItemForm] = new play.api.libs.json.Reads[AgendaItemForm] {
+      def reads(json: play.api.libs.json.JsValue) = {
+        try {
+          (
+            (__ \ AgendaItemFormFields.meeting_id).read[Long] and
+            (__ \ AgendaItemFormFields.incident_id).read[Long] and
+            (__ \ AgendaItemFormFields.task).read[com.gilt.quality.v0.models.Task]
+          )(AgendaItemForm.apply _).reads(json)
+        } catch {
+          // Catch Validation Errors
+          case ex: IllegalArgumentException => play.api.libs.json.JsError(s"${ex.getMessage}")
+        }
+      }
     }
 
     implicit def jsonWritesQualityAgendaItemForm: play.api.libs.json.Writes[AgendaItemForm] = {
       (
-        (__ \ "meeting_id").write[Long] and
-        (__ \ "incident_id").write[Long] and
-        (__ \ "task").write[com.gilt.quality.v0.models.Task]
+        (__ \ AgendaItemFormFields.meeting_id).write[Long] and
+        (__ \ AgendaItemFormFields.incident_id).write[Long] and
+        (__ \ AgendaItemFormFields.task).write[com.gilt.quality.v0.models.Task]
       )(unlift(AgendaItemForm.unapply _))
     }
 
-    implicit def jsonReadsQualityAuthenticationForm: play.api.libs.json.Reads[AuthenticationForm] = {
-      (__ \ "email").read[String].map { x => new AuthenticationForm(email = x) }
+    object AuthenticationFormFields {
+      val email = "email"
+    }
+
+    implicit def jsonReadsQualityAuthenticationForm: play.api.libs.json.Reads[AuthenticationForm] = new play.api.libs.json.Reads[AuthenticationForm] {
+      def reads(json: play.api.libs.json.JsValue) = {
+        try {
+          (__ \ AuthenticationFormFields.email).read[String].map { x => new AuthenticationForm(email = x) }.reads(json)
+        } catch {
+          // Catch Validation Errors
+          case ex: IllegalArgumentException => play.api.libs.json.JsError(s"${ex.getMessage}")
+        }
+      }
     }
 
     implicit def jsonWritesQualityAuthenticationForm: play.api.libs.json.Writes[AuthenticationForm] = new play.api.libs.json.Writes[AuthenticationForm] {
@@ -589,108 +638,199 @@ package com.gilt.quality.v0.models {
       )
     }
 
-    implicit def jsonReadsQualityEmailMessage: play.api.libs.json.Reads[EmailMessage] = {
-      (
-        (__ \ "subject").read[String] and
-        (__ \ "body").read[String]
-      )(EmailMessage.apply _)
+    object EmailMessageFields {
+      val subject = "subject"
+      val body = "body"
+    }
+
+    implicit def jsonReadsQualityEmailMessage: play.api.libs.json.Reads[EmailMessage] = new play.api.libs.json.Reads[EmailMessage] {
+      def reads(json: play.api.libs.json.JsValue) = {
+        try {
+          (
+            (__ \ EmailMessageFields.subject).read[String] and
+            (__ \ EmailMessageFields.body).read[String]
+          )(EmailMessage.apply _).reads(json)
+        } catch {
+          // Catch Validation Errors
+          case ex: IllegalArgumentException => play.api.libs.json.JsError(s"${ex.getMessage}")
+        }
+      }
     }
 
     implicit def jsonWritesQualityEmailMessage: play.api.libs.json.Writes[EmailMessage] = {
       (
-        (__ \ "subject").write[String] and
-        (__ \ "body").write[String]
+        (__ \ EmailMessageFields.subject).write[String] and
+        (__ \ EmailMessageFields.body).write[String]
       )(unlift(EmailMessage.unapply _))
     }
 
-    implicit def jsonReadsQualityError: play.api.libs.json.Reads[Error] = {
-      (
-        (__ \ "code").read[String] and
-        (__ \ "message").read[String]
-      )(Error.apply _)
+    object ErrorFields {
+      val code = "code"
+      val message = "message"
+    }
+
+    implicit def jsonReadsQualityError: play.api.libs.json.Reads[Error] = new play.api.libs.json.Reads[Error] {
+      def reads(json: play.api.libs.json.JsValue) = {
+        try {
+          (
+            (__ \ ErrorFields.code).read[String] and
+            (__ \ ErrorFields.message).read[String]
+          )(Error.apply _).reads(json)
+        } catch {
+          // Catch Validation Errors
+          case ex: IllegalArgumentException => play.api.libs.json.JsError(s"${ex.getMessage}")
+        }
+      }
     }
 
     implicit def jsonWritesQualityError: play.api.libs.json.Writes[Error] = {
       (
-        (__ \ "code").write[String] and
-        (__ \ "message").write[String]
+        (__ \ ErrorFields.code).write[String] and
+        (__ \ ErrorFields.message).write[String]
       )(unlift(Error.unapply _))
     }
 
-    implicit def jsonReadsQualityExternalService: play.api.libs.json.Reads[ExternalService] = {
-      (
-        (__ \ "id").read[Long] and
-        (__ \ "organization").read[com.gilt.quality.v0.models.Organization] and
-        (__ \ "name").read[com.gilt.quality.v0.models.ExternalServiceName] and
-        (__ \ "url").read[String] and
-        (__ \ "username").read[String]
-      )(ExternalService.apply _)
+    object ExternalServiceFields {
+      val id = "id"
+      val organization = "organization"
+      val name = "name"
+      val url = "url"
+      val username = "username"
+    }
+
+    implicit def jsonReadsQualityExternalService: play.api.libs.json.Reads[ExternalService] = new play.api.libs.json.Reads[ExternalService] {
+      def reads(json: play.api.libs.json.JsValue) = {
+        try {
+          (
+            (__ \ ExternalServiceFields.id).read[Long] and
+            (__ \ ExternalServiceFields.organization).read[com.gilt.quality.v0.models.Organization] and
+            (__ \ ExternalServiceFields.name).read[com.gilt.quality.v0.models.ExternalServiceName] and
+            (__ \ ExternalServiceFields.url).read[String] and
+            (__ \ ExternalServiceFields.username).read[String]
+          )(ExternalService.apply _).reads(json)
+        } catch {
+          // Catch Validation Errors
+          case ex: IllegalArgumentException => play.api.libs.json.JsError(s"${ex.getMessage}")
+        }
+      }
     }
 
     implicit def jsonWritesQualityExternalService: play.api.libs.json.Writes[ExternalService] = {
       (
-        (__ \ "id").write[Long] and
-        (__ \ "organization").write[com.gilt.quality.v0.models.Organization] and
-        (__ \ "name").write[com.gilt.quality.v0.models.ExternalServiceName] and
-        (__ \ "url").write[String] and
-        (__ \ "username").write[String]
+        (__ \ ExternalServiceFields.id).write[Long] and
+        (__ \ ExternalServiceFields.organization).write[com.gilt.quality.v0.models.Organization] and
+        (__ \ ExternalServiceFields.name).write[com.gilt.quality.v0.models.ExternalServiceName] and
+        (__ \ ExternalServiceFields.url).write[String] and
+        (__ \ ExternalServiceFields.username).write[String]
       )(unlift(ExternalService.unapply _))
     }
 
-    implicit def jsonReadsQualityExternalServiceForm: play.api.libs.json.Reads[ExternalServiceForm] = {
-      (
-        (__ \ "name").read[com.gilt.quality.v0.models.ExternalServiceName] and
-        (__ \ "url").read[String] and
-        (__ \ "username").read[String] and
-        (__ \ "password").read[String]
-      )(ExternalServiceForm.apply _)
+    object ExternalServiceFormFields {
+      val name = "name"
+      val url = "url"
+      val username = "username"
+      val password = "password"
+    }
+
+    implicit def jsonReadsQualityExternalServiceForm: play.api.libs.json.Reads[ExternalServiceForm] = new play.api.libs.json.Reads[ExternalServiceForm] {
+      def reads(json: play.api.libs.json.JsValue) = {
+        try {
+          (
+            (__ \ ExternalServiceFormFields.name).read[com.gilt.quality.v0.models.ExternalServiceName] and
+            (__ \ ExternalServiceFormFields.url).read[String] and
+            (__ \ ExternalServiceFormFields.username).read[String] and
+            (__ \ ExternalServiceFormFields.password).read[String]
+          )(ExternalServiceForm.apply _).reads(json)
+        } catch {
+          // Catch Validation Errors
+          case ex: IllegalArgumentException => play.api.libs.json.JsError(s"${ex.getMessage}")
+        }
+      }
     }
 
     implicit def jsonWritesQualityExternalServiceForm: play.api.libs.json.Writes[ExternalServiceForm] = {
       (
-        (__ \ "name").write[com.gilt.quality.v0.models.ExternalServiceName] and
-        (__ \ "url").write[String] and
-        (__ \ "username").write[String] and
-        (__ \ "password").write[String]
+        (__ \ ExternalServiceFormFields.name).write[com.gilt.quality.v0.models.ExternalServiceName] and
+        (__ \ ExternalServiceFormFields.url).write[String] and
+        (__ \ ExternalServiceFormFields.username).write[String] and
+        (__ \ ExternalServiceFormFields.password).write[String]
       )(unlift(ExternalServiceForm.unapply _))
     }
 
-    implicit def jsonReadsQualityFollowup: play.api.libs.json.Reads[Followup] = {
-      (
-        (__ \ "key").read[String] and
-        (__ \ "plan").read[com.gilt.quality.v0.models.Plan] and
-        (__ \ "sent_at").read[_root_.org.joda.time.DateTime]
-      )(Followup.apply _)
+    object FollowupFields {
+      val key = "key"
+      val plan = "plan"
+      val sent_at = "sent_at"
+    }
+
+    implicit def jsonReadsQualityFollowup: play.api.libs.json.Reads[Followup] = new play.api.libs.json.Reads[Followup] {
+      def reads(json: play.api.libs.json.JsValue) = {
+        try {
+          (
+            (__ \ FollowupFields.key).read[String] and
+            (__ \ FollowupFields.plan).read[com.gilt.quality.v0.models.Plan] and
+            (__ \ FollowupFields.sent_at).read[_root_.org.joda.time.DateTime]
+          )(Followup.apply _).reads(json)
+        } catch {
+          // Catch Validation Errors
+          case ex: IllegalArgumentException => play.api.libs.json.JsError(s"${ex.getMessage}")
+        }
+      }
     }
 
     implicit def jsonWritesQualityFollowup: play.api.libs.json.Writes[Followup] = {
       (
-        (__ \ "key").write[String] and
-        (__ \ "plan").write[com.gilt.quality.v0.models.Plan] and
-        (__ \ "sent_at").write[_root_.org.joda.time.DateTime]
+        (__ \ FollowupFields.key).write[String] and
+        (__ \ FollowupFields.plan).write[com.gilt.quality.v0.models.Plan] and
+        (__ \ FollowupFields.sent_at).write[_root_.org.joda.time.DateTime]
       )(unlift(Followup.unapply _))
     }
 
-    implicit def jsonReadsQualityFollowupResponse: play.api.libs.json.Reads[FollowupResponse] = {
-      (
-        (__ \ "followup").read[com.gilt.quality.v0.models.Followup] and
-        (__ \ "response").read[com.gilt.quality.v0.models.Response] and
-        (__ \ "created_at").read[_root_.org.joda.time.DateTime] and
-        (__ \ "created_by").read[com.gilt.quality.v0.models.User]
-      )(FollowupResponse.apply _)
+    object FollowupResponseFields {
+      val followup = "followup"
+      val response = "response"
+      val created_at = "created_at"
+      val created_by = "created_by"
+    }
+
+    implicit def jsonReadsQualityFollowupResponse: play.api.libs.json.Reads[FollowupResponse] = new play.api.libs.json.Reads[FollowupResponse] {
+      def reads(json: play.api.libs.json.JsValue) = {
+        try {
+          (
+            (__ \ FollowupResponseFields.followup).read[com.gilt.quality.v0.models.Followup] and
+            (__ \ FollowupResponseFields.response).read[com.gilt.quality.v0.models.Response] and
+            (__ \ FollowupResponseFields.created_at).read[_root_.org.joda.time.DateTime] and
+            (__ \ FollowupResponseFields.created_by).read[com.gilt.quality.v0.models.User]
+          )(FollowupResponse.apply _).reads(json)
+        } catch {
+          // Catch Validation Errors
+          case ex: IllegalArgumentException => play.api.libs.json.JsError(s"${ex.getMessage}")
+        }
+      }
     }
 
     implicit def jsonWritesQualityFollowupResponse: play.api.libs.json.Writes[FollowupResponse] = {
       (
-        (__ \ "followup").write[com.gilt.quality.v0.models.Followup] and
-        (__ \ "response").write[com.gilt.quality.v0.models.Response] and
-        (__ \ "created_at").write[_root_.org.joda.time.DateTime] and
-        (__ \ "created_by").write[com.gilt.quality.v0.models.User]
+        (__ \ FollowupResponseFields.followup).write[com.gilt.quality.v0.models.Followup] and
+        (__ \ FollowupResponseFields.response).write[com.gilt.quality.v0.models.Response] and
+        (__ \ FollowupResponseFields.created_at).write[_root_.org.joda.time.DateTime] and
+        (__ \ FollowupResponseFields.created_by).write[com.gilt.quality.v0.models.User]
       )(unlift(FollowupResponse.unapply _))
     }
 
-    implicit def jsonReadsQualityHealthcheck: play.api.libs.json.Reads[Healthcheck] = {
-      (__ \ "status").read[String].map { x => new Healthcheck(status = x) }
+    object HealthcheckFields {
+      val status = "status"
+    }
+
+    implicit def jsonReadsQualityHealthcheck: play.api.libs.json.Reads[Healthcheck] = new play.api.libs.json.Reads[Healthcheck] {
+      def reads(json: play.api.libs.json.JsValue) = {
+        try {
+          (__ \ HealthcheckFields.status).read[String].map { x => new Healthcheck(status = x) }.reads(json)
+        } catch {
+          // Catch Validation Errors
+          case ex: IllegalArgumentException => play.api.libs.json.JsError(s"${ex.getMessage}")
+        }
+      }
     }
 
     implicit def jsonWritesQualityHealthcheck: play.api.libs.json.Writes[Healthcheck] = new play.api.libs.json.Writes[Healthcheck] {
@@ -699,118 +839,214 @@ package com.gilt.quality.v0.models {
       )
     }
 
-    implicit def jsonReadsQualityIcons: play.api.libs.json.Reads[Icons] = {
-      (
-        (__ \ "smiley_url").read[String] and
-        (__ \ "frowny_url").read[String]
-      )(Icons.apply _)
+    object IconsFields {
+      val smiley_url = "smiley_url"
+      val frowny_url = "frowny_url"
+    }
+
+    implicit def jsonReadsQualityIcons: play.api.libs.json.Reads[Icons] = new play.api.libs.json.Reads[Icons] {
+      def reads(json: play.api.libs.json.JsValue) = {
+        try {
+          (
+            (__ \ IconsFields.smiley_url).read[String] and
+            (__ \ IconsFields.frowny_url).read[String]
+          )(Icons.apply _).reads(json)
+        } catch {
+          // Catch Validation Errors
+          case ex: IllegalArgumentException => play.api.libs.json.JsError(s"${ex.getMessage}")
+        }
+      }
     }
 
     implicit def jsonWritesQualityIcons: play.api.libs.json.Writes[Icons] = {
       (
-        (__ \ "smiley_url").write[String] and
-        (__ \ "frowny_url").write[String]
+        (__ \ IconsFields.smiley_url).write[String] and
+        (__ \ IconsFields.frowny_url).write[String]
       )(unlift(Icons.unapply _))
     }
 
-    implicit def jsonReadsQualityIncident: play.api.libs.json.Reads[Incident] = {
-      (
-        (__ \ "id").read[Long] and
-        (__ \ "organization").read[com.gilt.quality.v0.models.Organization] and
-        (__ \ "summary").read[String] and
-        (__ \ "description").readNullable[String] and
-        (__ \ "team").readNullable[com.gilt.quality.v0.models.Team] and
-        (__ \ "severity").read[com.gilt.quality.v0.models.Severity] and
-        (__ \ "tags").readNullable[Seq[String]] and
-        (__ \ "plan").readNullable[com.gilt.quality.v0.models.Plan] and
-        (__ \ "created_at").read[_root_.org.joda.time.DateTime]
-      )(Incident.apply _)
+    object IncidentFields {
+      val id = "id"
+      val organization = "organization"
+      val summary = "summary"
+      val description = "description"
+      val team = "team"
+      val severity = "severity"
+      val tags = "tags"
+      val plan = "plan"
+      val created_at = "created_at"
+    }
+
+    implicit def jsonReadsQualityIncident: play.api.libs.json.Reads[Incident] = new play.api.libs.json.Reads[Incident] {
+      def reads(json: play.api.libs.json.JsValue) = {
+        try {
+          (
+            (__ \ IncidentFields.id).read[Long] and
+            (__ \ IncidentFields.organization).read[com.gilt.quality.v0.models.Organization] and
+            (__ \ IncidentFields.summary).read[String] and
+            (__ \ IncidentFields.description).readNullable[String] and
+            (__ \ IncidentFields.team).readNullable[com.gilt.quality.v0.models.Team] and
+            (__ \ IncidentFields.severity).read[com.gilt.quality.v0.models.Severity] and
+            (__ \ IncidentFields.tags).readNullable[Seq[String]] and
+            (__ \ IncidentFields.plan).readNullable[com.gilt.quality.v0.models.Plan] and
+            (__ \ IncidentFields.created_at).read[_root_.org.joda.time.DateTime]
+          )(Incident.apply _).reads(json)
+        } catch {
+          // Catch Validation Errors
+          case ex: IllegalArgumentException => play.api.libs.json.JsError(s"${ex.getMessage}")
+        }
+      }
     }
 
     implicit def jsonWritesQualityIncident: play.api.libs.json.Writes[Incident] = {
       (
-        (__ \ "id").write[Long] and
-        (__ \ "organization").write[com.gilt.quality.v0.models.Organization] and
-        (__ \ "summary").write[String] and
-        (__ \ "description").writeNullable[String] and
-        (__ \ "team").writeNullable[com.gilt.quality.v0.models.Team] and
-        (__ \ "severity").write[com.gilt.quality.v0.models.Severity] and
-        (__ \ "tags").writeNullable[Seq[String]] and
-        (__ \ "plan").writeNullable[com.gilt.quality.v0.models.Plan] and
-        (__ \ "created_at").write[_root_.org.joda.time.DateTime]
+        (__ \ IncidentFields.id).write[Long] and
+        (__ \ IncidentFields.organization).write[com.gilt.quality.v0.models.Organization] and
+        (__ \ IncidentFields.summary).write[String] and
+        (__ \ IncidentFields.description).writeNullable[String] and
+        (__ \ IncidentFields.team).writeNullable[com.gilt.quality.v0.models.Team] and
+        (__ \ IncidentFields.severity).write[com.gilt.quality.v0.models.Severity] and
+        (__ \ IncidentFields.tags).writeNullable[Seq[String]] and
+        (__ \ IncidentFields.plan).writeNullable[com.gilt.quality.v0.models.Plan] and
+        (__ \ IncidentFields.created_at).write[_root_.org.joda.time.DateTime]
       )(unlift(Incident.unapply _))
     }
 
-    implicit def jsonReadsQualityIncidentForm: play.api.libs.json.Reads[IncidentForm] = {
-      (
-        (__ \ "team_key").readNullable[String] and
-        (__ \ "severity").read[com.gilt.quality.v0.models.Severity] and
-        (__ \ "summary").read[String] and
-        (__ \ "description").readNullable[String] and
-        (__ \ "tags").readNullable[Seq[String]]
-      )(IncidentForm.apply _)
+    object IncidentFormFields {
+      val team_key = "team_key"
+      val severity = "severity"
+      val summary = "summary"
+      val description = "description"
+      val tags = "tags"
+    }
+
+    implicit def jsonReadsQualityIncidentForm: play.api.libs.json.Reads[IncidentForm] = new play.api.libs.json.Reads[IncidentForm] {
+      def reads(json: play.api.libs.json.JsValue) = {
+        try {
+          (
+            (__ \ IncidentFormFields.team_key).readNullable[String] and
+            (__ \ IncidentFormFields.severity).read[com.gilt.quality.v0.models.Severity] and
+            (__ \ IncidentFormFields.summary).read[String] and
+            (__ \ IncidentFormFields.description).readNullable[String] and
+            (__ \ IncidentFormFields.tags).readNullable[Seq[String]]
+          )(IncidentForm.apply _).reads(json)
+        } catch {
+          // Catch Validation Errors
+          case ex: IllegalArgumentException => play.api.libs.json.JsError(s"${ex.getMessage}")
+        }
+      }
     }
 
     implicit def jsonWritesQualityIncidentForm: play.api.libs.json.Writes[IncidentForm] = {
       (
-        (__ \ "team_key").writeNullable[String] and
-        (__ \ "severity").write[com.gilt.quality.v0.models.Severity] and
-        (__ \ "summary").write[String] and
-        (__ \ "description").writeNullable[String] and
-        (__ \ "tags").writeNullable[Seq[String]]
+        (__ \ IncidentFormFields.team_key).writeNullable[String] and
+        (__ \ IncidentFormFields.severity).write[com.gilt.quality.v0.models.Severity] and
+        (__ \ IncidentFormFields.summary).write[String] and
+        (__ \ IncidentFormFields.description).writeNullable[String] and
+        (__ \ IncidentFormFields.tags).writeNullable[Seq[String]]
       )(unlift(IncidentForm.unapply _))
     }
 
-    implicit def jsonReadsQualityIncidentOrganizationChange: play.api.libs.json.Reads[IncidentOrganizationChange] = {
-      (
-        (__ \ "incident_id").read[Long] and
-        (__ \ "organization_key").read[String]
-      )(IncidentOrganizationChange.apply _)
+    object IncidentOrganizationChangeFields {
+      val incident_id = "incident_id"
+      val organization_key = "organization_key"
+    }
+
+    implicit def jsonReadsQualityIncidentOrganizationChange: play.api.libs.json.Reads[IncidentOrganizationChange] = new play.api.libs.json.Reads[IncidentOrganizationChange] {
+      def reads(json: play.api.libs.json.JsValue) = {
+        try {
+          (
+            (__ \ IncidentOrganizationChangeFields.incident_id).read[Long] and
+            (__ \ IncidentOrganizationChangeFields.organization_key).read[String]
+          )(IncidentOrganizationChange.apply _).reads(json)
+        } catch {
+          // Catch Validation Errors
+          case ex: IllegalArgumentException => play.api.libs.json.JsError(s"${ex.getMessage}")
+        }
+      }
     }
 
     implicit def jsonWritesQualityIncidentOrganizationChange: play.api.libs.json.Writes[IncidentOrganizationChange] = {
       (
-        (__ \ "incident_id").write[Long] and
-        (__ \ "organization_key").write[String]
+        (__ \ IncidentOrganizationChangeFields.incident_id).write[Long] and
+        (__ \ IncidentOrganizationChangeFields.organization_key).write[String]
       )(unlift(IncidentOrganizationChange.unapply _))
     }
 
-    implicit def jsonReadsQualityIncidentSummary: play.api.libs.json.Reads[IncidentSummary] = {
-      (
-        (__ \ "id").read[Long] and
-        (__ \ "severity").read[com.gilt.quality.v0.models.Severity] and
-        (__ \ "summary").read[String]
-      )(IncidentSummary.apply _)
+    object IncidentSummaryFields {
+      val id = "id"
+      val severity = "severity"
+      val summary = "summary"
+    }
+
+    implicit def jsonReadsQualityIncidentSummary: play.api.libs.json.Reads[IncidentSummary] = new play.api.libs.json.Reads[IncidentSummary] {
+      def reads(json: play.api.libs.json.JsValue) = {
+        try {
+          (
+            (__ \ IncidentSummaryFields.id).read[Long] and
+            (__ \ IncidentSummaryFields.severity).read[com.gilt.quality.v0.models.Severity] and
+            (__ \ IncidentSummaryFields.summary).read[String]
+          )(IncidentSummary.apply _).reads(json)
+        } catch {
+          // Catch Validation Errors
+          case ex: IllegalArgumentException => play.api.libs.json.JsError(s"${ex.getMessage}")
+        }
+      }
     }
 
     implicit def jsonWritesQualityIncidentSummary: play.api.libs.json.Writes[IncidentSummary] = {
       (
-        (__ \ "id").write[Long] and
-        (__ \ "severity").write[com.gilt.quality.v0.models.Severity] and
-        (__ \ "summary").write[String]
+        (__ \ IncidentSummaryFields.id).write[Long] and
+        (__ \ IncidentSummaryFields.severity).write[com.gilt.quality.v0.models.Severity] and
+        (__ \ IncidentSummaryFields.summary).write[String]
       )(unlift(IncidentSummary.unapply _))
     }
 
-    implicit def jsonReadsQualityMeeting: play.api.libs.json.Reads[Meeting] = {
-      (
-        (__ \ "id").read[Long] and
-        (__ \ "organization").read[com.gilt.quality.v0.models.Organization] and
-        (__ \ "scheduled_at").read[_root_.org.joda.time.DateTime] and
-        (__ \ "adjourned_at").readNullable[_root_.org.joda.time.DateTime]
-      )(Meeting.apply _)
+    object MeetingFields {
+      val id = "id"
+      val organization = "organization"
+      val scheduled_at = "scheduled_at"
+      val adjourned_at = "adjourned_at"
+    }
+
+    implicit def jsonReadsQualityMeeting: play.api.libs.json.Reads[Meeting] = new play.api.libs.json.Reads[Meeting] {
+      def reads(json: play.api.libs.json.JsValue) = {
+        try {
+          (
+            (__ \ MeetingFields.id).read[Long] and
+            (__ \ MeetingFields.organization).read[com.gilt.quality.v0.models.Organization] and
+            (__ \ MeetingFields.scheduled_at).read[_root_.org.joda.time.DateTime] and
+            (__ \ MeetingFields.adjourned_at).readNullable[_root_.org.joda.time.DateTime]
+          )(Meeting.apply _).reads(json)
+        } catch {
+          // Catch Validation Errors
+          case ex: IllegalArgumentException => play.api.libs.json.JsError(s"${ex.getMessage}")
+        }
+      }
     }
 
     implicit def jsonWritesQualityMeeting: play.api.libs.json.Writes[Meeting] = {
       (
-        (__ \ "id").write[Long] and
-        (__ \ "organization").write[com.gilt.quality.v0.models.Organization] and
-        (__ \ "scheduled_at").write[_root_.org.joda.time.DateTime] and
-        (__ \ "adjourned_at").writeNullable[_root_.org.joda.time.DateTime]
+        (__ \ MeetingFields.id).write[Long] and
+        (__ \ MeetingFields.organization).write[com.gilt.quality.v0.models.Organization] and
+        (__ \ MeetingFields.scheduled_at).write[_root_.org.joda.time.DateTime] and
+        (__ \ MeetingFields.adjourned_at).writeNullable[_root_.org.joda.time.DateTime]
       )(unlift(Meeting.unapply _))
     }
 
-    implicit def jsonReadsQualityMeetingForm: play.api.libs.json.Reads[MeetingForm] = {
-      (__ \ "scheduled_at").read[_root_.org.joda.time.DateTime].map { x => new MeetingForm(scheduledAt = x) }
+    object MeetingFormFields {
+      val scheduled_at = "scheduled_at"
+    }
+
+    implicit def jsonReadsQualityMeetingForm: play.api.libs.json.Reads[MeetingForm] = new play.api.libs.json.Reads[MeetingForm] {
+      def reads(json: play.api.libs.json.JsValue) = {
+        try {
+          (__ \ MeetingFormFields.scheduled_at).read[_root_.org.joda.time.DateTime].map { x => new MeetingForm(scheduledAt = x) }.reads(json)
+        } catch {
+          // Catch Validation Errors
+          case ex: IllegalArgumentException => play.api.libs.json.JsError(s"${ex.getMessage}")
+        }
+      }
     }
 
     implicit def jsonWritesQualityMeetingForm: play.api.libs.json.Writes[MeetingForm] = new play.api.libs.json.Writes[MeetingForm] {
@@ -819,238 +1055,434 @@ package com.gilt.quality.v0.models {
       )
     }
 
-    implicit def jsonReadsQualityMeetingPager: play.api.libs.json.Reads[MeetingPager] = {
-      (
-        (__ \ "meeting").read[com.gilt.quality.v0.models.Meeting] and
-        (__ \ "prior_incident").readNullable[com.gilt.quality.v0.models.Incident] and
-        (__ \ "next_incident").readNullable[com.gilt.quality.v0.models.Incident]
-      )(MeetingPager.apply _)
+    object MeetingPagerFields {
+      val meeting = "meeting"
+      val prior_incident = "prior_incident"
+      val next_incident = "next_incident"
+    }
+
+    implicit def jsonReadsQualityMeetingPager: play.api.libs.json.Reads[MeetingPager] = new play.api.libs.json.Reads[MeetingPager] {
+      def reads(json: play.api.libs.json.JsValue) = {
+        try {
+          (
+            (__ \ MeetingPagerFields.meeting).read[com.gilt.quality.v0.models.Meeting] and
+            (__ \ MeetingPagerFields.prior_incident).readNullable[com.gilt.quality.v0.models.Incident] and
+            (__ \ MeetingPagerFields.next_incident).readNullable[com.gilt.quality.v0.models.Incident]
+          )(MeetingPager.apply _).reads(json)
+        } catch {
+          // Catch Validation Errors
+          case ex: IllegalArgumentException => play.api.libs.json.JsError(s"${ex.getMessage}")
+        }
+      }
     }
 
     implicit def jsonWritesQualityMeetingPager: play.api.libs.json.Writes[MeetingPager] = {
       (
-        (__ \ "meeting").write[com.gilt.quality.v0.models.Meeting] and
-        (__ \ "prior_incident").writeNullable[com.gilt.quality.v0.models.Incident] and
-        (__ \ "next_incident").writeNullable[com.gilt.quality.v0.models.Incident]
+        (__ \ MeetingPagerFields.meeting).write[com.gilt.quality.v0.models.Meeting] and
+        (__ \ MeetingPagerFields.prior_incident).writeNullable[com.gilt.quality.v0.models.Incident] and
+        (__ \ MeetingPagerFields.next_incident).writeNullable[com.gilt.quality.v0.models.Incident]
       )(unlift(MeetingPager.unapply _))
     }
 
-    implicit def jsonReadsQualityOrganization: play.api.libs.json.Reads[Organization] = {
-      (
-        (__ \ "key").read[String] and
-        (__ \ "name").read[String]
-      )(Organization.apply _)
+    object OrganizationFields {
+      val key = "key"
+      val name = "name"
+    }
+
+    implicit def jsonReadsQualityOrganization: play.api.libs.json.Reads[Organization] = new play.api.libs.json.Reads[Organization] {
+      def reads(json: play.api.libs.json.JsValue) = {
+        try {
+          (
+            (__ \ OrganizationFields.key).read[String] and
+            (__ \ OrganizationFields.name).read[String]
+          )(Organization.apply _).reads(json)
+        } catch {
+          // Catch Validation Errors
+          case ex: IllegalArgumentException => play.api.libs.json.JsError(s"${ex.getMessage}")
+        }
+      }
     }
 
     implicit def jsonWritesQualityOrganization: play.api.libs.json.Writes[Organization] = {
       (
-        (__ \ "key").write[String] and
-        (__ \ "name").write[String]
+        (__ \ OrganizationFields.key).write[String] and
+        (__ \ OrganizationFields.name).write[String]
       )(unlift(Organization.unapply _))
     }
 
-    implicit def jsonReadsQualityOrganizationForm: play.api.libs.json.Reads[OrganizationForm] = {
-      (
-        (__ \ "name").read[String] and
-        (__ \ "key").readNullable[String]
-      )(OrganizationForm.apply _)
+    object OrganizationFormFields {
+      val name = "name"
+      val key = "key"
+    }
+
+    implicit def jsonReadsQualityOrganizationForm: play.api.libs.json.Reads[OrganizationForm] = new play.api.libs.json.Reads[OrganizationForm] {
+      def reads(json: play.api.libs.json.JsValue) = {
+        try {
+          (
+            (__ \ OrganizationFormFields.name).read[String] and
+            (__ \ OrganizationFormFields.key).readNullable[String]
+          )(OrganizationForm.apply _).reads(json)
+        } catch {
+          // Catch Validation Errors
+          case ex: IllegalArgumentException => play.api.libs.json.JsError(s"${ex.getMessage}")
+        }
+      }
     }
 
     implicit def jsonWritesQualityOrganizationForm: play.api.libs.json.Writes[OrganizationForm] = {
       (
-        (__ \ "name").write[String] and
-        (__ \ "key").writeNullable[String]
+        (__ \ OrganizationFormFields.name).write[String] and
+        (__ \ OrganizationFormFields.key).writeNullable[String]
       )(unlift(OrganizationForm.unapply _))
     }
 
-    implicit def jsonReadsQualityPlan: play.api.libs.json.Reads[Plan] = {
-      (
-        (__ \ "id").read[Long] and
-        (__ \ "incident_id").read[Long] and
-        (__ \ "body").read[String] and
-        (__ \ "grade").readNullable[Int] and
-        (__ \ "created_at").read[_root_.org.joda.time.DateTime]
-      )(Plan.apply _)
+    object PlanFields {
+      val id = "id"
+      val incident_id = "incident_id"
+      val body = "body"
+      val grade = "grade"
+      val created_at = "created_at"
+    }
+
+    implicit def jsonReadsQualityPlan: play.api.libs.json.Reads[Plan] = new play.api.libs.json.Reads[Plan] {
+      def reads(json: play.api.libs.json.JsValue) = {
+        try {
+          (
+            (__ \ PlanFields.id).read[Long] and
+            (__ \ PlanFields.incident_id).read[Long] and
+            (__ \ PlanFields.body).read[String] and
+            (__ \ PlanFields.grade).readNullable[Int] and
+            (__ \ PlanFields.created_at).read[_root_.org.joda.time.DateTime]
+          )(Plan.apply _).reads(json)
+        } catch {
+          // Catch Validation Errors
+          case ex: IllegalArgumentException => play.api.libs.json.JsError(s"${ex.getMessage}")
+        }
+      }
     }
 
     implicit def jsonWritesQualityPlan: play.api.libs.json.Writes[Plan] = {
       (
-        (__ \ "id").write[Long] and
-        (__ \ "incident_id").write[Long] and
-        (__ \ "body").write[String] and
-        (__ \ "grade").writeNullable[Int] and
-        (__ \ "created_at").write[_root_.org.joda.time.DateTime]
+        (__ \ PlanFields.id).write[Long] and
+        (__ \ PlanFields.incident_id).write[Long] and
+        (__ \ PlanFields.body).write[String] and
+        (__ \ PlanFields.grade).writeNullable[Int] and
+        (__ \ PlanFields.created_at).write[_root_.org.joda.time.DateTime]
       )(unlift(Plan.unapply _))
     }
 
-    implicit def jsonReadsQualityPlanForm: play.api.libs.json.Reads[PlanForm] = {
-      (
-        (__ \ "incident_id").read[Long] and
-        (__ \ "body").read[String]
-      )(PlanForm.apply _)
+    object PlanFormFields {
+      val incident_id = "incident_id"
+      val body = "body"
+    }
+
+    implicit def jsonReadsQualityPlanForm: play.api.libs.json.Reads[PlanForm] = new play.api.libs.json.Reads[PlanForm] {
+      def reads(json: play.api.libs.json.JsValue) = {
+        try {
+          (
+            (__ \ PlanFormFields.incident_id).read[Long] and
+            (__ \ PlanFormFields.body).read[String]
+          )(PlanForm.apply _).reads(json)
+        } catch {
+          // Catch Validation Errors
+          case ex: IllegalArgumentException => play.api.libs.json.JsError(s"${ex.getMessage}")
+        }
+      }
     }
 
     implicit def jsonWritesQualityPlanForm: play.api.libs.json.Writes[PlanForm] = {
       (
-        (__ \ "incident_id").write[Long] and
-        (__ \ "body").write[String]
+        (__ \ PlanFormFields.incident_id).write[Long] and
+        (__ \ PlanFormFields.body).write[String]
       )(unlift(PlanForm.unapply _))
     }
 
-    implicit def jsonReadsQualityStatistic: play.api.libs.json.Reads[Statistic] = {
-      (
-        (__ \ "team").read[com.gilt.quality.v0.models.Team] and
-        (__ \ "total_grades").read[Long] and
-        (__ \ "average_grade").readNullable[Int] and
-        (__ \ "total_open_incidents").read[Long] and
-        (__ \ "total_incidents").read[Long] and
-        (__ \ "total_plans").read[Long] and
-        (__ \ "plans").readNullable[Seq[com.gilt.quality.v0.models.Plan]]
-      )(Statistic.apply _)
+    object StatisticFields {
+      val team = "team"
+      val total_grades = "total_grades"
+      val average_grade = "average_grade"
+      val total_open_incidents = "total_open_incidents"
+      val total_incidents = "total_incidents"
+      val total_plans = "total_plans"
+      val plans = "plans"
+    }
+
+    implicit def jsonReadsQualityStatistic: play.api.libs.json.Reads[Statistic] = new play.api.libs.json.Reads[Statistic] {
+      def reads(json: play.api.libs.json.JsValue) = {
+        try {
+          (
+            (__ \ StatisticFields.team).read[com.gilt.quality.v0.models.Team] and
+            (__ \ StatisticFields.total_grades).read[Long] and
+            (__ \ StatisticFields.average_grade).readNullable[Int] and
+            (__ \ StatisticFields.total_open_incidents).read[Long] and
+            (__ \ StatisticFields.total_incidents).read[Long] and
+            (__ \ StatisticFields.total_plans).read[Long] and
+            (__ \ StatisticFields.plans).readNullable[Seq[com.gilt.quality.v0.models.Plan]]
+          )(Statistic.apply _).reads(json)
+        } catch {
+          // Catch Validation Errors
+          case ex: IllegalArgumentException => play.api.libs.json.JsError(s"${ex.getMessage}")
+        }
+      }
     }
 
     implicit def jsonWritesQualityStatistic: play.api.libs.json.Writes[Statistic] = {
       (
-        (__ \ "team").write[com.gilt.quality.v0.models.Team] and
-        (__ \ "total_grades").write[Long] and
-        (__ \ "average_grade").writeNullable[Int] and
-        (__ \ "total_open_incidents").write[Long] and
-        (__ \ "total_incidents").write[Long] and
-        (__ \ "total_plans").write[Long] and
-        (__ \ "plans").writeNullable[Seq[com.gilt.quality.v0.models.Plan]]
+        (__ \ StatisticFields.team).write[com.gilt.quality.v0.models.Team] and
+        (__ \ StatisticFields.total_grades).write[Long] and
+        (__ \ StatisticFields.average_grade).writeNullable[Int] and
+        (__ \ StatisticFields.total_open_incidents).write[Long] and
+        (__ \ StatisticFields.total_incidents).write[Long] and
+        (__ \ StatisticFields.total_plans).write[Long] and
+        (__ \ StatisticFields.plans).writeNullable[Seq[com.gilt.quality.v0.models.Plan]]
       )(unlift(Statistic.unapply _))
     }
 
-    implicit def jsonReadsQualitySubscription: play.api.libs.json.Reads[Subscription] = {
-      (
-        (__ \ "id").read[Long] and
-        (__ \ "organization").read[com.gilt.quality.v0.models.Organization] and
-        (__ \ "user").read[com.gilt.quality.v0.models.User] and
-        (__ \ "publication").read[com.gilt.quality.v0.models.Publication]
-      )(Subscription.apply _)
+    object SubscriptionFields {
+      val id = "id"
+      val organization = "organization"
+      val user = "user"
+      val publication = "publication"
+    }
+
+    implicit def jsonReadsQualitySubscription: play.api.libs.json.Reads[Subscription] = new play.api.libs.json.Reads[Subscription] {
+      def reads(json: play.api.libs.json.JsValue) = {
+        try {
+          (
+            (__ \ SubscriptionFields.id).read[Long] and
+            (__ \ SubscriptionFields.organization).read[com.gilt.quality.v0.models.Organization] and
+            (__ \ SubscriptionFields.user).read[com.gilt.quality.v0.models.User] and
+            (__ \ SubscriptionFields.publication).read[com.gilt.quality.v0.models.Publication]
+          )(Subscription.apply _).reads(json)
+        } catch {
+          // Catch Validation Errors
+          case ex: IllegalArgumentException => play.api.libs.json.JsError(s"${ex.getMessage}")
+        }
+      }
     }
 
     implicit def jsonWritesQualitySubscription: play.api.libs.json.Writes[Subscription] = {
       (
-        (__ \ "id").write[Long] and
-        (__ \ "organization").write[com.gilt.quality.v0.models.Organization] and
-        (__ \ "user").write[com.gilt.quality.v0.models.User] and
-        (__ \ "publication").write[com.gilt.quality.v0.models.Publication]
+        (__ \ SubscriptionFields.id).write[Long] and
+        (__ \ SubscriptionFields.organization).write[com.gilt.quality.v0.models.Organization] and
+        (__ \ SubscriptionFields.user).write[com.gilt.quality.v0.models.User] and
+        (__ \ SubscriptionFields.publication).write[com.gilt.quality.v0.models.Publication]
       )(unlift(Subscription.unapply _))
     }
 
-    implicit def jsonReadsQualitySubscriptionForm: play.api.libs.json.Reads[SubscriptionForm] = {
-      (
-        (__ \ "organization_key").read[String] and
-        (__ \ "user_guid").read[_root_.java.util.UUID] and
-        (__ \ "publication").read[com.gilt.quality.v0.models.Publication]
-      )(SubscriptionForm.apply _)
+    object SubscriptionFormFields {
+      val organization_key = "organization_key"
+      val user_guid = "user_guid"
+      val publication = "publication"
+    }
+
+    implicit def jsonReadsQualitySubscriptionForm: play.api.libs.json.Reads[SubscriptionForm] = new play.api.libs.json.Reads[SubscriptionForm] {
+      def reads(json: play.api.libs.json.JsValue) = {
+        try {
+          (
+            (__ \ SubscriptionFormFields.organization_key).read[String] and
+            (__ \ SubscriptionFormFields.user_guid).read[_root_.java.util.UUID] and
+            (__ \ SubscriptionFormFields.publication).read[com.gilt.quality.v0.models.Publication]
+          )(SubscriptionForm.apply _).reads(json)
+        } catch {
+          // Catch Validation Errors
+          case ex: IllegalArgumentException => play.api.libs.json.JsError(s"${ex.getMessage}")
+        }
+      }
     }
 
     implicit def jsonWritesQualitySubscriptionForm: play.api.libs.json.Writes[SubscriptionForm] = {
       (
-        (__ \ "organization_key").write[String] and
-        (__ \ "user_guid").write[_root_.java.util.UUID] and
-        (__ \ "publication").write[com.gilt.quality.v0.models.Publication]
+        (__ \ SubscriptionFormFields.organization_key).write[String] and
+        (__ \ SubscriptionFormFields.user_guid).write[_root_.java.util.UUID] and
+        (__ \ SubscriptionFormFields.publication).write[com.gilt.quality.v0.models.Publication]
       )(unlift(SubscriptionForm.unapply _))
     }
 
-    implicit def jsonReadsQualityTeam: play.api.libs.json.Reads[Team] = {
-      (
-        (__ \ "organization").read[com.gilt.quality.v0.models.Organization] and
-        (__ \ "key").read[String] and
-        (__ \ "email").readNullable[String] and
-        (__ \ "icons").read[com.gilt.quality.v0.models.Icons]
-      )(Team.apply _)
+    object TeamFields {
+      val organization = "organization"
+      val key = "key"
+      val email = "email"
+      val icons = "icons"
+    }
+
+    implicit def jsonReadsQualityTeam: play.api.libs.json.Reads[Team] = new play.api.libs.json.Reads[Team] {
+      def reads(json: play.api.libs.json.JsValue) = {
+        try {
+          (
+            (__ \ TeamFields.organization).read[com.gilt.quality.v0.models.Organization] and
+            (__ \ TeamFields.key).read[String] and
+            (__ \ TeamFields.email).readNullable[String] and
+            (__ \ TeamFields.icons).read[com.gilt.quality.v0.models.Icons]
+          )(Team.apply _).reads(json)
+        } catch {
+          // Catch Validation Errors
+          case ex: IllegalArgumentException => play.api.libs.json.JsError(s"${ex.getMessage}")
+        }
+      }
     }
 
     implicit def jsonWritesQualityTeam: play.api.libs.json.Writes[Team] = {
       (
-        (__ \ "organization").write[com.gilt.quality.v0.models.Organization] and
-        (__ \ "key").write[String] and
-        (__ \ "email").writeNullable[String] and
-        (__ \ "icons").write[com.gilt.quality.v0.models.Icons]
+        (__ \ TeamFields.organization).write[com.gilt.quality.v0.models.Organization] and
+        (__ \ TeamFields.key).write[String] and
+        (__ \ TeamFields.email).writeNullable[String] and
+        (__ \ TeamFields.icons).write[com.gilt.quality.v0.models.Icons]
       )(unlift(Team.unapply _))
     }
 
-    implicit def jsonReadsQualityTeamForm: play.api.libs.json.Reads[TeamForm] = {
-      (
-        (__ \ "key").read[String] and
-        (__ \ "email").readNullable[String] and
-        (__ \ "smiley_url").readNullable[String] and
-        (__ \ "frowny_url").readNullable[String]
-      )(TeamForm.apply _)
+    object TeamFormFields {
+      val key = "key"
+      val email = "email"
+      val smiley_url = "smiley_url"
+      val frowny_url = "frowny_url"
+    }
+
+    implicit def jsonReadsQualityTeamForm: play.api.libs.json.Reads[TeamForm] = new play.api.libs.json.Reads[TeamForm] {
+      def reads(json: play.api.libs.json.JsValue) = {
+        try {
+          (
+            (__ \ TeamFormFields.key).read[String] and
+            (__ \ TeamFormFields.email).readNullable[String] and
+            (__ \ TeamFormFields.smiley_url).readNullable[String] and
+            (__ \ TeamFormFields.frowny_url).readNullable[String]
+          )(TeamForm.apply _).reads(json)
+        } catch {
+          // Catch Validation Errors
+          case ex: IllegalArgumentException => play.api.libs.json.JsError(s"${ex.getMessage}")
+        }
+      }
     }
 
     implicit def jsonWritesQualityTeamForm: play.api.libs.json.Writes[TeamForm] = {
       (
-        (__ \ "key").write[String] and
-        (__ \ "email").writeNullable[String] and
-        (__ \ "smiley_url").writeNullable[String] and
-        (__ \ "frowny_url").writeNullable[String]
+        (__ \ TeamFormFields.key).write[String] and
+        (__ \ TeamFormFields.email).writeNullable[String] and
+        (__ \ TeamFormFields.smiley_url).writeNullable[String] and
+        (__ \ TeamFormFields.frowny_url).writeNullable[String]
       )(unlift(TeamForm.unapply _))
     }
 
-    implicit def jsonReadsQualityTeamMember: play.api.libs.json.Reads[TeamMember] = {
-      (
-        (__ \ "team").read[com.gilt.quality.v0.models.Team] and
-        (__ \ "user").read[com.gilt.quality.v0.models.User]
-      )(TeamMember.apply _)
+    object TeamMemberFields {
+      val team = "team"
+      val user = "user"
+    }
+
+    implicit def jsonReadsQualityTeamMember: play.api.libs.json.Reads[TeamMember] = new play.api.libs.json.Reads[TeamMember] {
+      def reads(json: play.api.libs.json.JsValue) = {
+        try {
+          (
+            (__ \ TeamMemberFields.team).read[com.gilt.quality.v0.models.Team] and
+            (__ \ TeamMemberFields.user).read[com.gilt.quality.v0.models.User]
+          )(TeamMember.apply _).reads(json)
+        } catch {
+          // Catch Validation Errors
+          case ex: IllegalArgumentException => play.api.libs.json.JsError(s"${ex.getMessage}")
+        }
+      }
     }
 
     implicit def jsonWritesQualityTeamMember: play.api.libs.json.Writes[TeamMember] = {
       (
-        (__ \ "team").write[com.gilt.quality.v0.models.Team] and
-        (__ \ "user").write[com.gilt.quality.v0.models.User]
+        (__ \ TeamMemberFields.team).write[com.gilt.quality.v0.models.Team] and
+        (__ \ TeamMemberFields.user).write[com.gilt.quality.v0.models.User]
       )(unlift(TeamMember.unapply _))
     }
 
-    implicit def jsonReadsQualityTeamMemberSummary: play.api.libs.json.Reads[TeamMemberSummary] = {
-      (
-        (__ \ "team").read[com.gilt.quality.v0.models.Team] and
-        (__ \ "number_members").read[Long]
-      )(TeamMemberSummary.apply _)
+    object TeamMemberSummaryFields {
+      val team = "team"
+      val number_members = "number_members"
+    }
+
+    implicit def jsonReadsQualityTeamMemberSummary: play.api.libs.json.Reads[TeamMemberSummary] = new play.api.libs.json.Reads[TeamMemberSummary] {
+      def reads(json: play.api.libs.json.JsValue) = {
+        try {
+          (
+            (__ \ TeamMemberSummaryFields.team).read[com.gilt.quality.v0.models.Team] and
+            (__ \ TeamMemberSummaryFields.number_members).read[Long]
+          )(TeamMemberSummary.apply _).reads(json)
+        } catch {
+          // Catch Validation Errors
+          case ex: IllegalArgumentException => play.api.libs.json.JsError(s"${ex.getMessage}")
+        }
+      }
     }
 
     implicit def jsonWritesQualityTeamMemberSummary: play.api.libs.json.Writes[TeamMemberSummary] = {
       (
-        (__ \ "team").write[com.gilt.quality.v0.models.Team] and
-        (__ \ "number_members").write[Long]
+        (__ \ TeamMemberSummaryFields.team).write[com.gilt.quality.v0.models.Team] and
+        (__ \ TeamMemberSummaryFields.number_members).write[Long]
       )(unlift(TeamMemberSummary.unapply _))
     }
 
-    implicit def jsonReadsQualityUpdateTeamForm: play.api.libs.json.Reads[UpdateTeamForm] = {
-      (
-        (__ \ "email").readNullable[String] and
-        (__ \ "smiley_url").readNullable[String] and
-        (__ \ "frowny_url").readNullable[String]
-      )(UpdateTeamForm.apply _)
+    object UpdateTeamFormFields {
+      val email = "email"
+      val smiley_url = "smiley_url"
+      val frowny_url = "frowny_url"
+    }
+
+    implicit def jsonReadsQualityUpdateTeamForm: play.api.libs.json.Reads[UpdateTeamForm] = new play.api.libs.json.Reads[UpdateTeamForm] {
+      def reads(json: play.api.libs.json.JsValue) = {
+        try {
+          (
+            (__ \ UpdateTeamFormFields.email).readNullable[String] and
+            (__ \ UpdateTeamFormFields.smiley_url).readNullable[String] and
+            (__ \ UpdateTeamFormFields.frowny_url).readNullable[String]
+          )(UpdateTeamForm.apply _).reads(json)
+        } catch {
+          // Catch Validation Errors
+          case ex: IllegalArgumentException => play.api.libs.json.JsError(s"${ex.getMessage}")
+        }
+      }
     }
 
     implicit def jsonWritesQualityUpdateTeamForm: play.api.libs.json.Writes[UpdateTeamForm] = {
       (
-        (__ \ "email").writeNullable[String] and
-        (__ \ "smiley_url").writeNullable[String] and
-        (__ \ "frowny_url").writeNullable[String]
+        (__ \ UpdateTeamFormFields.email).writeNullable[String] and
+        (__ \ UpdateTeamFormFields.smiley_url).writeNullable[String] and
+        (__ \ UpdateTeamFormFields.frowny_url).writeNullable[String]
       )(unlift(UpdateTeamForm.unapply _))
     }
 
-    implicit def jsonReadsQualityUser: play.api.libs.json.Reads[User] = {
-      (
-        (__ \ "guid").read[_root_.java.util.UUID] and
-        (__ \ "email").read[String]
-      )(User.apply _)
+    object UserFields {
+      val guid = "guid"
+      val email = "email"
+    }
+
+    implicit def jsonReadsQualityUser: play.api.libs.json.Reads[User] = new play.api.libs.json.Reads[User] {
+      def reads(json: play.api.libs.json.JsValue) = {
+        try {
+          (
+            (__ \ UserFields.guid).read[_root_.java.util.UUID] and
+            (__ \ UserFields.email).read[String]
+          )(User.apply _).reads(json)
+        } catch {
+          // Catch Validation Errors
+          case ex: IllegalArgumentException => play.api.libs.json.JsError(s"${ex.getMessage}")
+        }
+      }
     }
 
     implicit def jsonWritesQualityUser: play.api.libs.json.Writes[User] = {
       (
-        (__ \ "guid").write[_root_.java.util.UUID] and
-        (__ \ "email").write[String]
+        (__ \ UserFields.guid).write[_root_.java.util.UUID] and
+        (__ \ UserFields.email).write[String]
       )(unlift(User.unapply _))
     }
 
-    implicit def jsonReadsQualityUserForm: play.api.libs.json.Reads[UserForm] = {
-      (__ \ "email").read[String].map { x => new UserForm(email = x) }
+    object UserFormFields {
+      val email = "email"
+    }
+
+    implicit def jsonReadsQualityUserForm: play.api.libs.json.Reads[UserForm] = new play.api.libs.json.Reads[UserForm] {
+      def reads(json: play.api.libs.json.JsValue) = {
+        try {
+          (__ \ UserFormFields.email).read[String].map { x => new UserForm(email = x) }.reads(json)
+        } catch {
+          // Catch Validation Errors
+          case ex: IllegalArgumentException => play.api.libs.json.JsError(s"${ex.getMessage}")
+        }
+      }
     }
 
     implicit def jsonWritesQualityUserForm: play.api.libs.json.Writes[UserForm] = new play.api.libs.json.Writes[UserForm] {

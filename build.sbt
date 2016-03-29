@@ -1,5 +1,3 @@
-// import play.PlayImport.PlayKeys._
-
 name := "apidoc-generator"
 
 organization := "com.bryzek.apidoc.generator"
@@ -33,7 +31,7 @@ lazy val generator = project
     routesGenerator := InjectedRoutesGenerator,
     libraryDependencies ++= Seq(
       ws,
-      "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.0" % Test
+      "org.scalatestplus" %% "play" % "1.4.0-M4" % "test"
     )
   )
 
@@ -47,8 +45,10 @@ lazy val commonSettings: Seq[Setting[_]] = Seq(
   organization := "com.bryzek.apidoc",
   libraryDependencies ++= Seq(
     "org.atteo" % "evo-inflector" % "1.2.1",
-    "org.scalatest" %% "scalatest" % "2.2.6" % Test,
-    "org.mockito" % "mockito-all" % "1.10.19" % Test
+    "com.github.mpilquist" %% "simulacrum" % "0.7.0",
+    "org.scalatest" %% "scalatest" % "2.2.5" % "test",
+    "org.mockito" % "mockito-all" % "1.10.19" % "test"
   ),
-  scalacOptions += "-feature"
+  scalacOptions += "-feature",
+  addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
 )

@@ -1,18 +1,18 @@
 {
   "apidoc": {
-    "version": "0.9.52"
+    "version": "0.9.6"
   },
-  "name": "apidoc-example-union-types",
+  "name": "apidoc Example Union Types",
   "organization": {
-    "key": "bryzek"
+    "key": "gilt"
   },
   "application": {
     "key": "apidoc-example-union-types"
   },
   "namespace": "com.bryzek.apidoc.example.union.types.v0",
-  "version": "0.1.41",
-  "info": {},
+  "version": "0.0.1-dev",
   "headers": [],
+  "info": [],
   "imports": [],
   "attributes": [],
   "enums": [
@@ -164,20 +164,8 @@
                   "value": 200
                 }
               },
-<<<<<<< HEAD
               "type": "user",
               "attributes": []
-=======
-              "type": "user"
-            },
-            {
-              "code": {
-                "integer": {
-                  "value": 404
-                }
-              },
-              "type": "unit"
->>>>>>> master
             }
           ],
           "attributes": []
