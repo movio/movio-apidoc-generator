@@ -73,43 +73,10 @@ object ScalaClientMethodConfigs {
     override val requiresAsyncHttpClient = false
   }
 
-  case class Play22(namespace: String) extends Play {
-    override val responseClass = "play.api.libs.ws.Response"
-    override val requestUriMethod = Some("ahcResponse.getUri")
-    override val canSerializeUuid = false
-  }
-
-  case class Play23(namespace: String) extends Play {
-    override val responseClass = "play.api.libs.ws.WSResponse"
-    override val requestUriMethod = None
-    override val canSerializeUuid = true
-  }
-
   case class Play24(namespace: String) extends Play {
     override val responseClass = "play.api.libs.ws.WSResponse"
     override val requestUriMethod = None
     override val canSerializeUuid = true
-  }
-
-  trait Ning extends ScalaClientMethodConfig {
-    override val pathEncodingMethod = s"_root_.${namespace}.PathSegment.encode"
-    override val responseStatusMethod = "getStatusCode"
-    override val responseBodyMethod = """getResponseBody("UTF-8")"""
-    override val responseClass = "_root_.com.ning.http.client.Response"
-    override val requiresAsyncHttpClient = true
-    override val canSerializeUuid = true
-
-    def addQueryParamMethod: String
-  }
-
-  case class Ning18(namespace: String) extends Ning {
-    override def addQueryParamMethod: String = "addQueryParameter"
-    override val requestUriMethod = Some("getUri")
-  }
-
-  case class Ning19(namespace: String) extends Ning {
-    override def addQueryParamMethod: String = "addQueryParam"
-    override val requestUriMethod = Some("getUri.toJavaNetURI")
   }
 
 }
