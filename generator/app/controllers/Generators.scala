@@ -38,26 +38,6 @@ object Generators {
   } yield(target -> codeGenerator)
 
   val targets = Seq(
-      CodeGenTarget(
-        metaData = Generator(
-          key = "anorm_2_x_parsers",
-          name = "Anorm 2.x parsers",
-          description = Some("Generates anorm parsers. Depends on apidoc_0_x_libs generators. See https://www.playframework.com/documentation/2.4.x/ScalaAnorm"),
-          language = Some("Scala")
-        ),
-        status = lib.generator.Status.Alpha,
-        codeGenerator = Some(scala.generator.anorm.ParserGenerator)
-      ),
-      CodeGenTarget(
-        metaData = Generator(
-          key = "ruby_client",
-          name = "Ruby client",
-          description = Some("A pure ruby library to consume api.json web services. The ruby client has minimal dependencies and does not require any additional gems."),
-          language = Some("Ruby")
-        ),
-        status = lib.generator.Status.Beta,
-        codeGenerator = Some(ruby.models.RubyClientGenerator)
-      ),
        CodeGenTarget(
         metaData = Generator(
           key = "ning_1_9_client",

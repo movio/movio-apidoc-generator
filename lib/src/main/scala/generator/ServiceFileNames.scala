@@ -63,12 +63,6 @@ object ServiceFileNames {
       },
 
       new Language {
-        override def isCamelCased = false
-        override def name = "ruby"
-        override def extension = "rb"
-      },
-
-      new Language {
         override def isCamelCased = true
         override def name = "scala"
         override def extension = "scala"
