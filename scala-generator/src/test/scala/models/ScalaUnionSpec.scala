@@ -70,18 +70,18 @@ class ScalaUnionSpec extends FunSpec with ShouldMatchers {
 
     it("generates valid readers for the union type itself") {
       val user = ssd.unions.find(_.name == "User").get
-      val code = Play2Json(ssd).readers(user)
+      val code = Play2JsonExtended(ssd).readers(user)
       models.TestHelper.assertEqualsFile("/scala-union-models-json-union-type-readers.txt", code)
     }
 
     it("generates valid writers for the union type itself") {
       val user = ssd.unions.find(_.name == "User").get
-      val code = Play2Json(ssd).writers(user)
+      val code = Play2JsonExtended(ssd).writers(user)
       models.TestHelper.assertEqualsFile("/scala-union-models-json-union-type-writers.txt", code)
     }
 
     it("codegen") {
-      val code = Play2Json(ssd).generate()
+      val code = Play2JsonExtended(ssd).generate()
       models.TestHelper.assertEqualsFile("/scala-union-models-json.txt", code)
     }
   }
@@ -133,7 +133,7 @@ class ScalaUnionSpec extends FunSpec with ShouldMatchers {
     lazy val ssd = ScalaService(service)
 
     it("codegen") {
-      val code = Play2Json(ssd).generate()
+      val code = Play2JsonExtended(ssd).generate()
       models.TestHelper.assertEqualsFile("/scala-union-enums-json.txt", code)
     }
   }

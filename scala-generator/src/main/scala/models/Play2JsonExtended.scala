@@ -97,7 +97,23 @@ case class Play2JsonExtended(
   }
 
   private[models] def readersAndWriters(model: ScalaModel): String = {
-    readers(model) ++ "\n\n" ++ writers(model)
+    Seq(
+      fieldsObject(model),
+      readers(model),
+      writers(model)
+    ).mkString("\n\n")
+  }
+
+  private[models] def fieldsIdentifier(model: ScalaModel): String = s"${model.name}Fields"
+
+  private[models] def fieldsObject(model: ScalaModel): String = {
+    Seq(
+      s"object ${fieldsIdentifier(model)} {",
+      model.fields.map ( f ⇒
+        s"val ${f.originalName} = ${"\""}${f.originalName}${"\""}".indent(2)
+      ).mkString("\n"),
+      "}"
+    ).mkString("\n")
   }
 
   private[models] def readers(model: ScalaModel): String = {
@@ -109,26 +125,6 @@ case class Play2JsonExtended(
   }
 
   private[models] def fieldReaders(model: ScalaModel): String = {
-    // val serializations = model.fields.map { field =>
-    //   field.field.attributes.find(a => a.name == ExtendedCaseClasses.ScalaTypeKey ) match {
-    //     case Some(attr) =>
-    //       val datatype = "_root_." + (attr.value.as[JsObject] \ "class").as[JsString].value
-    //       if(field.required)
-    //         s"""(__ \\ "${field.originalName}").read[${datatype}]"""
-    //       else
-    //         s"""(__ \\ "${field.originalName}").readNullable[${datatype}]"""
-
-    //     case None => 
-    //       field.datatype match {
-    //         case ScalaDatatype.Option(inner) => {
-    //           s"""(__ \\ "${field.originalName}").readNullable[${inner.name}]"""
-    //         }
-    //         case datatype => {
-    //           s"""(__ \\ "${field.originalName}").read[${datatype.name}]"""
-    //         }
-    //       }
-    //   }
-    // }
     val serializations = fieldReadersWriters(model, "read")
 
     val fields = model.fields match {
@@ -176,22 +172,23 @@ ${serializations.mkString(" and\n").indent(6)}
   }
 
   private[models] def fieldReadersWriters(model: ScalaModel, readWrite: String): List[String] = {
+    val fieldsIdent = fieldsIdentifier(model)
     model.fields.map { field ⇒
       getScalaProps(field.field) match {
         case Some(scalaFieldProps) ⇒
           val datatype = "_root_." + scalaFieldProps.`class`.getOrElse("???")
           if (field.required)
-            s"""(__ \\ "${field.originalName}").${readWrite}[${datatype}]"""
+            s"""(__ \\ ${fieldsIdent}.${field.originalName}).${readWrite}[${datatype}]"""
           else
-            s"""(__ \\ "${field.originalName}").${readWrite}Nullable[${datatype}]"""
+            s"""(__ \\ ${fieldsIdent}.${field.originalName}).${readWrite}Nullable[${datatype}]"""
 
         case None ⇒
           field.datatype match {
             case ScalaDatatype.Option(inner) ⇒ {
-              s"""(__ \\ "${field.originalName}").${readWrite}Nullable[${inner.name}]"""
+              s"""(__ \\ ${fieldsIdent}.${field.originalName}).${readWrite}Nullable[${inner.name}]"""
             }
             case datatype ⇒ {
-              s"""(__ \\ "${field.originalName}").${readWrite}[${datatype.name}]"""
+              s"""(__ \\ ${fieldsIdent}.${field.originalName}).${readWrite}[${datatype.name}]"""
             }
           }
       }

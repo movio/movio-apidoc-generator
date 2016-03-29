@@ -1,7 +1,7 @@
 implicit def jsonReadsQualityHealthcheck: play.api.libs.json.Reads[Healthcheck] = new play.api.libs.json.Reads[Healthcheck] {
   def reads(json: play.api.libs.json.JsValue) = {
     try {
-      (__ \ "status").read[String].map { x => new Healthcheck(status = x) }.reads(json)
+      (__ \ HealthcheckFields.status).read[String].map { x => new Healthcheck(status = x) }.reads(json)
     } catch {
       // Catch Validation Errors
       case ex: IllegalArgumentException => play.api.libs.json.JsError(s"${ex.getMessage}")

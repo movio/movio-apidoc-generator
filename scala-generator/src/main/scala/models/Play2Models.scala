@@ -27,7 +27,7 @@ object Play2Models extends CodeGenerator {
     val caseClasses = ScalaCaseClasses.generateCode(form, addHeader = false).map(_.contents).mkString("\n\n")
     val prefix = underscoreAndDashToInitCap(ssd.name)
     val enumJson: String = ssd.enums.map { ScalaEnums(ssd, _).buildJson() }.mkString("\n\n")
-    val play2Json = Play2Json(ssd).generate()
+    val play2Json = Play2JsonExtended(ssd).generate()
 
     val header = addHeader match {
       case false => ""

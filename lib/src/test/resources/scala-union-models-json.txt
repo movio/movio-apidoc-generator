@@ -1,36 +1,64 @@
-implicit def jsonReadsApiDocTestGuestUser: play.api.libs.json.Reads[GuestUser] = {
-  (
-    (__ \ "id").read[Long] and
-    (__ \ "email").read[String] and
-    (__ \ "name").readNullable[String] and
-    (__ \ "bar").read[String]
-  )(GuestUser.apply _)
+object GuestUserFields {
+  val id = "id"
+  val email = "email"
+  val name = "name"
+  val bar = "bar"
+}
+
+implicit def jsonReadsApiDocTestGuestUser: play.api.libs.json.Reads[GuestUser] = new play.api.libs.json.Reads[GuestUser] {
+  def reads(json: play.api.libs.json.JsValue) = {
+    try {
+      (
+        (__ \ GuestUserFields.id).read[Long] and
+        (__ \ GuestUserFields.email).read[String] and
+        (__ \ GuestUserFields.name).readNullable[String] and
+        (__ \ GuestUserFields.bar).read[String]
+      )(GuestUser.apply _).reads(json)
+    } catch {
+      // Catch Validation Errors
+      case ex: IllegalArgumentException => play.api.libs.json.JsError(s"${ex.getMessage}")
+    }
+  }
 }
 
 implicit def jsonWritesApiDocTestGuestUser: play.api.libs.json.Writes[GuestUser] = {
   (
-    (__ \ "id").write[Long] and
-    (__ \ "email").write[String] and
-    (__ \ "name").writeNullable[String] and
-    (__ \ "bar").write[String]
+    (__ \ GuestUserFields.id).write[Long] and
+    (__ \ GuestUserFields.email).write[String] and
+    (__ \ GuestUserFields.name).writeNullable[String] and
+    (__ \ GuestUserFields.bar).write[String]
   )(unlift(GuestUser.unapply _))
 }
 
-implicit def jsonReadsApiDocTestRegisteredUser: play.api.libs.json.Reads[RegisteredUser] = {
-  (
-    (__ \ "id").read[Long] and
-    (__ \ "email").read[String] and
-    (__ \ "name").readNullable[String] and
-    (__ \ "foo").read[String]
-  )(RegisteredUser.apply _)
+object RegisteredUserFields {
+  val id = "id"
+  val email = "email"
+  val name = "name"
+  val foo = "foo"
+}
+
+implicit def jsonReadsApiDocTestRegisteredUser: play.api.libs.json.Reads[RegisteredUser] = new play.api.libs.json.Reads[RegisteredUser] {
+  def reads(json: play.api.libs.json.JsValue) = {
+    try {
+      (
+        (__ \ RegisteredUserFields.id).read[Long] and
+        (__ \ RegisteredUserFields.email).read[String] and
+        (__ \ RegisteredUserFields.name).readNullable[String] and
+        (__ \ RegisteredUserFields.foo).read[String]
+      )(RegisteredUser.apply _).reads(json)
+    } catch {
+      // Catch Validation Errors
+      case ex: IllegalArgumentException => play.api.libs.json.JsError(s"${ex.getMessage}")
+    }
+  }
 }
 
 implicit def jsonWritesApiDocTestRegisteredUser: play.api.libs.json.Writes[RegisteredUser] = {
   (
-    (__ \ "id").write[Long] and
-    (__ \ "email").write[String] and
-    (__ \ "name").writeNullable[String] and
-    (__ \ "foo").write[String]
+    (__ \ RegisteredUserFields.id).write[Long] and
+    (__ \ RegisteredUserFields.email).write[String] and
+    (__ \ RegisteredUserFields.name).writeNullable[String] and
+    (__ \ RegisteredUserFields.foo).write[String]
   )(unlift(RegisteredUser.unapply _))
 }
 
