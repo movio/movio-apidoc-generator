@@ -40,26 +40,6 @@ object Generators {
   val targets = Seq(
       CodeGenTarget(
         metaData = Generator(
-          key = "play_2_2_client",
-          name = "Play 2.2 client",
-          description = Some("Play Framework 2.2 client based on <a href='http://www.playframework.com/documentation/2.2.x/ScalaWS''>WS API</a>. Note this client does NOT support HTTP PATCH. If you need PATCH, we recommend using the ning client instead, which uses play-json underneath so should require minimal new dependencies in Play."),
-          language = Some("Scala")
-        ),
-        status = lib.generator.Status.Beta,
-        codeGenerator = Some(scala.models.Play22ClientGenerator)
-      ),
-      CodeGenTarget(
-        metaData = Generator(
-          key = "play_2_3_client",
-          name = "Play 2.3 client",
-          description = Some("Play Framework 2.3 client based on <a href='http://www.playframework.com/documentation/2.3.x/ScalaWS'>WS API</a>."),
-          language = Some("Scala")
-        ),
-        status = lib.generator.Status.Beta,
-        codeGenerator = Some(scala.models.Play23ClientGenerator)
-      ),
-      CodeGenTarget(
-        metaData = Generator(
           key = "play_2_4_client",
           name = "Play 2.4 client",
           description = Some("Play Framework 2.4 client based on <a href='http://www.playframework.com/documentation/2.4.x/ScalaWS'>WS API</a>. Primary change from 2.3.x is WSRequestHolder has been deprecated (replaced by WSRequest)."),
@@ -107,36 +87,6 @@ object Generators {
         ),
         status = lib.generator.Status.Beta,
         codeGenerator = Some(scala.generator.ScalaCaseClasses)
-      ),
-      CodeGenTarget(
-        metaData = Generator(
-          key = "swagger_json",
-          name = "Swagger JSON",
-          description = Some("Generate a valid swagger 2.0 json description of a service."),
-          language = None
-        ),
-        status = lib.generator.Status.Proposal,
-        codeGenerator = None
-      ),
-      CodeGenTarget(
-        metaData = Generator(
-          key = "angular",
-          name = "AngularJS client",
-          description = Some("Generate a simple to use wrapper to access a service from AngularJS"),
-          language = Some("JavaScript")
-        ),
-        status = lib.generator.Status.InDevelopment,
-        codeGenerator = None
-      ),
-      CodeGenTarget(
-        metaData = Generator(
-          key = "javascript",
-          name = "Javascript client",
-          description = Some("Generate a simple to use wrapper to access a service from javascript."),
-          language = Some("JavaScript")
-        ),
-        status = lib.generator.Status.Proposal,
-        codeGenerator = None
       )
   ).sortBy(_.metaData.key)
 }

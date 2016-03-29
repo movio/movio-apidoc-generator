@@ -73,18 +73,6 @@ object ScalaClientMethodConfigs {
     override val requiresAsyncHttpClient = false
   }
 
-  case class Play22(namespace: String) extends Play {
-    override val responseClass = "play.api.libs.ws.Response"
-    override val requestUriMethod = Some("ahcResponse.getUri")
-    override val canSerializeUuid = false
-  }
-
-  case class Play23(namespace: String) extends Play {
-    override val responseClass = "play.api.libs.ws.WSResponse"
-    override val requestUriMethod = None
-    override val canSerializeUuid = true
-  }
-
   case class Play24(namespace: String) extends Play {
     override val responseClass = "play.api.libs.ws.WSResponse"
     override val requestUriMethod = None
