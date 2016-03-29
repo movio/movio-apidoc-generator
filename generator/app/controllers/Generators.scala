@@ -38,26 +38,6 @@ object Generators {
   } yield(target -> codeGenerator)
 
   val targets = Seq(
-       CodeGenTarget(
-        metaData = Generator(
-          key = "ning_1_9_client",
-          name = "Ning Async Http Client 1.9",
-          description = Some("Ning Async Http v. 1.9.x Client - see https://sonatype.github.io/async-http-client"),
-          language = Some("Java, Scala")
-        ),
-        status = lib.generator.Status.Alpha,
-        codeGenerator = Some(scala.models.ning.Ning19ClientGenerator)
-      ),
-       CodeGenTarget(
-        metaData = Generator(
-          key = "ning_1_8_client",
-          name = "Ning Async Http Client 1.8",
-          description = Some("Ning Async Http v. 1.8.x Client - see https://sonatype.github.io/async-http-client"),
-          language = Some("Java, Scala")
-        ),
-        status = lib.generator.Status.Alpha,
-        codeGenerator = Some(scala.models.ning.Ning18ClientGenerator)
-      ),
       CodeGenTarget(
         metaData = Generator(
           key = "play_2_2_client",
@@ -127,16 +107,6 @@ object Generators {
         ),
         status = lib.generator.Status.Beta,
         codeGenerator = Some(scala.generator.ScalaCaseClasses)
-      ),
-      CodeGenTarget(
-        metaData = Generator(
-          key = "java_models",
-          name = "Java models",
-          description = Some("Generate Java models from the API description."),
-          language = Some("Java")
-        ),
-        status = lib.generator.Status.InDevelopment,
-        codeGenerator = Some(models.generator.JavaClasses)
       ),
       CodeGenTarget(
         metaData = Generator(

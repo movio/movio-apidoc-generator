@@ -2,7 +2,6 @@ package scala.generator
 
 import com.bryzek.apidoc.generator.v0.models.InvocationForm
 import scala.models.Play23ClientGenerator
-import scala.models.ning.Ning18ClientGenerator
 
 import models.TestHelper
 import org.scalatest.{FunSpec, Matchers}
@@ -29,16 +28,6 @@ class ReferenceWithImportsSpec extends FunSpec with Matchers {
       case Right(sourceFiles) => {
         sourceFiles.size shouldBe 1
         models.TestHelper.assertEqualsFile("/generators/reference-with-imports-spec-play-23.txt", sourceFiles.head.contents)
-      }
-    }
-  }
-
-  it("generates expected code for ning client") {
-    Ning18ClientGenerator.invoke(InvocationForm(service = models.TestHelper.referenceWithImportsApiService)) match {
-      case Left(errors) => fail(errors.mkString(", "))
-      case Right(sourceFiles) => {
-        sourceFiles.size shouldBe 1
-        models.TestHelper.assertEqualsFile("/generators/reference-with-imports-spec-ning-client.txt", sourceFiles.head.contents)
       }
     }
   }

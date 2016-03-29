@@ -52,12 +52,6 @@ object ServiceFileNames {
 
       new Language {
         override def isCamelCased = true
-        override def name = "java"
-        override def extension = "java"
-      },
-
-      new Language {
-        override def isCamelCased = true
         override def name = "javascript"
         override def extension = "js"
       },
