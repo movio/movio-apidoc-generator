@@ -56,7 +56,10 @@ package ${ssd.namespaces.base}.kafka {
   import ${ssd.namespaces.base}.models._
   import ${ssd.namespaces.base}.models.json._
 
-  class ${kafkaClassName}Producer(config: Config) extends KafkaProducer[${kafkaClassName}, ${className}] {
+  class ${kafkaClassName}Producer(
+    config: Config,
+    topicResolver: String => String = ${kafkaClassName}Topic.topic
+  ) extends KafkaProducer[${kafkaClassName}, ${className}] {
 
     val BrokerListKey = s"${configPath}.kafka.producer.broker-connection-string"
 
@@ -82,7 +85,7 @@ package ${ssd.namespaces.base}.kafka {
     }
 
     def send(batch: Seq[${className}], tenant: String): scala.util.Try[Seq[${className}]] = {
-      val topic = ${kafkaClassName}Topic.topic(tenant)
+      val topic = topicResolver(tenant)
       val messages = batch.map(${kafkaClassName}(_))
       scala.util.Try {
         producer.send(messages map { message =>
@@ -96,7 +99,7 @@ package ${ssd.namespaces.base}.kafka {
     }
 
     def sendWrapped(batch: Seq[${kafkaClassName}], tenant: String): scala.util.Try[Seq[${kafkaClassName}]] = {
-      val topic = ${kafkaClassName}Topic.topic(tenant)
+      val topic = topicResolver(tenant)
       scala.util.Try {
         producer.send(batch map { message =>
                         new KeyedMessage[String, String](topic, message.generateKey(tenant), Json.stringify(Json.toJson(message)))
