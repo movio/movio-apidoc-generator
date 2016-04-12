@@ -45,7 +45,7 @@ object KafkaConsumer extends CodeGenerator {
       val topicRegex = topicFn.
         replace("${apiVersion}", apiVersion).
         replace("$apiVersion", apiVersion).
-        replace("${tenant}",""). 
+        replace("${tenant}","").
         replace("$tenant","") +
         """ + "(.*)""""
       val source = s"""$header
@@ -53,6 +53,7 @@ import java.util.Properties
 
 import scala.language.postfixOps
 import scala.annotation.tailrec
+import scala.util.matching.Regex
 
 import com.typesafe.config.Config
 
@@ -79,7 +80,7 @@ package ${ssd.namespaces.base}.kafka {
     /**
       The name of the kafka topic to publish and consume messages from.
       This is a scala statedment/code that that gets executed
-      Example: `s"mc-servicename-$${apiVersion}-$${tenant}"` 
+      Example: `s"mc-servicename-$${apiVersion}-$${tenant}"`
 
       @param tenant is the customer id, eg vc_regalus
       */
@@ -96,13 +97,18 @@ package ${ssd.namespaces.base}.kafka {
     val ConsumerZookeeperConnectionKey = s"$$base.zookeeper.connection"
   }
 
+  /**
+    If you choose to override `topicRegex`, make sure the first group captures
+    the tenant names.
+   */
   class ${className}Consumer (
     config: Config,
-    consumerGroupId: String
+    consumerGroupId: String,
+    topicRegex: Regex = ${className}Topic.topicRegex.r
   ) extends KafkaConsumer[${className}] {
     import ${className}Consumer._
 
-    val topicFilter = new Whitelist(${className}Topic.topicRegex)
+    val topicFilter = new Whitelist(topicRegex.toString)
 
     lazy val consumerConfig = new ConsumerConfig(readConsumerPropertiesFromConfig)
     lazy val consumer = Consumer.create(consumerConfig)
@@ -143,7 +149,7 @@ package ${ssd.namespaces.base}.kafka {
           } match {
             case scala.util.Success(message) =>
               val entity = Json.parse(message.message).as[${className}]
-              val ${className}Topic.topicRegex.r(tenant) = message.topic
+              val topicRegex(tenant) = message.topic
 
               val newSeq = messages.get(tenant).getOrElse(Seq.empty) :+ entity
               val newMessages = messages + (tenant -> newSeq)
