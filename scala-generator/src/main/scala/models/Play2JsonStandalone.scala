@@ -77,6 +77,14 @@ ${JsonImports(form.service).mkString("\n").indent(4)}
       }
     }
 
+    private[${ssd.namespaces.last}] implicit val jsonReadsJodaDateTimeZone = __.read[String].map { str =>
+      org.joda.time.DateTimeZone.forID(str)
+    }
+
+    private[${ssd.namespaces.last}] implicit val jsonWritesJodaDateTimeZone = new Writes[org.joda.time.DateTimeZone] {
+      def writes(x: org.joda.time.DateTimeZone) = JsString(x.getID)
+    }
+
 ${Seq(enumJson, play2Json).filter(!_.isEmpty).mkString("\n\n").indent(4)}
   }
 }
