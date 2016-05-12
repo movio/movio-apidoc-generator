@@ -56,6 +56,19 @@ trait PlayController extends CodeGenerator {
                                                           case _ => ""
                                                         }).getOrElse("")
 
+        // Find the first 400 error code, if not found use first 500 error code
+        val validationError = operation.responses.mapn
+        val isSuccess = response.code match {
+          case ResponseCodeInt(value) => value >= 200 && value < 300
+          case ResponseCodeOption.Default | ResponseCodeOption.UNDEFINED(_) | ResponseCodeUndefinedType(_) => false
+        }
+          sortWith(_.code > _.code).headOption match {
+          case Some(error) =>
+            """errorResponse(ex, msg => ${error.`type`}.("500", msg))"""
+          case None => "" // FIXME
+        }
+
+
         // Use in service
         val resultType = operation.resultType
 
@@ -64,7 +77,7 @@ service.${method}(${argNameList}).map{_ match {
   case scala.util.Success(result) =>
     Ok(Json.toJson(result${returnSizeIfCollection}))
   case scala.util.Failure(ex) =>
-    errorResponse(ex, msg => Error("500", msg))
+    ${validationError}
 }}"""
 
         operation.body match {
@@ -72,7 +85,7 @@ service.${method}(${argNameList}).map{_ match {
 def ${operation.name}(${argList}) = play.api.mvc.Action.async(play.api.mvc.BodyParsers.parse.json) {  request =>
   request.body.validate[${body.name}] match {
     case errors: JsError =>
-      errorResponse(errors, msg => Error("500", msg))
+      ${validationError}
     case body: JsSuccess[${body.name}] =>${block.indent(6)}
   }
 }"""

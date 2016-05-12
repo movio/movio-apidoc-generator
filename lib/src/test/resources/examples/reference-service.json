@@ -15,7 +15,24 @@
   "description": null,
   "headers": [],
   "info": [],
-  "imports": [],
+  "imports": [
+    {
+      "uri": "http://apidoc.movio.co/movio.cinema/error-core/0.1/service.json",
+      "namespace": "movio.cinema.error.core.v0",
+      "organization": {
+        "key": "movio.cinema"
+      },
+      "application": {
+        "key": "error-core"
+      },
+      "version": "0.1",
+      "enums": [],
+      "unions": [],
+      "models": [
+        "CustomError"
+      ]
+    }
+  ],
   "attributes": [],
   "enums": [
     {
@@ -286,36 +303,6 @@
       "fields": [
         {
           "name": "value",
-          "attributes": [],
-          "type": "string",
-          "description": null,
-          "default": null,
-          "required": true,
-          "minimum": null,
-          "maximum": null,
-          "example": null
-        }
-      ]
-    },
-    {
-      "name": "error",
-      "attributes": [],
-      "plural": "errors",
-      "description": "Models an API error.",
-      "fields": [
-        {
-          "name": "code",
-          "attributes": [],
-          "type": "string",
-          "description": null,
-          "default": null,
-          "required": true,
-          "minimum": null,
-          "maximum": null,
-          "example": null
-        },
-        {
-          "name": "message",
           "attributes": [],
           "type": "string",
           "description": null,
@@ -683,7 +670,7 @@
             {
               "code": { "integer": { "value": 409 } },
               "attributes": [],
-              "type": "[error]"
+              "type": "[movio.cinema.error.core.v0.models.CustomError]"
             }
           ]
         },
@@ -878,7 +865,7 @@
             {
               "code": { "integer": { "value": 409 } },
               "attributes": [],
-              "type": "[error]"
+              "type": "[movio.cinema.error.core.v0.models.CustomError]"
             }
           ]
         },
@@ -1011,7 +998,7 @@
             {
               "code": { "integer": { "value": 409 } },
               "attributes": [],
-              "type": "[error]"
+              "type": "[movio.cinema.error.core.v0.models.CustomError]"
             }
           ]
         },

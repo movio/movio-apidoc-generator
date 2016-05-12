@@ -8,7 +8,8 @@ class JsonImportsSpec extends FunSpec with ShouldMatchers {
   it("basic service") {
     JsonImports(models.TestHelper.referenceApiService) should be(
       Seq(
-        "import com.bryzek.apidoc.reference.api.v0.models.json._"
+        "import com.bryzek.apidoc.reference.api.v0.models.json._",
+        "import movio.cinema.error.core.v0.models.json._"
       )
     )
   }

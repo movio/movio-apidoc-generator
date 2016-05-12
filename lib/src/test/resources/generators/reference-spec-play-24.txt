@@ -33,6 +33,7 @@ package com.bryzek.apidoc.reference.api.v0 {
     autoClose: Boolean = true // Set to false for better perf or lots or request. You must manually call `close`
   ) {
     import com.bryzek.apidoc.reference.api.v0.models.json._
+    import movio.cinema.error.core.v0.models.json._
 
     private[this] val logger = play.api.Logger("com.bryzek.apidoc.reference.api.v0.Client")
 
@@ -493,12 +494,13 @@ package com.bryzek.apidoc.reference.api.v0 {
   package errors {
 
     import com.bryzek.apidoc.reference.api.v0.models.json._
+    import movio.cinema.error.core.v0.models.json._
 
     case class ErrorsResponse(
       response: play.api.libs.ws.WSResponse,
       message: Option[String] = None
     ) extends Exception(message.getOrElse(response.status + ": " + response.body)){
-      lazy val errors = _root_.com.bryzek.apidoc.reference.api.v0.Client.parseJson("Seq[com.bryzek.apidoc.reference.api.v0.models.Error]", response, _.validate[Seq[com.bryzek.apidoc.reference.api.v0.models.Error]])
+      lazy val errors = _root_.com.bryzek.apidoc.reference.api.v0.Client.parseJson("Seq[movio.cinema.error.core.v0.models.Error]", response, _.validate[Seq[movio.cinema.error.core.v0.models.Error]])
     }
 
     case class FailedRequest(responseCode: Int, message: String, requestUri: Option[_root_.java.net.URI] = None) extends Exception(s"HTTP $responseCode: $message")

@@ -15,6 +15,8 @@ import scala.concurrent.Future
 
 import services.MembersService
 
+import movio.cinema.error.core.v0.models._
+
 class MembersController @Singleton @Inject() (service: MembersService) extends play.api.mvc.Controller {
   import com.bryzek.apidoc.reference.api.v0.models._
   import com.bryzek.apidoc.reference.api.v0.models.json._
@@ -30,7 +32,7 @@ class MembersController @Singleton @Inject() (service: MembersService) extends p
       case scala.util.Success(result) =>
         Ok(Json.toJson(result))
       case scala.util.Failure(ex) =>
-        errorResponse(ex, msg => Error("500", msg))
+        errorResponse(ex, msg => CustomError("500", msg))
     }}
   }
 
@@ -44,7 +46,7 @@ class MembersController @Singleton @Inject() (service: MembersService) extends p
       case scala.util.Success(result) =>
         Ok(Json.toJson(result))
       case scala.util.Failure(ex) =>
-        errorResponse(ex, msg => Error("500", msg))
+        errorResponse(ex, msg => CustomError("500", msg))
     }}
   }
 
@@ -55,7 +57,7 @@ class MembersController @Singleton @Inject() (service: MembersService) extends p
       case scala.util.Success(result) =>
         Ok(Json.toJson(result))
       case scala.util.Failure(ex) =>
-        errorResponse(ex, msg => Error("500", msg))
+        errorResponse(ex, msg => CustomError("500", msg))
     }}
   }
 
@@ -64,13 +66,13 @@ class MembersController @Singleton @Inject() (service: MembersService) extends p
   ) = play.api.mvc.Action.async(play.api.mvc.BodyParsers.parse.json) {  request =>
     request.body.validate[Seq[com.bryzek.apidoc.reference.api.v0.models.Member]] match {
       case errors: JsError =>
-        errorResponse(errors, msg => Error("500", msg))
+        errorResponse(errors, msg => CustomError("500", msg))
       case body: JsSuccess[Seq[com.bryzek.apidoc.reference.api.v0.models.Member]] =>
         service.post(request, body.get, organization).map{_ match {
           case scala.util.Success(result) =>
             Ok(Json.toJson(result.size))
           case scala.util.Failure(ex) =>
-            errorResponse(ex, msg => Error("500", msg))
+            errorResponse(ex, msg => CustomError("500", msg))
         }}
     }
   }
@@ -80,13 +82,13 @@ class MembersController @Singleton @Inject() (service: MembersService) extends p
   ) = play.api.mvc.Action.async(play.api.mvc.BodyParsers.parse.json) {  request =>
     request.body.validate[Map[String, com.bryzek.apidoc.reference.api.v0.models.Member]] match {
       case errors: JsError =>
-        errorResponse(errors, msg => Error("500", msg))
+        errorResponse(errors, msg => CustomError("500", msg))
       case body: JsSuccess[Map[String, com.bryzek.apidoc.reference.api.v0.models.Member]] =>
         service.post(request, body.get, organization).map{_ match {
           case scala.util.Success(result) =>
             Ok(Json.toJson(result.size))
           case scala.util.Failure(ex) =>
-            errorResponse(ex, msg => Error("500", msg))
+            errorResponse(ex, msg => CustomError("500", msg))
         }}
     }
   }
