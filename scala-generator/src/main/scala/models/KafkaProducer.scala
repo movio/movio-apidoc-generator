@@ -93,7 +93,7 @@ package ${ssd.namespaces.base}.kafka {
                       }: _*)
         batch
       } recoverWith {
-        case ex ⇒ scala.util.Failure(new KafkaProducerException(s"Failed to publish $$topic message, to kafka queue.", ex))
+        case ex => scala.util.Failure(new KafkaProducerException(s"Failed to publish $$topic message, to kafka queue.", ex))
       }
     }
 
@@ -105,7 +105,7 @@ package ${ssd.namespaces.base}.kafka {
                       }: _*)
         batch
       } recoverWith {
-        case ex ⇒ scala.util.Failure(new KafkaProducerException(s"Failed to publish $$topic message, to kafka queue.", ex))
+        case ex => scala.util.Failure(new KafkaProducerException(s"Failed to publish $$topic message, to kafka queue.", ex))
       }
     }
 
