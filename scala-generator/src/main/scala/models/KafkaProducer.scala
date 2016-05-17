@@ -92,9 +92,8 @@ package ${ssd.namespaces.base}.kafka {
                         new KeyedMessage[String, String](topic, message.generateKey(tenant), Json.stringify(Json.toJson(message)))
                       }: _*)
         batch
-      } andThen {
-        case scala.util.Failure(ex) ⇒
-          throw new KafkaProducerException(s"Failed to publish $$topic message, to kafka queue.", ex)
+      } recoverWith {
+        case ex => scala.util.Failure(new KafkaProducerException(s"Failed to publish $$topic message, to kafka queue.", ex))
       }
     }
 
@@ -105,9 +104,8 @@ package ${ssd.namespaces.base}.kafka {
                         new KeyedMessage[String, String](topic, message.generateKey(tenant), Json.stringify(Json.toJson(message)))
                       }: _*)
         batch
-      } andThen {
-        case scala.util.Failure(ex) ⇒
-          throw new KafkaProducerException(s"Failed to publish $$topic message, to kafka queue.", ex)
+      } recoverWith {
+        case ex => scala.util.Failure(new KafkaProducerException(s"Failed to publish $$topic message, to kafka queue.", ex))
       }
     }
 
