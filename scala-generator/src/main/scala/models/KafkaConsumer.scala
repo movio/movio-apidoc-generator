@@ -148,12 +148,19 @@ package ${ssd.namespaces.base}.kafka {
             iterator.next()
           } match {
             case scala.util.Success(message) =>
-              val entity = Json.parse(message.message).as[${className}]
-              val topicRegex(tenant) = message.topic
-
-              val newSeq = messages.get(tenant).getOrElse(Seq.empty) :+ entity
-              val newMessages = messages + (tenant -> newSeq)
-
+              val payload = message.message
+              val newMessages = 
+                if (payload != null) {
+                  val entity = Json.parse(payload).as[${className}]
+                  val topicRegex(tenant) = message.topic
+  
+                  val newSeq = messages.get(tenant).getOrElse(Seq.empty) :+ entity
+                  
+                  messages + (tenant -> newSeq)
+                } else {
+                  messages
+                }
+              
               fetchBatch(remainingInBatch - 1, newMessages)
             case scala.util.Failure(ex) => ex match {
               case ex: ConsumerTimeoutException ⇒
