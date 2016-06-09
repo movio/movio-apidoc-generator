@@ -5,3 +5,8 @@ logs/
 *.downloaded.rb
 *.swp
 *.swo
+
+#eclipse
+.classpath
+.settings
+.project
