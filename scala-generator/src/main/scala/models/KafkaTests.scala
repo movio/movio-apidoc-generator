@@ -115,6 +115,37 @@ class ${className}Tests extends MovioSpec with KafkaTestKit {
         consumer.shutdown
       }
     }
+    
+    it("consumer ignores null payload messages, to support deletes on topics with compaction") {
+      new Fixture {
+        val topic = ${className}Topic.topic(tenant)
+        val rawProducer = createKeyedProducer[String, String](topic, kafkaServer)(k ⇒ k, m ⇒ m)
+
+        producer.sendWrapped(entity1, tenant)
+        // Produce null payload message
+        rawProducer.send("anId", null)
+        producer.sendWrapped(entity2, tenant)
+
+        // And consume them
+        var consumedEntities = Seq.empty[KafkaPerson]
+        awaitCondition("All messages should get processed") {
+          def processor(messages: Map[String, Seq[${className}]]): scala.util.Try[Map[String, Seq[${className}]]] =  {
+            println(messages)
+            println("do some side effecting stuff here")
+            scala.util.Success(messages)
+          }
+          
+          // Use distinct because there are items in the queue from other tests
+          consumer.processBatchThenCommit(processor, 100).get.get(tenant).foreach { messages =>
+            consumedEntities ++= messages
+          }
+          
+          consumedEntities shouldBe Seq(entity1, entity2)
+        }
+
+        consumer.shutdown
+      }
+    }
   }
 
   trait Fixture {
