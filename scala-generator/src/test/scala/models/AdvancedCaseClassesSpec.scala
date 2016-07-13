@@ -78,6 +78,13 @@ class AdvancedCaseClassesSpec extends FunSpec with ShouldMatchers {
     val contents = AdvancedCaseClasses.generateCode(form, addHeader = false).map(_.contents).mkString("\n\n")
     models.TestHelper.assertEqualsFile("/advanced-case-example.txt", contents)
   }
+
+  it("should test utf8 properly to support 4 bytes per code point strings. This example has special parens") {
+    // We use this code to validate what we should put in the generated validation
+    // http://stackoverflow.com/questions/6828076/how-to-correctly-compute-the-length-of-a-string-in-java
+    val text = "\uDBFF\uDFFCsurpi\u0301se!\uDBFF\uDFFD"
+    text.codePointCount(0, text.length) shouldBe 11
+  }
 }
 
 
