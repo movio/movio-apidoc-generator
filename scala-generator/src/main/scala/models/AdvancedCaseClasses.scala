@@ -307,11 +307,11 @@ object Validation {
   }
 
   def validateMaxLength(name: String, value: String, length: Int): Unit = {
-    require(value.length <= length, s"$$name must be $$length characters or less")
+    require(value.codePointCount(0, value.length) <= length, s"$$name must be $$length characters or less")
   }
 
   def validateMinLength(name: String, value: String, length: Int): Unit = {
-    require(value.length >= length, s"$$name must be more than $$length characters")
+    require(value.codePointCount(0, value.length) >= length, s"$$name must be more than $$length characters")
   }
 
   def validateMaxLengthOfAll(name: String, values: _root_.scala.Option[Seq[String]], length: Int): Unit = {
