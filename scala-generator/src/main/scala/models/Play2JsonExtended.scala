@@ -6,6 +6,8 @@ import play.api.libs.json.JsString
 import play.api.libs.json.JsObject
 import scala.models.CaseClassUtil._
 
+import PrimitiveWrapper.Wrapper
+
 case class Play2JsonExtended(
     ssd: ScalaService
 ) {
@@ -194,6 +196,28 @@ ${serializations.mkString(" and\n").indent(6)}
       }
     }
   }
+
+  private[models] def readersAndWriters(wrapper: Wrapper): String =
+    Seq(
+      primitiveReaders(wrapper.model),
+      primitiveWriters(wrapper.model)
+    ).mkString("\n\n")
+
+  private[models] def primitiveReaders(primitiveWrapper: ScalaModel): String = {
+    val primitiveType = primitiveWrapper.fields match {
+      case field :: Nili ⇒ field.datatype
+      case _             ⇒ throw new IllegalArgumentException("Primitive wrapper should only contain a single field")
+    }
+
+    Seq (
+      s"${identifier(model.name, Reads)} = new play.api.libs.json.Reads[${model.name}] = __.read[$primitiveType].map { x =>",
+      s"  new ${model.name}(${field.name} = x)",
+      "}"
+    ).mkString("\n")
+  }
+
+  private[models] def primitiveWriters(primitiveWrapper: ScalaModel): String = ???
+
 
   private[models] def identifier(
     name: String,
