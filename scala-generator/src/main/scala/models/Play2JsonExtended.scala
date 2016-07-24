@@ -203,21 +203,26 @@ ${serializations.mkString(" and\n").indent(6)}
       primitiveWriters(wrapper.model)
     ).mkString("\n\n")
 
-  private[models] def primitiveReaders(primitiveWrapper: ScalaModel): String = {
-    val primitiveType = primitiveWrapper.fields match {
-      case field :: Nili ⇒ field.datatype
-      case _             ⇒ throw new IllegalArgumentException("Primitive wrapper should only contain a single field")
+  private[models] def getPrimitiveField(primitiveWrapper: ScalaModel): Field =
+    primitiveWrapper.fields match {
+      case field :: Nil ⇒ field
+      case _             ⇒ throw new IllegalArgumentException("Primitive wrapper should contain one and only one field")
     }
 
-    Seq (
-      s"${identifier(model.name, Reads)} = new play.api.libs.json.Reads[${model.name}] = __.read[$primitiveType].map { x =>",
-      s"  new ${model.name}(${field.name} = x)",
+  private[models] def primitiveReaders(primitiveWrapper: ScalaModel): String = {
+    val typeName = primitiveWrapper.name
+    val field = getPrimitiveField(primitiveWrapper)
+
+    Seq(
+      s"${identifier(typeName, Reads)} = new play.api.libs.json.Reads[${typeName}] = __.read[${field.datatype}].map { x =>",
+      s"  new ${typeName}(${field.name} = x)",
       "}"
     ).mkString("\n")
   }
 
-  private[models] def primitiveWriters(primitiveWrapper: ScalaModel): String = ???
-
+  private[models] def primitiveWriters(primitiveWrapper: ScalaModel): String = {
+    ???
+  }
 
   private[models] def identifier(
     name: String,
