@@ -60,7 +60,7 @@ trait PlayController extends CodeGenerator {
         val successStatusCode = operation.responses
           .filter(_.isSuccess)
           .map(_.code)
-          .collectFirst { case r @ ResponseCodeInt(code) ⇒ code }
+          .collectFirst { case ResponseCodeInt(code) ⇒ code }
           .getOrElse(200)
 
         // Use in service
