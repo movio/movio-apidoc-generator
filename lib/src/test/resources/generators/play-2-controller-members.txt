@@ -28,7 +28,7 @@ class MembersController @Singleton @Inject() (service: MembersService) extends p
   ) = play.api.mvc.Action.async {  request =>
     service.post(request, guid, organization, user, role).map{_ match {
       case scala.util.Success(result) =>
-        Ok(Json.toJson(result))
+        Status(201)(Json.toJson(result))
       case scala.util.Failure(ex) =>
         errorResponse(ex, msg => Error("500", msg))
     }}
@@ -42,7 +42,7 @@ class MembersController @Singleton @Inject() (service: MembersService) extends p
   ) = play.api.mvc.Action.async {  request =>
     service.get(request, guid, organizationGuid, userGuid, role).map{_ match {
       case scala.util.Success(result) =>
-        Ok(Json.toJson(result))
+        Status(200)(Json.toJson(result))
       case scala.util.Failure(ex) =>
         errorResponse(ex, msg => Error("500", msg))
     }}
@@ -53,7 +53,7 @@ class MembersController @Singleton @Inject() (service: MembersService) extends p
   ) = play.api.mvc.Action.async {  request =>
     service.get(request, organization).map{_ match {
       case scala.util.Success(result) =>
-        Ok(Json.toJson(result))
+        Status(200)(Json.toJson(result))
       case scala.util.Failure(ex) =>
         errorResponse(ex, msg => Error("500", msg))
     }}
@@ -68,7 +68,7 @@ class MembersController @Singleton @Inject() (service: MembersService) extends p
       case body: JsSuccess[Seq[com.bryzek.apidoc.reference.api.v0.models.Member]] =>
         service.post(request, body.get, organization).map{_ match {
           case scala.util.Success(result) =>
-            Ok(Json.toJson(result.size))
+            Status(200)(Json.toJson(result.size))
           case scala.util.Failure(ex) =>
             errorResponse(ex, msg => Error("500", msg))
         }}
@@ -84,7 +84,7 @@ class MembersController @Singleton @Inject() (service: MembersService) extends p
       case body: JsSuccess[Map[String, com.bryzek.apidoc.reference.api.v0.models.Member]] =>
         service.post(request, body.get, organization).map{_ match {
           case scala.util.Success(result) =>
-            Ok(Json.toJson(result.size))
+            Status(200)(Json.toJson(result.size))
           case scala.util.Failure(ex) =>
             errorResponse(ex, msg => Error("500", msg))
         }}

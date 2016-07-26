@@ -1,7 +1,7 @@
 package scala.models
 
 import com.bryzek.apidoc.generator.v0.models.{File, InvocationForm}
-import com.bryzek.apidoc.spec.v0.models.Attribute
+import com.bryzek.apidoc.spec.v0.models.{Attribute, ResponseCodeInt}
 import lib.Text._
 import lib.generator.CodeGenerator
 import scala.generator.{ScalaEnums, ScalaCaseClasses, ScalaService, ScalaResource, ScalaOperation, ScalaUtil}
@@ -56,13 +56,20 @@ trait PlayController extends CodeGenerator {
                                                           case _ => ""
                                                         }).getOrElse("")
 
+        // Use the first successful status code in the defined responses, otherwise default to 200
+        val successStatusCode = operation.responses
+          .filter(_.isSuccess)
+          .map(_.code)
+          .collectFirst { case ResponseCodeInt(code) ⇒ code }
+          .getOrElse(200)
+
         // Use in service
         val resultType = operation.resultType
 
         val block = s"""
 service.${method}(${argNameList}).map{_ match {
   case scala.util.Success(result) =>
-    Ok(Json.toJson(result${returnSizeIfCollection}))
+    Status($successStatusCode)(Json.toJson(result${returnSizeIfCollection}))
   case scala.util.Failure(ex) =>
     errorResponse(ex, msg => Error("500", msg))
 }}"""
@@ -80,7 +87,7 @@ def ${operation.name}(${argList}) = play.api.mvc.Action.async(play.api.mvc.BodyP
 def ${operation.name}(${argList}) = play.api.mvc.Action.async {  request =>${block.indent(2)}
 }"""
         }
-      }.mkString("\n") 
+      }.mkString("\n")
 
 
       val source = s"""$header
