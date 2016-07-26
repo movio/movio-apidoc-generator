@@ -489,7 +489,19 @@ package com.gilt.quality.v0.models {
     import play.api.libs.json.JsString
     import play.api.libs.json.Writes
     import play.api.libs.functional.syntax._
+    import org.joda.time.format.DateTimeFormat
+    import org.joda.time.format.DateTimeFormatterBuilder
+    import org.joda.time.format.ISODateTimeFormat
     import com.gilt.quality.v0.models.json._
+
+    private[v0] val DateTimeFormatter =
+      new DateTimeFormatterBuilder().append(
+        ISODateTimeFormat.dateTime.getPrinter,
+        Array(
+          DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ssZZ").getParser,
+          DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZZ").getParser
+        )
+      ).toFormatter.withOffsetParsed
 
     private[v0] implicit val jsonReadsUUID = __.read[String].map(java.util.UUID.fromString)
 
@@ -498,14 +510,12 @@ package com.gilt.quality.v0.models {
     }
 
     private[v0] implicit val jsonReadsJodaDateTime = __.read[String].map { str =>
-      import org.joda.time.format.ISODateTimeFormat.dateTimeParser
-      dateTimeParser.parseDateTime(str)
+      DateTimeFormatter.parseDateTime(str)
     }
 
     private[v0] implicit val jsonWritesJodaDateTime = new Writes[org.joda.time.DateTime] {
       def writes(x: org.joda.time.DateTime) = {
-        import org.joda.time.format.ISODateTimeFormat.dateTime
-        val str = dateTime.print(x)
+        val str = DateTimeFormatter.print(x)
         JsString(str)
       }
     }
