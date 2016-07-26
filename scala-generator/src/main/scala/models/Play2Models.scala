@@ -57,16 +57,17 @@ package ${ssd.namespaces.models} {
     import play.api.libs.functional.syntax._
     import org.joda.time.format.DateTimeFormat
     import org.joda.time.format.DateTimeFormatterBuilder
+    import org.joda.time.format.ISODateTimeFormat
 ${JsonImports(form.service).mkString("\n").indent(4)}
 
     private[${ssd.namespaces.last}] val DateTimeFormatter =
       new DateTimeFormatterBuilder().append(
-        org.joda.time.format.ISODateTimeFormat.dateTime.getPrinter,
+        ISODateTimeFormat.dateTime.getPrinter,
         Array(
           DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ssZZ").getParser,
           DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZZ").getParser
         )
-      ).toFormatter
+      ).toFormatter.withOffsetParsed
 
     private[${ssd.namespaces.last}] implicit val jsonReadsUUID = __.read[String].map(java.util.UUID.fromString)
 
