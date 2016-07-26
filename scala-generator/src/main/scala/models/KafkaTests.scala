@@ -78,7 +78,7 @@ class ${className}Tests extends MovioSpec with KafkaTestKit {
     it("should send and receive a message") {
       new Fixture {
         // Produce test message
-        producer.sendWrapped(entity1, tenant)
+        producer.sendWrapped(entity1, tenant).get
 
         // And consume it
         awaitCondition("Message should get processed") {
@@ -99,7 +99,7 @@ class ${className}Tests extends MovioSpec with KafkaTestKit {
         val entities = Seq(entity1, entity2)
 
         // Produce test message
-        producer.sendWrapped(entities, tenant)
+        producer.sendWrapped(entities, tenant).get
 
         // And consume it
         awaitCondition("Message should get processed") {
@@ -121,10 +121,10 @@ class ${className}Tests extends MovioSpec with KafkaTestKit {
         val topic = ${className}Topic.topic(tenant)
         val rawProducer = createKeyedProducer[String, String](topic, kafkaServer)(k ⇒ k, m ⇒ m)
 
-        producer.sendWrapped(entity1, tenant)
+        producer.sendWrapped(entity1, tenant).get
         // Produce null payload message
-        rawProducer.send("anId", null)
-        producer.sendWrapped(entity2, tenant)
+        rawProducer.send("anId", null).get
+        producer.sendWrapped(entity2, tenant).get
 
         // And consume them
         var consumedEntities = Seq.empty[${className}]
@@ -151,6 +151,7 @@ class ${className}Tests extends MovioSpec with KafkaTestKit {
   trait Fixture {
 
     val brokerConnectionString = kafkaServer.config.hostName + ":" + kafkaServer.config.port
+    val topicInstance = "test"
     val tenant = KafkaTestKitUtils.tempTopic()
 
     val testConfig = ConfigFactory.parseString(s\"\"\"
@@ -161,11 +162,14 @@ class ${className}Tests extends MovioSpec with KafkaTestKit {
       |${configPath}.kafka {
       |  producer {
       |    broker-connection-string : "$$brokerConnectionString"
+      |    topic-instance = "$$topicInstance"
       |  }
       |}
       |
       |${configPath}.kafka {
       |  consumer {
+      |    topic-instance = "$$topicInstance"
+      |    tenants = ["ignore_me", "$$tenant"]
       |    offset-storage-type = "kafka"
       |    offset-storage-dual-commit = false
       |    timeout.ms = "100"
