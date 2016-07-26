@@ -43,7 +43,18 @@ package ${ssd.namespaces.models} {
     import play.api.libs.json.JsString
     import play.api.libs.json.Writes
     import play.api.libs.functional.syntax._
+    import org.joda.time.format.DateTimeFormat
+    import org.joda.time.format.DateTimeFormatterBuilder
 ${JsonImports(form.service).mkString("\n").indent(4)}
+
+    private[${ssd.namespaces.last}] val DateTimeFormatter =
+      new DateTimeFormatterBuilder().append(
+        org.joda.time.format.ISODateTimeFormat.dateTime.getPrinter,
+        Array(
+          DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ssZZ").getParser,
+          DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZZ").getParser
+        )
+      ).toFormatter
 
     private[${ssd.namespaces.last}] implicit val jsonReadsUUID = __.read[String].map(java.util.UUID.fromString)
 
@@ -52,14 +63,12 @@ ${JsonImports(form.service).mkString("\n").indent(4)}
     }
 
     private[${ssd.namespaces.last}] implicit val jsonReadsJodaDateTime = __.read[String].map { str =>
-      import org.joda.time.format.ISODateTimeFormat.dateTimeParser
-      dateTimeParser.parseDateTime(str)
+      DateTimeFormatter.parseDateTime(str)
     }
 
     private[${ssd.namespaces.last}] implicit val jsonWritesJodaDateTime = new Writes[org.joda.time.DateTime] {
       def writes(x: org.joda.time.DateTime) = {
-        import org.joda.time.format.ISODateTimeFormat.dateTime
-        val str = dateTime.print(x)
+        val str = DateTimeFormatter.print(x)
         JsString(str)
       }
     }
