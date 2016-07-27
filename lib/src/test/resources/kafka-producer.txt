@@ -27,8 +27,7 @@ package test.apidoc.apidoctest.v0.kafka {
   }
 
   class KafkaMemberProducer(
-    config: Config,
-    topicResolver: String => String = KafkaMemberTopic.topic
+    config: Config
   ) extends KafkaProducer[KafkaMember, Member] {
     import KafkaMemberProducer._
 

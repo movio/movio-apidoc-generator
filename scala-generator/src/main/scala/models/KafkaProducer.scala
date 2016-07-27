@@ -63,8 +63,7 @@ package ${ssd.namespaces.base}.kafka {
   }
 
   class ${kafkaClassName}Producer(
-    config: Config,
-    topicResolver: String => String = ${kafkaClassName}Topic.topic
+    config: Config
   ) extends KafkaProducer[${kafkaClassName}, ${className}] {
     import ${kafkaClassName}Producer._
 
