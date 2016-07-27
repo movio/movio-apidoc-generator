@@ -123,14 +123,15 @@ package ${ssd.namespaces.base}.kafka {
    */
   class ${className}Consumer (
     config: Config,
-    consumerGroupId: String
+    consumerGroupId: String,
+    tenants: Option[Seq[String]] = None
   ) extends KafkaConsumer[${className}] {
     import ${className}Consumer._
 
     lazy val topicRegex: Regex =
       ${className}Topic.topicRegex(
         config.getString(TopicInstanceKey),
-        config.getStringList(TenantsKey)
+        tenants.getOrElse(config.getStringList(TenantsKey))
       ).r
 
     lazy val topicFilter = new Whitelist(topicRegex.toString)

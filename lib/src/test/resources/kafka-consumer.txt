@@ -74,14 +74,15 @@ package test.apidoc.apidoctest.v0.kafka {
    */
   class KafkaMemberConsumer (
     config: Config,
-    consumerGroupId: String
+    consumerGroupId: String,
+    tenants: Option[Seq[String]] = None
   ) extends KafkaConsumer[KafkaMember] {
     import KafkaMemberConsumer._
 
     lazy val topicRegex: Regex =
       KafkaMemberTopic.topicRegex(
         config.getString(TopicInstanceKey),
-        config.getStringList(TenantsKey)
+        tenants.getOrElse(config.getStringList(TenantsKey))
       ).r
 
     lazy val topicFilter = new Whitelist(topicRegex.toString)
