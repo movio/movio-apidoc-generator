@@ -49,13 +49,52 @@ class KafkaConsumerSpec extends FunSpec with ShouldMatchers {
   lazy val service = models.TestHelper.service(json)
   lazy val form = InvocationForm(service)
 
-  it("generates kafka consumer") {
-    val generated = KafkaConsumer.generateCode(form)
+  describe("kafka consumer generator") {
 
-    models.TestHelper.assertEqualsFile(
-      "/kafka-consumer.txt",
-      generated(0).contents
-    )
+    it("generates kafka consumer") {
+      val generated = KafkaConsumer.generateCode(form)
+
+      models.TestHelper.assertEqualsFile(
+        "/kafka-consumer.txt",
+        generated(0).contents
+      )
+    }
+
+  }
+
+  describe("topic regex") {
+
+    it("replaces apiVersion correctly") {
+      Seq(
+        "s\"mc.data.member.$apiVersion\""   → "s\"mc.data.member.v1\"",
+        "s\"mc.data.member.${apiVersion}\"" → "s\"mc.data.member.v1\""
+      ) foreach {
+        case (topicFn, expectedTopicRegex) ⇒
+          KafkaConsumer.generateTopicRegex(topicFn, "v1") shouldBe expectedTopicRegex
+      }
+    }
+
+    it("replaces tenants correctly") {
+      Seq(
+        "s\"mc.data.member.$tenant\""   → "s\"mc.data.member.($tenantsPattern)\"",
+        "s\"mc.data.member.${tenant}\"" → "s\"mc.data.member.($tenantsPattern)\""
+      ) foreach {
+        case (topicFn, expectedTopicRegex) ⇒
+          KafkaConsumer.generateTopicRegex(topicFn, "ignored") shouldBe expectedTopicRegex
+      }
+    }
+
+    it("quotes apiVersion correctly before replacement") {
+      val apiVersion = "\\1"
+      Seq(
+        "s\"mc.data.member.$apiVersion\""   → "s\"mc.data.member.\\1\"",
+        "s\"mc.data.member.${apiVersion}\"" → "s\"mc.data.member.\\1\""
+      ) foreach {
+        case (topicFn, expectedTopicRegex) ⇒
+          KafkaConsumer.generateTopicRegex(topicFn, apiVersion) shouldBe expectedTopicRegex
+      }
+    }
+
   }
 
 }

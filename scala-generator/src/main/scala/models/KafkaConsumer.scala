@@ -19,6 +19,15 @@ object KafkaConsumer extends CodeGenerator {
     Right(generateCode(form))
   }
 
+  def generateTopicRegex(topicFn: String, apiVersion: String) = {
+    val apiVersionVariable = Seq("${apiVersion}", "$apiVersion").map(Regex.quote(_)).mkString("|")
+    val tenantVariable = Seq("${tenant}", "$tenant").map(Regex.quote(_)).mkString("|")
+    topicFn
+      .replaceAll(apiVersionVariable, Regex.quoteReplacement(apiVersion))
+      //`tenantsPattern` is a val defined in the `topicRegex` function, see `source` below.
+      .replaceAll(tenantVariable, Regex.quoteReplacement("($tenantsPattern)"))
+  }
+
   def generateCode(
     form: InvocationForm,
     addHeader: Boolean = true
@@ -43,13 +52,7 @@ object KafkaConsumer extends CodeGenerator {
       val kafkaProps = getKafkaProps(model.model).get
       val apiVersion = ssd.namespaces.last
       val topicFn = kafkaProps.topic
-      val apiVersionVariable = Seq("${apiVersion}", "$apiVersion").map(Regex.quote(_)).mkString("|")
-      val tenantVariable = Seq("${tenant}", "$tenant").map(Regex.quote(_)).mkString("|")
-      val topicRegex = topicFn
-        .replaceAll(apiVersionVariable, Regex.quoteReplacement(apiVersion))
-        //`tenantsPattern` is a val defined in the `topicRegex` function, see `source` below.
-        .replaceAll(tenantVariable, Regex.quoteReplacement("($tenantsPattern)"))
-
+      val topicRegex = generateTopicRegex(topicFn, apiVersion)
 
       val source = s"""$header
 import java.util.Properties
