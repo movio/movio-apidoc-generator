@@ -37,6 +37,7 @@ package test.apidoc.apidoctest.v0.kafka {
       This is a scala statedment/code that that gets executed
       Example: `s"mc-servicename-${apiVersion}-${instance}-${tenant}"`
 
+      @param instance an instance of the topic, eg uat, prod. It's read from the config.
       @param tenant is the customer id, eg vc_regalus
       */
     def topic(instance: String)(tenant: String) = s"mc.data.member-internal.$instance.$tenant"

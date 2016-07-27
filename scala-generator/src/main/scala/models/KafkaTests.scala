@@ -122,7 +122,8 @@ class ${className}Tests extends MovioSpec with KafkaTestKit {
         val rawProducer = createKeyedProducer[String, String](topic, kafkaServer)(k ⇒ k, m ⇒ m)
 
         producer.sendWrapped(entity1, tenant).get
-        // Produce null payload message
+        // Produce null payload message. Need to use the raw producer because the generated producer would
+        // throw an exception when trying to convert a null entity to JSON.
         rawProducer.send("anId", null)
         producer.sendWrapped(entity2, tenant).get
 

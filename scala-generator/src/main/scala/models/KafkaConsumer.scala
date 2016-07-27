@@ -20,12 +20,9 @@ object KafkaConsumer extends CodeGenerator {
   }
 
   def generateTopicRegex(topicFn: String, apiVersion: String) = {
-    val apiVersionVariable = Seq("${apiVersion}", "$apiVersion").map(Regex.quote(_)).mkString("|")
     val tenantVariable = Seq("${tenant}", "$tenant").map(Regex.quote(_)).mkString("|")
-    topicFn
-      .replaceAll(apiVersionVariable, Regex.quoteReplacement(apiVersion))
-      //`tenantsPattern` is a val defined in the `topicRegex` function, see `source` below.
-      .replaceAll(tenantVariable, Regex.quoteReplacement("($tenantsPattern)"))
+    //`tenantsPattern` is a val defined in the `topicRegex` function, see `source` below.
+    topicFn.replaceAll(tenantVariable, Regex.quoteReplacement("($tenantsPattern)"))
   }
 
   def generateCode(
@@ -89,6 +86,7 @@ package ${ssd.namespaces.base}.kafka {
       This is a scala statedment/code that that gets executed
       Example: `s"mc-servicename-$${apiVersion}-$${instance}-$${tenant}"`
 
+      @param instance an instance of the topic, eg uat, prod. It's read from the config.
       @param tenant is the customer id, eg vc_regalus
       */
     def topic(instance: String)(tenant: String) = ${topicFn}

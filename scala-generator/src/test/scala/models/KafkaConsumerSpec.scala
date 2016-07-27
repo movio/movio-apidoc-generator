@@ -64,34 +64,14 @@ class KafkaConsumerSpec extends FunSpec with ShouldMatchers {
 
   describe("topic regex") {
 
-    it("replaces apiVersion correctly") {
-      Seq(
-        "s\"mc.data.member.$apiVersion\""   → "s\"mc.data.member.v1\"",
-        "s\"mc.data.member.${apiVersion}\"" → "s\"mc.data.member.v1\""
-      ) foreach {
-        case (topicFn, expectedTopicRegex) ⇒
-          KafkaConsumer.generateTopicRegex(topicFn, "v1") shouldBe expectedTopicRegex
-      }
-    }
-
     it("replaces tenants correctly") {
       Seq(
         "s\"mc.data.member.$tenant\""   → "s\"mc.data.member.($tenantsPattern)\"",
-        "s\"mc.data.member.${tenant}\"" → "s\"mc.data.member.($tenantsPattern)\""
+        "s\"mc.data.member.${tenant}\"" → "s\"mc.data.member.($tenantsPattern)\"",
+        "s\"mc.data.member.$apiVersion.$instance.$tenant\"" → "s\"mc.data.member.$apiVersion.$instance.($tenantsPattern)\""
       ) foreach {
         case (topicFn, expectedTopicRegex) ⇒
           KafkaConsumer.generateTopicRegex(topicFn, "ignored") shouldBe expectedTopicRegex
-      }
-    }
-
-    it("quotes apiVersion correctly before replacement") {
-      val apiVersion = "\\1"
-      Seq(
-        "s\"mc.data.member.$apiVersion\""   → "s\"mc.data.member.\\1\"",
-        "s\"mc.data.member.${apiVersion}\"" → "s\"mc.data.member.\\1\""
-      ) foreach {
-        case (topicFn, expectedTopicRegex) ⇒
-          KafkaConsumer.generateTopicRegex(topicFn, apiVersion) shouldBe expectedTopicRegex
       }
     }
 
