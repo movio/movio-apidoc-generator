@@ -56,12 +56,18 @@ package ${ssd.namespaces.base}.kafka {
   import ${ssd.namespaces.base}.models._
   import ${ssd.namespaces.base}.models.json._
 
-  class ${kafkaClassName}Producer(
-    config: Config,
-    topicResolver: String => String = ${kafkaClassName}Topic.topic
-  ) extends KafkaProducer[${kafkaClassName}, ${className}] {
+  object ${kafkaClassName}Producer {
+    val base = "${configPath}.kafka.producer"
+    val BrokerListKey = s"$$base.broker-connection-string"
+    val TopicInstanceKey = s"$$base.topic-instance"
+  }
 
-    val BrokerListKey = s"${configPath}.kafka.producer.broker-connection-string"
+  class ${kafkaClassName}Producer(
+    config: Config
+  ) extends KafkaProducer[${kafkaClassName}, ${className}] {
+    import ${kafkaClassName}Producer._
+
+    lazy val topicResolver = ${kafkaClassName}Topic.topic(config.getString(TopicInstanceKey))(_)
 
     lazy val producerConfig = new ProducerConfig(readProducerPropertiesFromConfig(config))
     lazy val producer = new Producer[String, String](producerConfig)
