@@ -90,6 +90,7 @@ class ${resourceName}SystemTest extends MovioSpec with KafkaTestKit with OneServ
   ${usedModelsSeq}
 
   lazy val brokerConnectionString = kafkaServer.config.hostName + ":" + kafkaServer.config.port
+  lazy val topicInstance = "test"
   lazy val tenant = "test"
 
   lazy val testConfig = ConfigFactory.parseString(s\"\"\"
@@ -99,12 +100,15 @@ class ${resourceName}SystemTest extends MovioSpec with KafkaTestKit with OneServ
       |
       |${configPath}.kafka {
       |  producer {
+      |    topic-instance = "$$topicInstance"
       |    broker-connection-string : "$$brokerConnectionString"
       |  }
       |}
       |
       |${configPath}.kafka {
       |  consumer {
+      |    topic-instance = "$$topicInstance"
+      |    tenants = ["$$tenant"]
       |    offset-storage-type = "kafka"
       |    offset-storage-dual-commit = false
       |    timeout.ms = "100"
