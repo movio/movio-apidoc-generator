@@ -72,8 +72,7 @@ class ErrorHandler extends HttpErrorHandler {
   }
 }
 """
+    Seq(File("ErrorHandler.scala", Some("handlers"), source))
   }
-
-  File("ErrorHandler.scala", Some("handlers"), source)
 
 }

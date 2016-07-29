@@ -13,30 +13,70 @@ import play.api.mvc.Request
 import scala.concurrent.Future
 import scala.util.Try
 
-class EchoesService @Inject() (config: Config) {
+class MembersService @Inject() (config: Config) {
   import com.bryzek.apidoc.reference.api.v0.models._
   import com.bryzek.apidoc.reference.api.v0.kafka._
   import play.api.libs.concurrent.Execution.Implicits.defaultContext
   
+
+  private val logger = Logger(this.getClass)
+
   
+  def post[T](
+    request: Request[T],
+    guid: _root_.java.util.UUID,
+    organization: _root_.java.util.UUID,
+    user: _root_.java.util.UUID,
+    role: String
+  ): Future[Try[com.bryzek.apidoc.reference.api.v0.models.Member]] = {
+    Future {
+
+      ???.send(data, guid)
+    }
+  }
+
   def get[T](
     request: Request[T],
-    foo: _root_.scala.Option[String] = None,
-    optionalMessages: _root_.scala.Option[Seq[String]] = None,
-    requiredMessages: Seq[String]
-  ): Future[Try[Unit]] = {
+    guid: _root_.scala.Option[_root_.java.util.UUID] = None,
+    organizationGuid: _root_.scala.Option[_root_.java.util.UUID] = None,
+    userGuid: _root_.scala.Option[_root_.java.util.UUID] = None,
+    role: _root_.scala.Option[String] = None
+  ): Future[Try[Seq[com.bryzek.apidoc.reference.api.v0.models.Member]]] = {
     Future {
+
       Try { Unit }
     }
   }
 
   def get[T](
     request: Request[T],
-    optionalMessages: _root_.scala.Option[Seq[String]] = None,
-    requiredMessages: Seq[String]
-  ): Future[Try[Unit]] = {
+    organization: _root_.java.util.UUID
+  ): Future[Try[Seq[com.bryzek.apidoc.reference.api.v0.models.Member]]] = {
     Future {
+
       Try { Unit }
+    }
+  }
+
+  def post[T](
+    request: Request[T],
+    data: Seq[com.bryzek.apidoc.reference.api.v0.models.Member],
+    organization: _root_.java.util.UUID
+  ): Future[Try[Seq[com.bryzek.apidoc.reference.api.v0.models.Member]]] = {
+    Future {
+      logger.debug(s"[$tenant] Producing a batch of [${data.size}] Members messages")
+      kafkaMemberProducer.send(data, organization)
+    }
+  }
+
+  def post[T](
+    request: Request[T],
+    data: Map[String, com.bryzek.apidoc.reference.api.v0.models.Member],
+    organization: _root_.java.util.UUID
+  ): Future[Try[Map[String, com.bryzek.apidoc.reference.api.v0.models.Member]]] = {
+    Future {
+      logger.debug(s"[$tenant] Producing a batch of [${data.size}] Members messages")
+      kafkaMapmemberProducer.send(data, organization)
     }
   }
 }

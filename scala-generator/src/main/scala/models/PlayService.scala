@@ -5,6 +5,7 @@ import com.bryzek.apidoc.spec.v0.models.Attribute
 import lib.Text._
 import lib.generator.CodeGenerator
 import scala.generator.{ ScalaEnums, ScalaCaseClasses, ScalaService, ScalaResource, ScalaOperation, ScalaUtil }
+import scala.generator.ScalaDatatype.Container
 import generator.ServiceFileNames
 import play.api.libs.json.JsString
 
@@ -67,7 +68,6 @@ trait PlayService extends CodeGenerator {
 
         val argNameList = (Seq("request.body", "request") ++ operation.parameters.map(_.name)).mkString(", ")
 
-
         val producerName = operation.body.map(_.body.`type`)
           .map(_.replaceAll("[\\[\\]]", ""))
           .map(clazz => s"kafka${ScalaUtil.toClassName(clazz)}Producer")
@@ -76,7 +76,7 @@ trait PlayService extends CodeGenerator {
 
         val bodyScala = method.toLowerCase match {
           case "post" | "put" => s"""${producerName}.send(data, ${firstParamName})"""
-          case "get" => 
+          case "get" =>
             // Create a default Case Class
             ssd.models.filter(_.qualifiedName == operation.resultType).headOption match {
               case Some(model) =>
@@ -88,10 +88,26 @@ trait PlayService extends CodeGenerator {
           case _ => "???"
         }
 
+        val logging = method.toLowerCase match {
+          case "post" | "put" =>
+            operation.body.map(
+              _.datatype match {
+                case _: Container =>
+                  s"""logger.debug(s"[$$tenant] Producing a batch of [$${data.size}] $resourceName messages")"""
+                case _ =>
+                  s"""logger.debug(s"[$$tenant] Producing a single $resourceName message: [$${data.size}]")"""
+              }
+            ).getOrElse("")
+
+          case _ =>
+            ""
+        }
+
 
         s"""
 def ${method}[T](${argList}): Future[Try[${bodyType}]] = {
   Future {
+    ${logging}
     ${bodyScala}
   }
 }"""
@@ -113,6 +129,9 @@ class ${serviceName} @Inject() (config: Config) {
   import ${ssd.namespaces.base}.kafka._
   import play.api.libs.concurrent.Execution.Implicits.defaultContext
   ${producers}
+
+  private val logger = Logger(this.getClass)
+
   ${resourceFunctions.indent(2)}
 }
 """
