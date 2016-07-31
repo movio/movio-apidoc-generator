@@ -5,13 +5,14 @@
 
 package services
 
+import scala.concurrent.Future
+import scala.util.Try
 import javax.inject.Inject
 
 import com.typesafe.config.Config
 
 import play.api.mvc.Request
-import scala.concurrent.Future
-import scala.util.Try
+import play.api.Logger
 
 class MembersService @Inject() (config: Config) {
   import com.bryzek.apidoc.reference.api.v0.models._
@@ -64,7 +65,7 @@ class MembersService @Inject() (config: Config) {
     organization: _root_.java.util.UUID
   ): Future[Try[Seq[com.bryzek.apidoc.reference.api.v0.models.Member]]] = {
     Future {
-      logger.debug(s"[$tenant] Producing a batch of [${data.size}] Members messages")
+      logger.debug(s"[organization: $organization] Producing a batch of [${data.size}] Members messages")
       kafkaMemberProducer.send(data, organization)
     }
   }
@@ -75,7 +76,7 @@ class MembersService @Inject() (config: Config) {
     organization: _root_.java.util.UUID
   ): Future[Try[Map[String, com.bryzek.apidoc.reference.api.v0.models.Member]]] = {
     Future {
-      logger.debug(s"[$tenant] Producing a batch of [${data.size}] Members messages")
+      logger.debug(s"[organization: $organization] Producing a batch of [${data.size}] Members messages")
       kafkaMapmemberProducer.send(data, organization)
     }
   }

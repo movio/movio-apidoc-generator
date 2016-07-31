@@ -63,6 +63,11 @@ trait PlayController extends CodeGenerator {
           .collectFirst { case ResponseCodeInt(code) ⇒ code }
           .getOrElse(200)
 
+        // Log request parameters
+        val paramLogging = operation.parameters.map { p ⇒
+          s"${p.name}: $$${p.name}"
+        }.mkString(", ")
+
         // Use in service
         val resultType = operation.resultType
 
@@ -71,7 +76,8 @@ service.${method}(${argNameList}).map{_ match {
   case scala.util.Success(result) =>
     Status($successStatusCode)(Json.toJson(result${returnSizeIfCollection}))
   case scala.util.Failure(ex) =>
-    errorResponse(tenant, ex, msg => Error("500", msg))
+    logger.error(s"[${operation.name}] Error processing request [$paramLogging]", ex)
+    errorResponse(ex, msg => Error("500", msg))
 }}"""
 
         operation.body match {
@@ -79,7 +85,8 @@ service.${method}(${argNameList}).map{_ match {
 def ${operation.name}(${argList}) = play.api.mvc.Action.async(play.api.mvc.BodyParsers.parse.json) {  request =>
   request.body.validate[${body.name}] match {
     case errors: JsError =>
-      errorResponse(tenant, errors, msg => Error("400", msg))
+      logger.warn(s"[${operation.name}] Error validating the body for the request [$paramLogging], body: [$${request.body}], error: [$$errors]")
+      errorResponse(errors, msg => Error("400", msg))
     case body: JsSuccess[${body.name}] =>${block.indent(6)}
   }
 }"""
@@ -113,8 +120,7 @@ class ${resourceName} @Singleton @Inject() (service: ${serviceName}) extends pla
 
   ${resourceFunctions.indent(2)}
 
-  private def errorResponse[A: Writes](tenant: String, errors: JsError, create: String => A): Future[play.api.mvc.Result] = {
-    logger.warn(s"[$$tenant] Error parsing the payload: [$$errors]")
+  private def errorResponse[A: Writes](errors: JsError, create: String => A): Future[play.api.mvc.Result] = {
     val msg = errors.errors.flatMap(node => {
       val nodeName = node._1.path.map(_.toString + ": ").mkString
       val message = node._2.map(_.message).mkString
@@ -123,10 +129,8 @@ class ${resourceName} @Singleton @Inject() (service: ${serviceName}) extends pla
     scala.concurrent.Future(BadRequest(Json.toJson(create(msg))))
   }
 
-  private def errorResponse[A: Writes](tenant: String, ex: Throwable, create: String => A): play.api.mvc.Result = {
-    logger.error(s"[$$tenant] Error processing request", ex)
+  private def errorResponse[A: Writes](ex: Throwable, create: String => A): play.api.mvc.Result =
     InternalServerError(Json.toJson(create(ex.getMessage)))
-  }
 
 }
 """

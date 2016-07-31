@@ -18,7 +18,9 @@ trait PlayErrorHandler extends CodeGenerator {
   }
 
   def generateCode(form: InvocationForm): Seq[File] = {
-    val source = """
+    val ssd = ScalaService(form.service)
+
+    val source = s"""
 package handlers
 
 import scala.concurrent._
@@ -33,6 +35,8 @@ import play.api.Logger
 
 @Singleton
 class ErrorHandler extends HttpErrorHandler {
+  import ${ssd.namespaces.models}._
+  import ${ssd.namespaces.models}.json._
 
   private val logger = Logger(this.getClass)
 
@@ -50,10 +54,10 @@ class ErrorHandler extends HttpErrorHandler {
    *
    */
   def cleanupJsonError(message: String) =
-    message.replaceAll("Source:.*;\\s?", "")
+    message.replaceAll("Source:.*;\\\\s?", "")
 
   def onClientError(request: RequestHeader, statusCode: Int, message: String) = {
-    logger.warn(s"Client error handling request: [$request], status: [$statusCode], error message: [$message]")
+    logger.warn(s"Client error handling request: [$$request], status: [$$statusCode], error message: [$$message]")
     val msg = statusCode match {
       case HttpStatus.NOT_FOUND ⇒ "Requested resource doesn't exist"
       case _                    ⇒ cleanupJsonError(message)
@@ -65,7 +69,7 @@ class ErrorHandler extends HttpErrorHandler {
   }
 
   def onServerError(request: RequestHeader, ex: Throwable) = {
-    logger.error(s"Unexpected error handling request: [$request]", ex)
+    logger.error(s"Unexpected error handling request: [$$request]", ex)
     Future.successful(
       InternalServerError(Json.toJson(Error("500", "Unexpected server error, please try again")))
     )

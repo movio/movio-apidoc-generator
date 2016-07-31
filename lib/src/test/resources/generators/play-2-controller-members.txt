@@ -34,7 +34,8 @@ class MembersController @Singleton @Inject() (service: MembersService) extends p
       case scala.util.Success(result) =>
         Status(201)(Json.toJson(result))
       case scala.util.Failure(ex) =>
-        errorResponse(tenant, ex, msg => Error("500", msg))
+        logger.error(s"[post] Error processing request [guid: $guid, organization: $organization, user: $user, role: $role]", ex)
+        errorResponse(ex, msg => Error("500", msg))
     }}
   }
 
@@ -48,7 +49,8 @@ class MembersController @Singleton @Inject() (service: MembersService) extends p
       case scala.util.Success(result) =>
         Status(200)(Json.toJson(result))
       case scala.util.Failure(ex) =>
-        errorResponse(tenant, ex, msg => Error("500", msg))
+        logger.error(s"[get] Error processing request [guid: $guid, organizationGuid: $organizationGuid, userGuid: $userGuid, role: $role]", ex)
+        errorResponse(ex, msg => Error("500", msg))
     }}
   }
 
@@ -59,7 +61,8 @@ class MembersController @Singleton @Inject() (service: MembersService) extends p
       case scala.util.Success(result) =>
         Status(200)(Json.toJson(result))
       case scala.util.Failure(ex) =>
-        errorResponse(tenant, ex, msg => Error("500", msg))
+        logger.error(s"[getByOrganization] Error processing request [organization: $organization]", ex)
+        errorResponse(ex, msg => Error("500", msg))
     }}
   }
 
@@ -68,13 +71,15 @@ class MembersController @Singleton @Inject() (service: MembersService) extends p
   ) = play.api.mvc.Action.async(play.api.mvc.BodyParsers.parse.json) {  request =>
     request.body.validate[Seq[com.bryzek.apidoc.reference.api.v0.models.Member]] match {
       case errors: JsError =>
-        errorResponse(tenant, errors, msg => Error("400", msg))
+        logger.warn(s"[postMembersBulkByOrganization] Error validating the body for the request [organization: $organization], body: [${request.body}], error: [$errors]")
+        errorResponse(errors, msg => Error("400", msg))
       case body: JsSuccess[Seq[com.bryzek.apidoc.reference.api.v0.models.Member]] =>
         service.post(request, body.get, organization).map{_ match {
           case scala.util.Success(result) =>
             Status(200)(Json.toJson(result.size))
           case scala.util.Failure(ex) =>
-            errorResponse(tenant, ex, msg => Error("500", msg))
+            logger.error(s"[postMembersBulkByOrganization] Error processing request [organization: $organization]", ex)
+            errorResponse(ex, msg => Error("500", msg))
         }}
     }
   }
@@ -84,19 +89,20 @@ class MembersController @Singleton @Inject() (service: MembersService) extends p
   ) = play.api.mvc.Action.async(play.api.mvc.BodyParsers.parse.json) {  request =>
     request.body.validate[Map[String, com.bryzek.apidoc.reference.api.v0.models.Member]] match {
       case errors: JsError =>
-        errorResponse(tenant, errors, msg => Error("400", msg))
+        logger.warn(s"[postMembersMapByOrganization] Error validating the body for the request [organization: $organization], body: [${request.body}], error: [$errors]")
+        errorResponse(errors, msg => Error("400", msg))
       case body: JsSuccess[Map[String, com.bryzek.apidoc.reference.api.v0.models.Member]] =>
         service.post(request, body.get, organization).map{_ match {
           case scala.util.Success(result) =>
             Status(200)(Json.toJson(result.size))
           case scala.util.Failure(ex) =>
-            errorResponse(tenant, ex, msg => Error("500", msg))
+            logger.error(s"[postMembersMapByOrganization] Error processing request [organization: $organization]", ex)
+            errorResponse(ex, msg => Error("500", msg))
         }}
     }
   }
 
-  private def errorResponse[A: Writes](tenant: String, errors: JsError, create: String => A): Future[play.api.mvc.Result] = {
-    logger.warn(s"[$tenant] Error parsing the payload: [$errors]")
+  private def errorResponse[A: Writes](errors: JsError, create: String => A): Future[play.api.mvc.Result] = {
     val msg = errors.errors.flatMap(node => {
       val nodeName = node._1.path.map(_.toString + ": ").mkString
       val message = node._2.map(_.message).mkString
@@ -105,9 +111,7 @@ class MembersController @Singleton @Inject() (service: MembersService) extends p
     scala.concurrent.Future(BadRequest(Json.toJson(create(msg))))
   }
 
-  private def errorResponse[A: Writes](tenant: String, ex: Throwable, create: String => A): play.api.mvc.Result = {
-    logger.error(s"[$tenant] Error processing request", ex)
+  private def errorResponse[A: Writes](ex: Throwable, create: String => A): play.api.mvc.Result =
     InternalServerError(Json.toJson(create(ex.getMessage)))
-  }
 
 }

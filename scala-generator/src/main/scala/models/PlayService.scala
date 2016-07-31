@@ -67,6 +67,8 @@ trait PlayService extends CodeGenerator {
         val argList = ScalaUtil.fieldsToArgList(additionalArgs ++ (parameters.map(_.definition()))).mkString(", ")
 
         val argNameList = (Seq("request.body", "request") ++ operation.parameters.map(_.name)).mkString(", ")
+        // Log request parameters
+        val paramLogging = operation.parameters.map{ p ⇒ s"${p.name}: $$${p.name}" }.mkString(", ")
 
         val producerName = operation.body.map(_.body.`type`)
           .map(_.replaceAll("[\\[\\]]", ""))
@@ -93,9 +95,9 @@ trait PlayService extends CodeGenerator {
             operation.body.map(
               _.datatype match {
                 case _: Container =>
-                  s"""logger.debug(s"[$$tenant] Producing a batch of [$${data.size}] $resourceName messages")"""
+                  s"""logger.debug(s"[$paramLogging] Producing a batch of [$${data.size}] $resourceName messages")"""
                 case _ =>
-                  s"""logger.debug(s"[$$tenant] Producing a single $resourceName message: [$${data.size}]")"""
+                  s"""logger.debug(s"[$paramLogging] Producing a single $resourceName message: [$${data}]")"""
               }
             ).getOrElse("")
 
@@ -116,13 +118,14 @@ def ${method}[T](${argList}): Future[Try[${bodyType}]] = {
       val source = s"""$header
 package services
 
+import scala.concurrent.Future
+import scala.util.Try
 import javax.inject.Inject
 
 import com.typesafe.config.Config
 
 import play.api.mvc.Request
-import scala.concurrent.Future
-import scala.util.Try
+import play.api.Logger
 
 class ${serviceName} @Inject() (config: Config) {
   import ${ssd.namespaces.models}._
