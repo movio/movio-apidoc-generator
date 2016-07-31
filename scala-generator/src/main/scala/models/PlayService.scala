@@ -5,6 +5,7 @@ import com.bryzek.apidoc.spec.v0.models.Attribute
 import lib.Text._
 import lib.generator.CodeGenerator
 import scala.generator.{ ScalaEnums, ScalaCaseClasses, ScalaService, ScalaResource, ScalaOperation, ScalaUtil }
+import scala.generator.ScalaDatatype.Container
 import generator.ServiceFileNames
 import play.api.libs.json.JsString
 
@@ -66,7 +67,8 @@ trait PlayService extends CodeGenerator {
         val argList = ScalaUtil.fieldsToArgList(additionalArgs ++ (parameters.map(_.definition()))).mkString(", ")
 
         val argNameList = (Seq("request.body", "request") ++ operation.parameters.map(_.name)).mkString(", ")
-
+        // Log request parameters
+        val paramLogging = operation.parameters.map{ p ⇒ s"${p.name}: $$${p.name}" }.mkString(", ")
 
         val producerName = operation.body.map(_.body.`type`)
           .map(_.replaceAll("[\\[\\]]", ""))
@@ -76,7 +78,7 @@ trait PlayService extends CodeGenerator {
 
         val bodyScala = method.toLowerCase match {
           case "post" | "put" => s"""${producerName}.send(data, ${firstParamName})"""
-          case "get" => 
+          case "get" =>
             // Create a default Case Class
             ssd.models.filter(_.qualifiedName == operation.resultType).headOption match {
               case Some(model) =>
@@ -88,10 +90,26 @@ trait PlayService extends CodeGenerator {
           case _ => "???"
         }
 
+        val logging = method.toLowerCase match {
+          case "post" | "put" =>
+            operation.body.map(
+              _.datatype match {
+                case _: Container =>
+                  s"""logger.debug(s"[$paramLogging] Producing a batch of [$${data.size}] $resourceName messages")"""
+                case _ =>
+                  s"""logger.debug(s"[$paramLogging] Producing a single $resourceName message: [$${data}]")"""
+              }
+            ).getOrElse("")
+
+          case _ =>
+            ""
+        }
+
 
         s"""
 def ${method}[T](${argList}): Future[Try[${bodyType}]] = {
   Future {
+    ${logging}
     ${bodyScala}
   }
 }"""
@@ -100,19 +118,23 @@ def ${method}[T](${argList}): Future[Try[${bodyType}]] = {
       val source = s"""$header
 package services
 
+import scala.concurrent.Future
+import scala.util.Try
 import javax.inject.Inject
 
 import com.typesafe.config.Config
 
 import play.api.mvc.Request
-import scala.concurrent.Future
-import scala.util.Try
+import play.api.Logger
 
 class ${serviceName} @Inject() (config: Config) {
   import ${ssd.namespaces.models}._
   import ${ssd.namespaces.base}.kafka._
   import play.api.libs.concurrent.Execution.Implicits.defaultContext
   ${producers}
+
+  private val logger = Logger(this.getClass)
+
   ${resourceFunctions.indent(2)}
 }
 """

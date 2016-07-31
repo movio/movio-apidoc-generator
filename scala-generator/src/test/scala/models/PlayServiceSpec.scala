@@ -11,7 +11,7 @@ class PlayServiceSpec extends FunSpec with ShouldMatchers {
   it("generates play controller") {
     models.TestHelper.assertEqualsFile(
       "/generators/play-2-service-full.txt",
-      PlayService.generateCode(form)(0).contents
+      PlayService.generateCode(form)(1).contents
     )
   }
 

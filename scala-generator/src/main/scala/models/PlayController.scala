@@ -63,6 +63,11 @@ trait PlayController extends CodeGenerator {
           .collectFirst { case ResponseCodeInt(code) ⇒ code }
           .getOrElse(200)
 
+        // Log request parameters
+        val paramLogging = operation.parameters.map { p ⇒
+          s"${p.name}: $$${p.name}"
+        }.mkString(", ")
+
         // Use in service
         val resultType = operation.resultType
 
@@ -71,6 +76,7 @@ service.${method}(${argNameList}).map{_ match {
   case scala.util.Success(result) =>
     Status($successStatusCode)(Json.toJson(result${returnSizeIfCollection}))
   case scala.util.Failure(ex) =>
+    logger.error(s"[${operation.name}] Error processing request [$paramLogging]", ex)
     errorResponse(ex, msg => Error("500", msg))
 }}"""
 
@@ -79,7 +85,8 @@ service.${method}(${argNameList}).map{_ match {
 def ${operation.name}(${argList}) = play.api.mvc.Action.async(play.api.mvc.BodyParsers.parse.json) {  request =>
   request.body.validate[${body.name}] match {
     case errors: JsError =>
-      errorResponse(errors, msg => Error("500", msg))
+      logger.warn(s"[${operation.name}] Error validating the body for the request [$paramLogging], body: [$${request.body}], error: [$$errors]")
+      errorResponse(errors, msg => Error("400", msg))
     case body: JsSuccess[${body.name}] =>${block.indent(6)}
   }
 }"""
@@ -97,6 +104,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 import play.api.libs.json._
+import play.api.Logger
 
 import scala.concurrent.duration._
 import scala.concurrent.Future
@@ -107,6 +115,9 @@ class ${resourceName} @Singleton @Inject() (service: ${serviceName}) extends pla
   import ${ssd.namespaces.models}._
   import ${ssd.namespaces.models}.json._
   import play.api.libs.concurrent.Execution.Implicits.defaultContext
+
+  private val logger = Logger(this.getClass)
+
   ${resourceFunctions.indent(2)}
 
   private def errorResponse[A: Writes](errors: JsError, create: String => A): Future[play.api.mvc.Result] = {
@@ -115,7 +126,7 @@ class ${resourceName} @Singleton @Inject() (service: ${serviceName}) extends pla
       val message = node._2.map(_.message).mkString
       s"$$nodeName$$message"
     }).mkString
-    scala.concurrent.Future(InternalServerError(Json.toJson(create(msg))))
+    scala.concurrent.Future(BadRequest(Json.toJson(create(msg))))
   }
 
   private def errorResponse[A: Writes](ex: Throwable, create: String => A): play.api.mvc.Result =

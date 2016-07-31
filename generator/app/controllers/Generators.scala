@@ -151,6 +151,16 @@ object Generators {
       ),
       CodeGenTarget(
         metaData = Generator(
+          key = s"${prefix}play_app_error_handler",
+          name = s"Play Application Error Handler${prefix}",
+          description = Some("TBC"),
+          language = Some("Scala")
+        ),
+        status = lib.generator.Status.Beta,
+        codeGenerator = Some(scala.models.PlayErrorHandler)
+      ),
+      CodeGenTarget(
+        metaData = Generator(
           key = s"${prefix}play_app_tests",
           name = s"Play Tests${prefix}",
           description = Some("TBC"),
