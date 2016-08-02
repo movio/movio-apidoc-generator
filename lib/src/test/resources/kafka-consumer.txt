@@ -114,9 +114,29 @@ package test.apidoc.apidoctest.v0.kafka {
     def processBatchThenCommit(
       processor: Map[String, Seq[KafkaMember]] ⇒ scala.util.Try[Map[String, Seq[KafkaMember]]],
       batchSize: Int = 1
-    ): scala.util.Try[Map[String, Seq[KafkaMember]]] = {
+    ): scala.util.Try[Map[String, Seq[KafkaMember]]] =
+      doProcess[KafkaMember] { message ⇒
+        Option(message.message).map(Json.parse(_).as[KafkaMember])
+      }(processor, batchSize)
+
+    def processBatchWithKeysThenCommit(
+      processor: Map[String, Seq[(String, Option[KafkaMember])]] ⇒ scala.util.Try[Map[String, Seq[(String, Option[KafkaMember])]]],
+      batchSize: Int = 1
+    ): scala.util.Try[Map[String, Seq[(String, Option[KafkaMember])]]] =
+      doProcess[(String,  Option[KafkaMember])] { message ⇒
+        Some(
+          message.key → Option(message.message).map(Json.parse(_).as[KafkaMember])
+        )
+      }(processor, batchSize)
+
+    def doProcess[T](
+      converter: MessageAndMetadata[String, String] ⇒ Option[T]
+    )(
+      processor: Map[String, Seq[T]] ⇒ scala.util.Try[Map[String, Seq[T]]],
+      batchSize: Int = 1
+    ): scala.util.Try[Map[String, Seq[T]]] = {
       @tailrec
-      def fetchBatch(remainingInBatch: Int, messages: Map[String, Seq[KafkaMember]]): scala.util.Try[Map[String, Seq[KafkaMember]]] ={
+      def fetchBatch(remainingInBatch: Int, messages: Map[String, Seq[T]]): scala.util.Try[Map[String, Seq[T]]] ={
         if (remainingInBatch == 0) {
           scala.util.Success(messages)
         } else {
@@ -124,26 +144,20 @@ package test.apidoc.apidoctest.v0.kafka {
           scala.util.Try {
             iterator.next()
           } match {
-            case scala.util.Success(message) =>
-              val payload = message.message
-              val newMessages =
-                if (payload != null) {
-                  val entity = Json.parse(payload).as[KafkaMember]
-                  val topicRegex(tenant) = message.topic
+            case scala.util.Success(message) ⇒
+              val newMessages = converter(message) map { entity ⇒
+                val topicRegex(tenant) = message.topic
+                val newSeq = messages.get(tenant).getOrElse(Seq.empty) :+ entity
 
-                  val newSeq = messages.get(tenant).getOrElse(Seq.empty) :+ entity
-
-                  messages + (tenant -> newSeq)
-                } else {
-                  messages
-                }
+                messages + (tenant → newSeq)
+              } getOrElse messages
 
               fetchBatch(remainingInBatch - 1, newMessages)
-            case scala.util.Failure(ex) => ex match {
+            case scala.util.Failure(ex) ⇒ ex match {
               case ex: ConsumerTimeoutException ⇒
                 // Consumer timed out waiting for a message. Ending batch.
                 scala.util.Success(messages)
-              case ex =>
+              case ex ⇒
                 scala.util.Failure(ex)
             }
           }
@@ -151,12 +165,12 @@ package test.apidoc.apidoctest.v0.kafka {
       }
 
       fetchBatch(batchSize, Map.empty) match {
-        case scala.util.Success(messages) =>
-          processor(messages) map { allMessages =>
+        case scala.util.Success(messages) ⇒
+          processor(messages) map { allMessages ⇒
             consumer.commitOffsets(true)
             allMessages
           }
-        case scala.util.Failure(ex) => scala.util.Failure(ex)
+        case scala.util.Failure(ex) ⇒ scala.util.Failure(ex)
       }
     }
 
