@@ -35,15 +35,13 @@ object KafkaConsumer extends CodeGenerator {
     val enumJson: String = ssd.enums.map { ScalaEnums(ssd, _).buildJson() }.mkString("\n\n")
     val play2Json = Play2JsonExtended(ssd).generate()
 
-    val header = addHeader match {
-      case false => ""
-      case true => ApidocComments(form.service.version, form.userAgent).toJavaString() + "\n"
-    }
+    val header = if (addHeader) ApidocComments(form.service.version, form.userAgent).toJavaString() + "\n"
+                 else ""
 
     val kafkaModels = getKafkaModels(ssd)
 
     // Return list of files
-    kafkaModels.map{ model =>
+    kafkaModels.map{ model ⇒
       val className = model.name
       val configPath = ssd.namespaces.base.split("\\.").toSeq.dropRight(1).mkString(".")
       val kafkaProps = getKafkaProps(model.model).get
@@ -117,10 +115,6 @@ package ${ssd.namespaces.base}.kafka {
     val TenantsKey = s"$$base.tenants"
   }
 
-  /**
-    If you choose to override `topicRegex`, make sure the first group captures
-    the tenant names.
-   */
   class ${className}Consumer (
     config: Config,
     consumerGroupId: String,
@@ -160,12 +154,49 @@ package ${ssd.namespaces.base}.kafka {
       properties
     }
 
+    /**
+      * Process a batch of messages with given processor function and commit
+      * offsets if it succeeds. Messages with null payloads are ignored.
+      *
+      * @param processor processor function that takes a map of messages for different tenants
+      * @param batchSize the maximum number of messages to process
+      */
     def processBatchThenCommit(
       processor: Map[String, Seq[${className}]] ⇒ scala.util.Try[Map[String, Seq[${className}]]],
       batchSize: Int = 1
-    ): scala.util.Try[Map[String, Seq[${className}]]] = {
+    ): scala.util.Try[Map[String, Seq[${className}]]] =
+      doProcess[${className}] { message ⇒
+        Option(message.message).map(Json.parse(_).as[${className}])
+      }(processor, batchSize)
+
+    /**
+      * Process a batch of messages with given processor function and commit
+      * offsets if it succeeds.
+      *
+      * Each message is a tuple of the key and the payload deserialised to
+      * `Option[T]` which is `None` when the message has a null payload.
+      *
+      * @param processor processor function that takes a map of messages for different tenants
+      * @param batchSize the maximum number of messages to process
+      */
+    def processBatchWithKeysThenCommit(
+      processor: Map[String, Seq[(String, Option[${className}])]] ⇒ scala.util.Try[Map[String, Seq[(String, Option[${className}])]]],
+      batchSize: Int = 1
+    ): scala.util.Try[Map[String, Seq[(String, Option[${className}])]]] =
+      doProcess[(String,  Option[${className}])] { message ⇒
+        Some(
+          message.key → Option(message.message).map(Json.parse(_).as[${className}])
+        )
+      }(processor, batchSize)
+
+    def doProcess[T](
+      converter: MessageAndMetadata[String, String] ⇒ Option[T]
+    )(
+      processor: Map[String, Seq[T]] ⇒ scala.util.Try[Map[String, Seq[T]]],
+      batchSize: Int = 1
+    ): scala.util.Try[Map[String, Seq[T]]] = {
       @tailrec
-      def fetchBatch(remainingInBatch: Int, messages: Map[String, Seq[${className}]]): scala.util.Try[Map[String, Seq[${className}]]] ={
+      def fetchBatch(remainingInBatch: Int, messages: Map[String, Seq[T]]): scala.util.Try[Map[String, Seq[T]]] ={
         if (remainingInBatch == 0) {
           scala.util.Success(messages)
         } else {
@@ -173,39 +204,37 @@ package ${ssd.namespaces.base}.kafka {
           scala.util.Try {
             iterator.next()
           } match {
-            case scala.util.Success(message) =>
-              val payload = message.message
-              val newMessages =
-                if (payload != null) {
-                  val entity = Json.parse(payload).as[${className}]
-                  val topicRegex(tenant) = message.topic
+            case scala.util.Success(message) ⇒
+              val newMessages = converter(message) map { entity ⇒
+                val topicRegex(tenant) = message.topic
+                val newSeq = messages.get(tenant).getOrElse(Seq.empty) :+ entity
 
-                  val newSeq = messages.get(tenant).getOrElse(Seq.empty) :+ entity
-
-                  messages + (tenant -> newSeq)
-                } else {
-                  messages
-                }
+                messages + (tenant → newSeq)
+              } getOrElse messages
 
               fetchBatch(remainingInBatch - 1, newMessages)
-            case scala.util.Failure(ex) => ex match {
-              case ex: ConsumerTimeoutException ⇒
-                // Consumer timed out waiting for a message. Ending batch.
-                scala.util.Success(messages)
-              case ex =>
-                scala.util.Failure(ex)
-            }
+
+            case scala.util.Failure(ex) ⇒
+              ex match {
+                case ex: ConsumerTimeoutException ⇒
+                  // Consumer timed out waiting for a message. Ending batch.
+                  scala.util.Success(messages)
+                case ex ⇒
+                  scala.util.Failure(ex)
+              }
           }
         }
       }
 
       fetchBatch(batchSize, Map.empty) match {
-        case scala.util.Success(messages) =>
-          processor(messages) map { allMessages =>
+        case scala.util.Success(messages) ⇒
+          processor(messages) map { allMessages ⇒
             consumer.commitOffsets(true)
             allMessages
           }
-        case scala.util.Failure(ex) => scala.util.Failure(ex)
+
+        case scala.util.Failure(ex) ⇒
+          scala.util.Failure(ex)
       }
     }
 

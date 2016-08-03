@@ -116,6 +116,32 @@ class ${className}Tests extends MovioSpec with KafkaTestKit {
       }
     }
 
+    it("messages keys should be available to the processor") {
+      new Fixture {
+        val entities = Seq(entity1, entity2)
+
+        // Produce test message
+        producer.sendWrapped(entities, tenant).get
+
+        // And consume it
+        awaitCondition("Message should get processed") {
+          def processor(messages: Map[String, Seq[(String, Option[${className}])]]) = {
+            println(messages)
+            println("do some side effecting stuff here")
+            scala.util.Success(messages)
+          }
+
+          // Use distinct because there are items in the queue from other tests
+          consumer.processBatchWithKeysThenCommit(processor, 100).get(tenant) shouldBe Seq(
+            key1 → Some(entity1),
+            key2 → Some(entity2)
+          )
+        }
+
+        consumer.shutdown
+      }
+    }
+
     it("consumer ignores null payload messages, to support deletes on topics with compaction") {
       new Fixture {
         val topic = ${className}Topic.topic(topicInstance)(tenant)
@@ -182,10 +208,13 @@ class ${className}Tests extends MovioSpec with KafkaTestKit {
 
     val producer = new ${className}Producer(testConfig)
     val consumer = new ${className}Consumer(testConfig, new java.util.Random().nextInt.toString)
+    val entity1 = ${generateInstance(model, 1, ssd).indent(4)}
+    val key1 = entity1.generateKey(tenant)
+
+    val entity2 = ${generateInstance(model, 2, ssd).indent(4)}
+    val key2 = entity2.generateKey(tenant)
   }
 
-  val entity1 = ${generateInstance(model, 1, ssd).indent(4)}
-  val entity2 = ${generateInstance(model, 2, ssd).indent(4)}
 }
 """
       ServiceFileNames.toFile(form.service.namespace, form.service.organization.key, form.service.application.key, form.service.version, s"${className}Test", source, Some("Scala"))
