@@ -35,10 +35,8 @@ object KafkaConsumer extends CodeGenerator {
     val enumJson: String = ssd.enums.map { ScalaEnums(ssd, _).buildJson() }.mkString("\n\n")
     val play2Json = Play2JsonExtended(ssd).generate()
 
-    val header = addHeader match {
-      case false ⇒ ""
-      case true  ⇒ ApidocComments(form.service.version, form.userAgent).toJavaString() + "\n"
-    }
+    val header = if (addHeader) ApidocComments(form.service.version, form.userAgent).toJavaString() + "\n"
+                 else ""
 
     val kafkaModels = getKafkaModels(ssd)
 
@@ -117,10 +115,6 @@ package ${ssd.namespaces.base}.kafka {
     val TenantsKey = s"$$base.tenants"
   }
 
-  /**
-    If you choose to override `topicRegex`, make sure the first group captures
-    the tenant names.
-   */
   class ${className}Consumer (
     config: Config,
     consumerGroupId: String,
@@ -160,6 +154,13 @@ package ${ssd.namespaces.base}.kafka {
       properties
     }
 
+    /**
+      * Process a batch of messages with given processor function and commit
+      * offsets if it succeeds. Messages with null payloads are ignored.
+      *
+      * @param processor processor function that takes a map of messages for different tenants
+      * @param batchSize the maximum number of messages to process
+      */
     def processBatchThenCommit(
       processor: Map[String, Seq[${className}]] ⇒ scala.util.Try[Map[String, Seq[${className}]]],
       batchSize: Int = 1
@@ -168,6 +169,16 @@ package ${ssd.namespaces.base}.kafka {
         Option(message.message).map(Json.parse(_).as[${className}])
       }(processor, batchSize)
 
+    /**
+      * Process a batch of messages with given processor function and commit
+      * offsets if it succeeds.
+      *
+      * Each message is a tuple of the key and the payload deserialised to
+      * `Option[T]` which is `None` when the message has a null payload.
+      *
+      * @param processor processor function that takes a map of messages for different tenants
+      * @param batchSize the maximum number of messages to process
+      */
     def processBatchWithKeysThenCommit(
       processor: Map[String, Seq[(String, Option[${className}])]] ⇒ scala.util.Try[Map[String, Seq[(String, Option[${className}])]]],
       batchSize: Int = 1
@@ -202,13 +213,15 @@ package ${ssd.namespaces.base}.kafka {
               } getOrElse messages
 
               fetchBatch(remainingInBatch - 1, newMessages)
-            case scala.util.Failure(ex) ⇒ ex match {
-              case ex: ConsumerTimeoutException ⇒
-                // Consumer timed out waiting for a message. Ending batch.
-                scala.util.Success(messages)
-              case ex ⇒
-                scala.util.Failure(ex)
-            }
+
+            case scala.util.Failure(ex) ⇒
+              ex match {
+                case ex: ConsumerTimeoutException ⇒
+                  // Consumer timed out waiting for a message. Ending batch.
+                  scala.util.Success(messages)
+                case ex ⇒
+                  scala.util.Failure(ex)
+              }
           }
         }
       }
@@ -219,7 +232,9 @@ package ${ssd.namespaces.base}.kafka {
             consumer.commitOffsets(true)
             allMessages
           }
-        case scala.util.Failure(ex) ⇒ scala.util.Failure(ex)
+
+        case scala.util.Failure(ex) ⇒
+          scala.util.Failure(ex)
       }
     }
 
