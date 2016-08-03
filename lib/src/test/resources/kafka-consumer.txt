@@ -68,10 +68,6 @@ package test.apidoc.apidoctest.v0.kafka {
     val TenantsKey = s"$base.tenants"
   }
 
-  /**
-    If you choose to override `topicRegex`, make sure the first group captures
-    the tenant names.
-   */
   class KafkaMemberConsumer (
     config: Config,
     consumerGroupId: String,
@@ -111,6 +107,13 @@ package test.apidoc.apidoctest.v0.kafka {
       properties
     }
 
+    /**
+      * Process a batch of messages with given processor function and commit
+      * offsets if it succeeds. Messages with null payloads are ignored.
+      *
+      * @param processor processor function that takes a map of messages for different tenants
+      * @param batchSize the maximum number of messages to process
+      */
     def processBatchThenCommit(
       processor: Map[String, Seq[KafkaMember]] ⇒ scala.util.Try[Map[String, Seq[KafkaMember]]],
       batchSize: Int = 1
@@ -119,6 +122,16 @@ package test.apidoc.apidoctest.v0.kafka {
         Option(message.message).map(Json.parse(_).as[KafkaMember])
       }(processor, batchSize)
 
+    /**
+      * Process a batch of messages with given processor function and commit
+      * offsets if it succeeds.
+      *
+      * Each message is a tuple of the key and the payload deserialised to
+      * `Option[T]` which is `None` when the message has a null payload.
+      *
+      * @param processor processor function that takes a map of messages for different tenants
+      * @param batchSize the maximum number of messages to process
+      */
     def processBatchWithKeysThenCommit(
       processor: Map[String, Seq[(String, Option[KafkaMember])]] ⇒ scala.util.Try[Map[String, Seq[(String, Option[KafkaMember])]]],
       batchSize: Int = 1
@@ -153,13 +166,15 @@ package test.apidoc.apidoctest.v0.kafka {
               } getOrElse messages
 
               fetchBatch(remainingInBatch - 1, newMessages)
-            case scala.util.Failure(ex) ⇒ ex match {
-              case ex: ConsumerTimeoutException ⇒
-                // Consumer timed out waiting for a message. Ending batch.
-                scala.util.Success(messages)
-              case ex ⇒
-                scala.util.Failure(ex)
-            }
+
+            case scala.util.Failure(ex) ⇒
+              ex match {
+                case ex: ConsumerTimeoutException ⇒
+                  // Consumer timed out waiting for a message. Ending batch.
+                  scala.util.Success(messages)
+                case ex ⇒
+                  scala.util.Failure(ex)
+              }
           }
         }
       }
@@ -170,7 +185,9 @@ package test.apidoc.apidoctest.v0.kafka {
             consumer.commitOffsets(true)
             allMessages
           }
-        case scala.util.Failure(ex) ⇒ scala.util.Failure(ex)
+
+        case scala.util.Failure(ex) ⇒
+          scala.util.Failure(ex)
       }
     }
 
