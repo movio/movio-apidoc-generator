@@ -41,17 +41,6 @@ package com.bryzek.apidoc.example.union.types.discriminator.v0.models {
     case object Anonymous extends SystemUser { override def toString = "anonymous" }
 
     /**
-     * UNDEFINED captures values that are sent either in error or
-     * that were added by the server after this library was
-     * generated. We want to make it easy and obvious for users of
-     * this library to handle this case gracefully.
-     *
-     * We use all CAPS for the variable name to avoid collisions
-     * with the camel cased values above.
-     */
-    case class UNDEFINED(override val toString: String) extends SystemUser
-
-    /**
      * all returns a list of all the valid, known values. We use
      * lower case to avoid collisions with the camel cased values
      * above.
@@ -61,7 +50,7 @@ package com.bryzek.apidoc.example.union.types.discriminator.v0.models {
     private[this]
     val byName = all.map(x => x.toString.toLowerCase -> x).toMap
 
-    def apply(value: String): SystemUser = fromString(value).getOrElse(UNDEFINED(value))
+    def apply(value: String): SystemUser = fromString(value).get
 
     def fromString(value: String): _root_.scala.Option[SystemUser] = byName.get(value.toLowerCase)
 
