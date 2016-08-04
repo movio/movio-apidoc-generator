@@ -6,17 +6,6 @@ object AgeGroup {
   case object Thirties extends AgeGroup { override def toString = "thirties" }
 
   /**
-   * UNDEFINED captures values that are sent either in error or
-   * that were added by the server after this library was
-   * generated. We want to make it easy and obvious for users of
-   * this library to handle this case gracefully.
-   *
-   * We use all CAPS for the variable name to avoid collisions
-   * with the camel cased values above.
-   */
-  case class UNDEFINED(override val toString: String) extends AgeGroup
-
-  /**
    * all returns a list of all the valid, known values. We use
    * lower case to avoid collisions with the camel cased values
    * above.
@@ -26,7 +15,7 @@ object AgeGroup {
   private[this]
   val byName = all.map(x => x.toString.toLowerCase -> x).toMap
 
-  def apply(value: String): AgeGroup = fromString(value).getOrElse(UNDEFINED(value))
+  def apply(value: String): AgeGroup = fromString(value).getOrElse(throw new IllegalArgumentException(s"$value is not a valid AgeGroup."))
 
   def fromString(value: String): _root_.scala.Option[AgeGroup] = byName.get(value.toLowerCase)
 
@@ -40,17 +29,6 @@ object Genre {
   case object Jazz extends Genre { override def toString = "Jazz" }
 
   /**
-   * UNDEFINED captures values that are sent either in error or
-   * that were added by the server after this library was
-   * generated. We want to make it easy and obvious for users of
-   * this library to handle this case gracefully.
-   *
-   * We use all CAPS for the variable name to avoid collisions
-   * with the camel cased values above.
-   */
-  case class UNDEFINED(override val toString: String) extends Genre
-
-  /**
    * all returns a list of all the valid, known values. We use
    * lower case to avoid collisions with the camel cased values
    * above.
@@ -60,7 +38,7 @@ object Genre {
   private[this]
   val byName = all.map(x => x.toString.toLowerCase -> x).toMap
 
-  def apply(value: String): Genre = fromString(value).getOrElse(UNDEFINED(value))
+  def apply(value: String): Genre = fromString(value).getOrElse(throw new IllegalArgumentException(s"$value is not a valid Genre."))
 
   def fromString(value: String): _root_.scala.Option[Genre] = byName.get(value.toLowerCase)
 

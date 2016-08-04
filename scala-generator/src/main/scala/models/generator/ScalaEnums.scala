@@ -77,24 +77,13 @@ case class ScalaEnums(
   }
 
   private def buildValues(): String = {
-    enum.values.map { value => 
+    enum.values.map { value =>
       Seq(
         value.description.map { desc => ScalaUtil.textToComment(desc) },
         Some(s"""case object ${value.name} extends ${enum.name} { override def toString = "${value.originalName}" }""")
       ).flatten.mkString("\n")
     }.mkString("\n") + "\n" +
     s"""
-/**
- * UNDEFINED captures values that are sent either in error or
- * that were added by the server after this library was
- * generated. We want to make it easy and obvious for users of
- * this library to handle this case gracefully.
- *
- * We use all CAPS for the variable name to avoid collisions
- * with the camel cased values above.
- */
-case class UNDEFINED(override val toString: String) extends ${enum.name}
-
 /**
  * all returns a list of all the valid, known values. We use
  * lower case to avoid collisions with the camel cased values
@@ -104,7 +93,7 @@ case class UNDEFINED(override val toString: String) extends ${enum.name}
     s"val all = Seq(" + enum.values.map(_.name).mkString(", ") + ")\n\n" +
     s"private[this]\n" +
     s"val byName = all.map(x => x.toString.toLowerCase -> x).toMap\n\n" +
-    s"def apply(value: String): ${enum.name} = fromString(value).getOrElse(UNDEFINED(value))\n\n" +
+    s"""def apply(value: String): ${enum.name} = fromString(value).getOrElse(throw new IllegalArgumentException(s"$$value is not a valid ${enum.name}."))\n\n""" +
     s"def fromString(value: String): _root_.scala.Option[${enum.name}] = byName.get(value.toLowerCase)\n\n"
   }
 
