@@ -50,7 +50,7 @@ package com.bryzek.apidoc.example.union.types.discriminator.v0.models {
     private[this]
     val byName = all.map(x => x.toString.toLowerCase -> x).toMap
 
-    def apply(value: String): SystemUser = fromString(value).get
+    def apply(value: String): SystemUser = fromString(value).getOrElse(throw new IllegalArgumentException(s"$value is not valid."))
 
     def fromString(value: String): _root_.scala.Option[SystemUser] = byName.get(value.toLowerCase)
 
