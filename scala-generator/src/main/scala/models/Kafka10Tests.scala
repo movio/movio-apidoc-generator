@@ -187,13 +187,13 @@ class ${className}Tests extends MovioSpec with KafkaTestKit {
       |${configPath}.kafka {
       |  producer {
       |    bootstrap.servers: "$$bootstrapServers"
-      |    topic-instance = "$$topicInstance"
+      |    topic.instance = "$$topicInstance"
       |  }
       |}
       |
       |${configPath}.kafka {
       |  consumer {
-      |    bootstrap.servers: "$$brokerConnectionString"
+      |    bootstrap.servers: "$$bootstrapServers"
       |    topic.instance = "$$topicInstance"
       |    tenants = ["ignore_me", "$$tenant"]
       |    poll.timeout = 100

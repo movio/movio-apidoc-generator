@@ -150,13 +150,13 @@ class KafkaMemberTests extends MovioSpec with KafkaTestKit {
       |test.apidoc.apidoctest.kafka {
       |  producer {
       |    bootstrap.servers: "$bootstrapServers"
-      |    topic-instance = "$topicInstance"
+      |    topic.instance = "$topicInstance"
       |  }
       |}
       |
       |test.apidoc.apidoctest.kafka {
       |  consumer {
-      |    bootstrap.servers: "$brokerConnectionString"
+      |    bootstrap.servers: "$bootstrapServers"
       |    topic.instance = "$topicInstance"
       |    tenants = ["ignore_me", "$tenant"]
       |    poll.timeout = 100
