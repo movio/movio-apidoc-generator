@@ -162,7 +162,7 @@ package ${ssd.namespaces.base}.kafka {
       batchSize: Int = 1
     ): Try[Map[String, Seq[${className}]]] =
       doProcess[${className}] { record ⇒
-        Option(record.value).map(Json.parse(_).as[KafkaMember])
+        Option(record.value).map(Json.parse(_).as[${className}])
       }(processor, batchSize)
 
     /**
@@ -181,7 +181,7 @@ package ${ssd.namespaces.base}.kafka {
     ): Try[Map[String, Seq[(String, Option[${className}])]]] =
       doProcess[(String,  Option[${className}])] { record ⇒
         Some(
-          record.key → Option(record.value).map(Json.parse(_).as[KafkaMember])
+          record.key → Option(record.value).map(Json.parse(_).as[${className}])
         )
       }(processor, batchSize)
 

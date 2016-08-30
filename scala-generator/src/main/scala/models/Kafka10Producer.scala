@@ -60,7 +60,7 @@ package ${ssd.namespaces.base}.kafka {
   import ${ssd.namespaces.base}.models.json._
 
   object ${kafkaClassName}Producer {
-    val base = "test.apidoc.apidoctest.kafka.producer"
+    val base = "${configPath}.kafka.producer"
     val BootstrapServers = s"$$base.bootstrap.servers"
     val TopicInstanceKey = s"$$base.topic.instance"
   }
@@ -108,7 +108,7 @@ package ${ssd.namespaces.base}.kafka {
         kafkaProducer.flush()
         batch
       } recoverWith {
-        case ex => Failure(new KafkaProducerException(s"Failed to publish $$topic message, to kafka queue.", ex))
+        case ex ⇒ Failure(new KafkaProducerException(s"Failed to publish $$topic message, to kafka queue.", ex))
       }
     }
 
@@ -123,7 +123,7 @@ package ${ssd.namespaces.base}.kafka {
         kafkaProducer.flush()
         batch
       } recoverWith {
-        case ex => Failure(new KafkaProducerException(s"Failed to publish $$topic message, to kafka queue.", ex))
+        case ex ⇒ Failure(new KafkaProducerException(s"Failed to publish $$topic message, to kafka queue.", ex))
       }
     }
   }

@@ -72,7 +72,7 @@ package test.apidoc.apidoctest.v0.kafka {
         kafkaProducer.flush()
         batch
       } recoverWith {
-        case ex => Failure(new KafkaProducerException(s"Failed to publish $topic message, to kafka queue.", ex))
+        case ex ⇒ Failure(new KafkaProducerException(s"Failed to publish $topic message, to kafka queue.", ex))
       }
     }
 
@@ -87,7 +87,7 @@ package test.apidoc.apidoctest.v0.kafka {
         kafkaProducer.flush()
         batch
       } recoverWith {
-        case ex => Failure(new KafkaProducerException(s"Failed to publish $topic message, to kafka queue.", ex))
+        case ex ⇒ Failure(new KafkaProducerException(s"Failed to publish $topic message, to kafka queue.", ex))
       }
     }
   }
