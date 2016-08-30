@@ -37,7 +37,7 @@ package test.apidoc.apidoctest.v0.kafka {
     val apiVersion = "v0"
 
     /**
-      The name of the kafka topic to publish and consume messages from.
+      The name of the kafka topic to publish and consume records from.
       This is a scala statedment/code that that gets executed
       Example: `s"mc-servicename-${apiVersion}-${instance}-${tenant}"`
 
@@ -104,11 +104,11 @@ package test.apidoc.apidoctest.v0.kafka {
     }
 
     /**
-      * Process a batch of messages with given processor function and commit
-      * offsets if it succeeds. Messages with null payloads are ignored.
+      * Process a batch of records with given processor function and commit
+      * offsets if it succeeds. Records with null payloads are ignored.
       *
-      * @param processor processor function that takes a map of messages for different tenants
-      * @param batchSize the maximum number of messages to process
+      * @param processor processor function that takes a map of records for different tenants
+      * @param batchSize the maximum number of records to process
       */
     def processBatchThenCommit(
       processor: Map[String, Seq[KafkaMember]] ⇒ Try[Map[String, Seq[KafkaMember]]],
@@ -119,14 +119,14 @@ package test.apidoc.apidoctest.v0.kafka {
       }(processor, batchSize)
 
     /**
-      * Process a batch of messages with given processor function and commit
+      * Process a batch of records with given processor function and commit
       * offsets if it succeeds.
       *
-      * Each message is a tuple of the key and the payload deserialised to
-      * `Option[T]` which is `None` when the message has a null payload.
+      * Each record is a tuple of the key and the payload deserialised to
+      * `Option[T]` which is `None` when the record has a null payload.
       *
-      * @param processor processor function that takes a map of messages for different tenants
-      * @param batchSize the maximum number of messages to process
+      * @param processor processor function that takes a map of records for different tenants
+      * @param batchSize the maximum number of records to process
       */
     def processBatchWithKeysThenCommit(
       processor: Map[String, Seq[(String, Option[KafkaMember])]] ⇒ Try[Map[String, Seq[(String, Option[KafkaMember])]]],

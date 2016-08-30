@@ -84,7 +84,7 @@ package ${ssd.namespaces.base}.kafka {
     val apiVersion = "${apiVersion}"
 
     /**
-      The name of the kafka topic to publish and consume messages from.
+      The name of the kafka topic to publish and consume records from.
       This is a scala statedment/code that that gets executed
       Example: `s"mc-servicename-$${apiVersion}-$${instance}-$${tenant}"`
 
@@ -110,7 +110,7 @@ package ${ssd.namespaces.base}.kafka {
   }
 
   object ${className}Consumer {
-    val base = "test.apidoc.apidoctest.kafka.consumer"
+    val base = "${configPath}.kafka.consumer"
     val BootstrapServers = s"$$base.bootstrap.servers"
     val TopicInstanceKey = s"$$base.topic.instance"
     val TenantsKey = s"$$base.tenants"
@@ -151,11 +151,11 @@ package ${ssd.namespaces.base}.kafka {
     }
 
     /**
-      * Process a batch of messages with given processor function and commit
-      * offsets if it succeeds. Messages with null payloads are ignored.
+      * Process a batch of records with given processor function and commit
+      * offsets if it succeeds. Records with null payloads are ignored.
       *
-      * @param processor processor function that takes a map of messages for different tenants
-      * @param batchSize the maximum number of messages to process
+      * @param processor processor function that takes a map of records for different tenants
+      * @param batchSize the maximum number of records to process
       */
     def processBatchThenCommit(
       processor: Map[String, Seq[${className}]] ⇒ Try[Map[String, Seq[${className}]]],
@@ -166,14 +166,14 @@ package ${ssd.namespaces.base}.kafka {
       }(processor, batchSize)
 
     /**
-      * Process a batch of messages with given processor function and commit
+      * Process a batch of records with given processor function and commit
       * offsets if it succeeds.
       *
-      * Each message is a tuple of the key and the payload deserialised to
-      * `Option[T]` which is `None` when the message has a null payload.
+      * Each record is a tuple of the key and the payload deserialised to
+      * `Option[T]` which is `None` when the record has a null payload.
       *
-      * @param processor processor function that takes a map of messages for different tenants
-      * @param batchSize the maximum number of messages to process
+      * @param processor processor function that takes a map of records for different tenants
+      * @param batchSize the maximum number of records to process
       */
     def processBatchWithKeysThenCommit(
       processor: Map[String, Seq[(String, Option[${className}])]] ⇒ Try[Map[String, Seq[(String, Option[${className}])]]],
