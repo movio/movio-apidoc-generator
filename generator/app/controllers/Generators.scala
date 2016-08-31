@@ -102,7 +102,7 @@ object Generators {
       CodeGenTarget(
         metaData = Generator(
           key = s"${prefix}kafka_0_8",
-          name = s"Kafka Consumer / Producer${prefix}",
+          name = s"Kafka 0.8 Consumer / Producer${prefix}",
           description = Some("TBC"),
           language = Some("Scala")
         ),
@@ -112,12 +112,32 @@ object Generators {
       CodeGenTarget(
         metaData = Generator(
           key = s"${prefix}kafka_0_8_tests",
-          name = s"Kafka Tests${prefix}",
+          name = s"Kafka 0.8 Tests${prefix}",
           description = Some("TBC"),
           language = Some("Scala")
         ),
         status = lib.generator.Status.Beta,
         codeGenerator = Some(scala.models.KafkaTests)
+      ),
+      CodeGenTarget(
+        metaData = Generator(
+          key = s"${prefix}kafka_0_10",
+          name = s"Kafka 0.10 Consumer / Producer${prefix}",
+          description = Some("TBC"),
+          language = Some("Scala")
+        ),
+        status = lib.generator.Status.Beta,
+        codeGenerator = Some(scala.models.Kafka10)
+      ),
+      CodeGenTarget(
+        metaData = Generator(
+          key = s"${prefix}kafka_0_10_tests",
+          name = s"Kafka 0.10 Tests${prefix}",
+          description = Some("TBC"),
+          language = Some("Scala")
+        ),
+        status = lib.generator.Status.Beta,
+        codeGenerator = Some(scala.models.Kafka10Tests)
       ),
       CodeGenTarget(
         metaData = Generator(
