@@ -143,7 +143,7 @@ package ${ssd.namespaces.base}.kafka {
       properties.put("bootstrap.servers", config.getString(BootstrapServers))
       properties.put("group.id", consumerGroupId)
       properties.put("auto.offset.reset", "earliest")
-      properties.put("auto.commit.enable", "false")
+      properties.put("enable.auto.commit", "false")
       properties.put("key.deserializer", classOf[StringDeserializer].getName)
       properties.put("value.deserializer", classOf[StringDeserializer].getName)
 

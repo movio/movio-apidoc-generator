@@ -42,7 +42,9 @@ object Kafka10Tests extends CodeGenerator {
       val source = s""" $header
 package ${ssd.namespaces.base}.kafka
 
-import scala.util.{ Try, Success }
+import scala.annotation.tailrec
+import scala.collection.JavaConversions._
+import scala.util.{ Try, Success, Failure }
 
 import org.joda.time.LocalDateTime
 import org.mockito.Matchers.any
@@ -141,7 +143,7 @@ class ${className}Tests extends MovioSpec with KafkaTestKit {
 
     it("consumer ignores null payload messages, to support deletes on topics with compaction") {
       new Fixture {
-        val topic = KafkaItemTopic.topic(topicInstance)(tenant)
+        val topic = ${className}Topic.topic(topicInstance)(tenant)
         val rawProducer = createProducer(kafkaServer)
 
         producer.sendWrapped(entity1, tenant).get
@@ -171,6 +173,56 @@ class ${className}Tests extends MovioSpec with KafkaTestKit {
         consumer.close()
       }
     }
+
+    it("should not commit offset if it fails to process a message") {
+      val pollTimeout = 200
+      // Setup offset topic consumer
+      val offsetConsumer = createConsumer(kafkaServer, Map("enable.auto.commit" → "false"))
+      offsetConsumer.subscribe(Seq("__consumer_offsets"))
+
+      @tailrec
+      def countRemainingOffsets(initialCount: Int = 0): Int = {
+        Try {
+          offsetConsumer.poll(pollTimeout)
+        } match {
+          case Success(msgs) if (msgs.count > 0) ⇒ countRemainingOffsets(initialCount + msgs.count)
+          case Success(_)                        ⇒ initialCount
+          case Failure(e)                        ⇒ throw e
+        }
+      }
+
+      new Fixture {
+        // Init the topic/offsets
+        producer.sendWrapped(entity1, tenant).get
+        consumer.processBatchThenCommit(Success(_))
+        // Wait for auto commit
+        Thread.sleep(1000)
+
+        // Consume all the offset records before testing
+        countRemainingOffsets()
+
+        // Produce test message
+        producer.sendWrapped(entity2, tenant).get
+        producer.close()
+
+        def processor(messages: Map[String, Seq[${className}]]): Try[Map[String, Seq[${className}]]] = {
+          println("failure on purpose")
+          Failure(TestException)
+        }
+
+        consumer.processBatchThenCommit(processor) should be a 'failure
+
+        // Wait for auto commit
+        Thread.sleep(1000)
+
+        // No offset should be committed
+        countRemainingOffsets() shouldBe 0
+
+        consumer.close()
+        offsetConsumer.close()
+      }
+    }
+
   }
 
   trait Fixture {
@@ -203,7 +255,15 @@ class ${className}Tests extends MovioSpec with KafkaTestKit {
       .withFallback(ConfigFactory.load())
 
     val producer = new ${className}Producer(testConfig)
-    val consumer = new ${className}Consumer(testConfig, new java.util.Random().nextInt.toString)
+    val consumer = new ${className}Consumer(testConfig, new java.util.Random().nextInt.toString) {
+      override def readConsumerPropertiesFromConfig = {
+        val props = super.readConsumerPropertiesFromConfig
+        // Configure auto commit interval for testing
+        props.put("auto.commit.interval.ms", "500")
+        props
+      }
+    }
+
     val entity1 = ${generateInstance(model, 1, ssd).indent(4)}
     val key1 = entity1.generateKey(tenant)
 
