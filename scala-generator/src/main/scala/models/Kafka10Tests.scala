@@ -141,7 +141,7 @@ class ${className}Tests extends MovioSpec with KafkaTestKit {
 
     it("consumer ignores null payload messages, to support deletes on topics with compaction") {
       new Fixture {
-        val topic = KafkaItemTopic.topic(topicInstance)(tenant)
+        val topic = ${className}Topic.topic(topicInstance)(tenant)
         val rawProducer = createProducer(kafkaServer)
 
         producer.sendWrapped(entity1, tenant).get
