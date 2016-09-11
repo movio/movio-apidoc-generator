@@ -42,7 +42,9 @@ object Kafka10Tests extends CodeGenerator {
       val source = s""" $header
 package ${ssd.namespaces.base}.kafka
 
-import scala.util.{ Try, Success }
+import scala.annotation.tailrec
+import scala.collection.JavaConversions._
+import scala.util.{ Try, Success, Failure }
 
 import org.joda.time.LocalDateTime
 import org.mockito.Matchers.any
