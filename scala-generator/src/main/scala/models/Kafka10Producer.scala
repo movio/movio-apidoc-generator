@@ -79,8 +79,7 @@ package ${ssd.namespaces.base}.kafka {
 
     def readProducerPropertiesFromConfig(config: Config) = {
       val properties = new Properties
-      properties.put("producer.type", "sync")
-      properties.put("request.required.acks", "-1")
+      properties.put("acks", "all")
       properties.put("linger.ms", "500")
 
       if (config.hasPath(PropertiesKey)) {
