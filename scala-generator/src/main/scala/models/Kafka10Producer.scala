@@ -40,6 +40,7 @@ object Kafka10Producer extends CodeGenerator {
       val configPath = ssd.namespaces.base.split("\\.").toSeq.dropRight(1).mkString(".")
       val source = s""" $header
 import scala.util.{ Try, Failure }
+import scala.collection.JavaConversions._
 
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -50,6 +51,7 @@ import play.api.libs.json.Writes
 
 import java.util.Properties
 import com.typesafe.config.Config
+import com.typesafe.config.ConfigValueType
 
 import movio.api.kafka_0_10.Producer
 import movio.api.kafka_0_10.KafkaProducerException
@@ -63,6 +65,7 @@ package ${ssd.namespaces.base}.kafka {
     val base = "${configPath}.kafka.producer"
     val BootstrapServers = s"$$base.bootstrap.servers"
     val TopicInstanceKey = s"$$base.topic.instance"
+    val PropertiesKey = s"$$base.properties"
   }
 
   class ${kafkaClassName}Producer(
@@ -75,14 +78,18 @@ package ${ssd.namespaces.base}.kafka {
     lazy val kafkaProducer = new KafkaProducer[String, String](readProducerPropertiesFromConfig(config))
 
     def readProducerPropertiesFromConfig(config: Config) = {
-      // Default linger to 500millis
-      val lingerKey = "linger.ms"
-      val lingerMs = if (config.hasPath(lingerKey)) config.getInt(lingerKey) else 500
       val properties = new Properties
-      properties.put("producer.type", "sync")
+      properties.put("acks", "all")
+      properties.put("linger.ms", "500")
+
+      if (config.hasPath(PropertiesKey)) {
+        config.getConfig(PropertiesKey)
+          .entrySet
+          .filter { _.getValue.valueType == ConfigValueType.STRING }
+          .foreach { e ⇒ properties.put(e.getKey, e.getValue.unwrapped) }
+      }
+
       properties.put("bootstrap.servers", config.getString(BootstrapServers))
-      properties.put("request.required.acks", "-1")
-      properties.put("linger.ms", lingerMs.toString)
       properties.put("key.serializer", classOf[StringSerializer].getName)
       properties.put("value.serializer", classOf[StringSerializer].getName)
       properties

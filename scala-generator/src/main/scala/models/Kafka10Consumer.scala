@@ -59,6 +59,7 @@ import scala.util.matching.Regex
 import scala.util.{ Try, Success }
 
 import com.typesafe.config.Config
+import com.typesafe.config.ConfigValueType
 
 import play.api.libs.json.Json
 
@@ -115,6 +116,7 @@ package ${ssd.namespaces.base}.kafka {
     val TopicInstanceKey = s"$$base.topic.instance"
     val TenantsKey = s"$$base.tenants"
     val PollTimeoutKey = s"$$base.poll.timeout" // ms
+    val PropertiesKey = s"$$base.properties"
   }
 
   class ${className}Consumer (
@@ -140,10 +142,18 @@ package ${ssd.namespaces.base}.kafka {
 
     def readConsumerPropertiesFromConfig = {
       val properties = new Properties
-      properties.put("bootstrap.servers", config.getString(BootstrapServers))
-      properties.put("group.id", consumerGroupId)
       properties.put("auto.offset.reset", "earliest")
       properties.put("enable.auto.commit", "false")
+
+      if (config.hasPath(PropertiesKey)) {
+        config.getConfig(PropertiesKey)
+          .entrySet
+          .filter { _.getValue.valueType == ConfigValueType.STRING }
+          .foreach { e ⇒ properties.put(e.getKey, e.getValue.unwrapped) }
+      }
+
+      properties.put("bootstrap.servers", config.getString(BootstrapServers))
+      properties.put("group.id", consumerGroupId)
       properties.put("key.deserializer", classOf[StringDeserializer].getName)
       properties.put("value.deserializer", classOf[StringDeserializer].getName)
 

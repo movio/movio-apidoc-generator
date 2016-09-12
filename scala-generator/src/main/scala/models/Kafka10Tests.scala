@@ -249,20 +249,17 @@ class ${className}Tests extends MovioSpec with KafkaTestKit {
       |    topic.instance = "$$topicInstance"
       |    tenants = ["ignore_me", "$$tenant"]
       |    poll.timeout = 100
+      |
+      |    properties {
+      |      auto.commit.interval.ms = "500"
+      |    }
       |  }
       |}
       |\"\"\".stripMargin)
       .withFallback(ConfigFactory.load())
 
     val producer = new ${className}Producer(testConfig)
-    val consumer = new ${className}Consumer(testConfig, new java.util.Random().nextInt.toString) {
-      override def readConsumerPropertiesFromConfig = {
-        val props = super.readConsumerPropertiesFromConfig
-        // Configure auto commit interval for testing
-        props.put("auto.commit.interval.ms", "500")
-        props
-      }
-    }
+    val consumer = new ${className}Consumer(testConfig, new java.util.Random().nextInt.toString)
 
     val entity1 = ${generateInstance(model, 1, ssd).indent(4)}
     val key1 = entity1.generateKey(tenant)
