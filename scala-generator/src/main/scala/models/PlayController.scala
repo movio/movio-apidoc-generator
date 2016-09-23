@@ -121,11 +121,11 @@ class ${resourceName} @Singleton @Inject() (service: ${serviceName}) extends pla
   ${resourceFunctions.indent(2)}
 
   private def errorResponse[A: Writes](errors: JsError, create: String => A): Future[play.api.mvc.Result] = {
-    val msg = errors.errors.flatMap(node => {
+    val msg = errors.errors.map(node => {
       val nodeName = node._1.path.map(_.toString + ": ").mkString
       val message = node._2.map(_.message).mkString
       s"$$nodeName$$message"
-    }).mkString
+    }).mkString(", ")
     scala.concurrent.Future(BadRequest(Json.toJson(create(msg))))
   }
 
