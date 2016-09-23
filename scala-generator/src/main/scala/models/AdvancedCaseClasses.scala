@@ -303,7 +303,7 @@ object Validation {
   }
 
   def validateMinSize(name: String, value: Seq[_], size: Int): Unit = {
-    require(value.size >= size, s"$$name must have less than $$size items")
+    require(value.size >= size, s"$$name must have at least $$size items")
   }
 
   def validateMaxLength(name: String, value: String, length: Int): Unit = {

@@ -54,7 +54,7 @@ class ErrorHandler extends HttpErrorHandler {
    *
    */
   def cleanupJsonError(message: String) =
-    message.replaceAll("Source:.*;\\\\s?", "")
+    message.replaceAll("Source:.*;\\\\s?", "").replaceAll("\\n\\\\s?", " ")
 
   def onClientError(request: RequestHeader, statusCode: Int, message: String) = {
     logger.warn(s"Client error handling request: [$$request], status: [$$statusCode], error message: [$$message]")
