@@ -140,28 +140,39 @@ package com.gilt.test.v0 {
     )(implicit ec: scala.concurrent.ExecutionContext): scala.concurrent.Future[play.api.libs.ws.WSResponse] = {
       val result = method.toUpperCase match {
         case "GET" => {
-          _logRequest("GET", _requestHolder(path).withQueryString(queryParameters:_*).withHeaders(headers:_*)).get()
+          val request = _requestHolder(path).withQueryString(queryParameters:_*).withHeaders(headers:_*)
+          _logRequest("GET", request).get()
         }
         case "POST" => {
-          _logRequest("POST", _requestHolder(path).withQueryString(queryParameters:_*).withHeaders("Content-Type" -> "application/json; charset=UTF-8", headers:_*)).post(body.getOrElse(play.api.libs.json.Json.obj()))
+          val allHeaders = ("Content-Type" -> "application/json; charset=UTF-8") +: headers
+          val request = _requestHolder(path).withQueryString(queryParameters:_*).withHeaders(allHeaders:_*)
+          _logRequest("POST", request).post(body.getOrElse(play.api.libs.json.Json.obj()))
         }
         case "PUT" => {
-          _logRequest("PUT", _requestHolder(path).withQueryString(queryParameters:_*).withHeaders("Content-Type" -> "application/json; charset=UTF-8", headers:_*)).put(body.getOrElse(play.api.libs.json.Json.obj()))
+          val allHeaders = ("Content-Type" -> "application/json; charset=UTF-8") +: headers
+          val request = _requestHolder(path).withQueryString(queryParameters:_*).withHeaders(allHeaders:_*)
+          val payload = body.getOrElse(play.api.libs.json.Json.obj())
+          _logRequest("PUT", request).put(payload)
         }
         case "PATCH" => {
-          _logRequest("PATCH", _requestHolder(path).withQueryString(queryParameters:_*).withHeaders(headers:_*)).patch(body.getOrElse(play.api.libs.json.Json.obj()))
+          val request = _requestHolder(path).withQueryString(queryParameters:_*).withHeaders(headers:_*)
+          val payload = body.getOrElse(play.api.libs.json.Json.obj())
+          _logRequest("PATCH", request).patch(payload)
         }
         case "DELETE" => {
-          _logRequest("DELETE", _requestHolder(path).withQueryString(queryParameters:_*).withHeaders(headers:_*)).delete()
+          val request = _requestHolder(path).withQueryString(queryParameters:_*).withHeaders(headers:_*)
+          _logRequest("DELETE", request).delete()
         }
          case "HEAD" => {
-          _logRequest("HEAD", _requestHolder(path).withQueryString(queryParameters:_*).withHeaders(headers:_*)).head()
+           val request = _requestHolder(path).withQueryString(queryParameters:_*).withHeaders(headers:_*)
+          _logRequest("HEAD", request).head()
         }
          case "OPTIONS" => {
           _logRequest("OPTIONS", _requestHolder(path).withQueryString(queryParameters:_*).withHeaders(headers:_*)).options()
         }
         case _ => {
-          _logRequest(method, _requestHolder(path).withQueryString(queryParameters:_*).withHeaders(headers:_*))
+          val request = _requestHolder(path).withQueryString(queryParameters:_*).withHeaders(headers:_*)
+          _logRequest(method, request)
           sys.error("Unsupported method[%s]".format(method))
         }
       }
