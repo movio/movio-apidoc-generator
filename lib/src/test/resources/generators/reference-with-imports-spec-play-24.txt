@@ -356,7 +356,7 @@ package com.bryzek.apidoc.reference.api.v0 {
       result
     }
 
-    def close: Unit = {
+    def close(): Unit = {
       client match {
         case Some(c) => 
           if (! autoClose)
