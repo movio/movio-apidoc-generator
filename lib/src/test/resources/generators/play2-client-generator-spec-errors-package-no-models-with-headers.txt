@@ -1,0 +1,21 @@
+object Users extends Users {
+  override def get(
+    id: Long,
+    age: _root_.scala.Option[Int] = None
+  )(authorization: String, dogeCount: _root_.scala.Option[Int])(implicit ec: scala.concurrent.ExecutionContext): scala.concurrent.Future[Seq[spec.models.User]] = {
+    val queryParameters = Seq(
+      Some("id" -> id.toString),
+      age.map("age" -> _.toString)
+    ).flatten
+
+    val headers = Seq(
+      Some("Authorization" -> authorization),
+      dogeCount.map("DogeCount" -> _.toString)
+    ).flatten
+
+    _executeRequest("GET", s"/users", queryParameters = queryParameters, headers = headers).map {
+      case r if r.status == 200 => _root_.test.apidoc.Client.parseJson("Seq[spec.models.User]", r, _.validate[Seq[spec.models.User]])
+      case r => throw new test.apidoc.errors.FailedRequest(r.status, s"Unsupported response code[${r.status}]. Expected: 200")
+    }
+  }
+}

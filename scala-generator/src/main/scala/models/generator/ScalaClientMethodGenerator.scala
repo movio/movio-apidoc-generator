@@ -121,6 +121,8 @@ case class ScalaClientMethodGenerator(
   }
 
   private[this] def methods(resource: ScalaResource): Seq[ClientMethod] = {
+    val headers = generatorUtil.headerParameters("headers", resource.headers)
+
     resource.operations.map { op =>
       val path = generatorUtil.pathParams(op)
 
@@ -129,6 +131,7 @@ case class ScalaClientMethodGenerator(
 
       val code = new scala.collection.mutable.ListBuffer[String]()
       val args = new scala.collection.mutable.ListBuffer[String]()
+
       payload.foreach { v =>
         code.append(v)
         args.append("body = Some(payload)")
@@ -139,9 +142,16 @@ case class ScalaClientMethodGenerator(
         args.append("queryParameters = queryParameters")
       }
 
+      headers.foreach { v =>
+        code.append(v)
+        args.append("headers = headers")
+      }
+
       val methodCall = code.toList match {
-        case Nil => s"""_executeRequest("${op.method}", $path)"""
-        case v => s"""${v.mkString("\n\n")}\n\n_executeRequest("${op.method}", $path, ${args.mkString(", ")})"""
+        case Nil =>
+          s"""_executeRequest("${op.method}", $path)"""
+        case v =>
+          s"""${v.mkString("\n\n")}\n\n_executeRequest("${op.method}", $path, ${args.toList.mkString(", ")})"""
       }
 
       val hasOptionResult = featureMigration.hasImplicit404s match {
@@ -225,9 +235,15 @@ case class ScalaClientMethodGenerator(
         }.mkString("\n")
       } + hasOptionResult.getOrElse("") + s"\n$defaultResponse\n"
 
+
+      val headerParams: Seq[String] =
+        if (resource.headers.isEmpty) Nil else Seq(resource.headers.map { _.argEntry }.mkString(", "))
+
+      val formalParams: Seq[String] = op.argList.toSeq
+
       ClientMethod(
         name = op.name,
-        argList = op.argList,
+        argLists = formalParams ++ headerParams,
         returnType = hasOptionResult match {
           case None => s"scala.concurrent.Future[${op.resultType}]"
           case Some(_) => s"scala.concurrent.Future[_root_.scala.Option[${op.resultType}]]"
@@ -236,29 +252,30 @@ case class ScalaClientMethodGenerator(
         response = matchResponse,
         comments = op.description
       )
-
     }
   }
 
 
   case class ClientMethod(
     name: String,
-    argList: Option[String],
+    argLists: Seq[String],
     returnType: String,
     methodCall: String,
     response: String,
     comments: Option[String]
   ) {
     import lib.Text._
-    
+
     private[this] val commentString = comments.map(string => ScalaUtil.textToComment(string) + "\n").getOrElse("")
 
+    private[this] val parameters = argLists.mkString("(", ")(", ")")
+
     val interface: String = {
-      s"""${commentString}def $name(${argList.getOrElse("")})(implicit ec: scala.concurrent.ExecutionContext): $returnType"""
+      s"""${commentString}def $name$parameters(implicit ec: scala.concurrent.ExecutionContext): $returnType"""
     }
 
     val code: String = {
-      s"""override def $name(${argList.getOrElse("")})(implicit ec: scala.concurrent.ExecutionContext): $returnType = {
+      s"""override def $name$parameters(implicit ec: scala.concurrent.ExecutionContext): $returnType = {
 ${methodCall.indent}.map {
 ${response.indent(4)}
   }

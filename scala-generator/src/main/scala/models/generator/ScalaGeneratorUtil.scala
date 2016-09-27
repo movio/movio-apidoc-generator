@@ -1,10 +1,12 @@
 package scala.generator
 
 import com.bryzek.apidoc.spec.v0.models.ParameterLocation
-import lib.Datatype
+import lib.{ Datatype, DatatypeResolver }
 import lib.Text._
 
 case class ScalaGeneratorUtil(config: ScalaClientMethodConfig) {
+
+  private val resolver = new DatatypeResolver(Seq.empty, Seq.empty, Seq.empty)
 
   // TODO this would be a lot more maintainable as a method
   // defined on ScalaDatatype
@@ -29,6 +31,55 @@ case class ScalaGeneratorUtil(config: ScalaClientMethodConfig) {
   // defined on ScalaDatatype
   private def isSingleValue(datatype: Datatype): Boolean = {
     !isList(datatype) && !isMap(datatype)
+  }
+
+  def headerParameters(
+    fieldName: String,
+    params: Seq[ScalaHeader]
+  ): Option[String] = {
+    if (params.isEmpty) {
+      None
+    } else {
+      val listParams = params.map(p => p -> p.datatype).collect {
+        case (p, ScalaDatatype.Option(ScalaDatatype.List(inner))) => {
+          s"""  ${ScalaUtil.quoteNameIfKeyword(p.name)}.getOrElse(Nil).map("${p.originalName}" -> ${inner.asString("_")})"""
+        }
+        case (p, ScalaDatatype.List(inner)) => {
+          s"""  ${ScalaUtil.quoteNameIfKeyword(p.name)}.map("${p.originalName}" -> ${inner.asString("_")})"""
+        }
+      }
+      val arrayParamString = listParams.mkString(" ++\n")
+
+      def headerType(header: ScalaHeader) =
+        resolver
+          .parse(header.header.`type`, header.header.required)
+          .getOrElse(throw new Exception(s"Header [${header.name}] has non-primitive type [${header.header.`type`}]"))
+
+      val singleParams = if (params.exists { h => isSingleValue(headerType(h)) }) {
+        Seq(
+          s"val $fieldName = Seq(",
+          params.map(p => p -> p.datatype).collect {
+            case (p, ScalaDatatype.Option(inner)) => {
+              s"""  ${ScalaUtil.quoteNameIfKeyword(p.name)}.map("${p.originalName}" -> ${inner.asString("_")})"""
+            }
+            case (p, dt) => s"""  Some("${p.originalName}" -> ${dt.asString(p.name)})"""
+          }.mkString(",\n"),
+          ").flatten"
+        )
+      } else Seq.empty
+
+      val singleParamString = singleParams.mkString("\n")
+
+      Some(
+        if (singleParams.isEmpty) {
+          s"val $fieldName = " + arrayParamString.trim
+        } else if (listParams.isEmpty) {
+          singleParamString
+        } else {
+          singleParamString + " ++\n" + arrayParamString
+        }
+      )
+    }
   }
 
   def queryParameters(
