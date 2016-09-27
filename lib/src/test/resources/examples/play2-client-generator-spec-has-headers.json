@@ -1,0 +1,87 @@
+{
+  "apidoc": {
+    "version": "0.9.6"
+  },
+  "name": "apidoc Example Spec with Headers",
+  "organization": {
+    "key": "gilt"
+  },
+  "application": {
+    "key": "apidoc-example-spec-with-headers"
+  },
+  "namespace": "spec",
+  "version": "0.0.1-dev",
+  "info": [],
+  "imports": [],
+  "attributes": [],
+  "enums": [],
+  "unions": [],
+
+  "headers": [
+    {
+      "name": "Authorization",
+      "type": "string",
+      "required": true,
+      "attributes": []
+    },
+    {
+      "name": "DogeCount",
+      "type": "integer",
+      "required": false,
+      "attributes": []
+    }
+  ],
+
+  "models": [
+    {
+      "name": "user",
+      "plural": "users",
+      "fields": [
+        {
+          "name": "email",
+          "type": "string",
+          "required": true,
+          "attributes": []
+        }
+      ],
+      "attributes": []
+    }
+  ],
+  "resources": [
+    {
+      "type": "user",
+      "plural": "users",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/users",
+          "parameters": [
+            {
+              "name": "id",
+              "type": "long",
+              "location": "Query",
+              "required": true,
+              "description": ""
+            },
+            {
+              "name": "age",
+              "type": "integer",
+              "location": "Query",
+              "required": false,
+              "description": ""
+            }
+          ],
+          "responses": [
+            {
+              "code": { "integer": { "value": 200 } },
+              "type": "[user]",
+              "attributes": []
+            }
+          ],
+          "attributes": []
+        }
+      ],
+      "attributes": []
+    }
+  ]
+}

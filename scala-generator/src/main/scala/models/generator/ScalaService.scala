@@ -20,10 +20,12 @@ case class ScalaService(
   val datatypeResolver = GeneratorUtil.datatypeResolver(service)
 
   val name = ScalaUtil.toClassName(service.name)
- 
+
   def unionClassName(name: String) = namespaces.unions + "." + ScalaUtil.toClassName(name)
   def modelClassName(name: String) = namespaces.models + "." + ScalaUtil.toClassName(name)
   def enumClassName(name: String) = namespaces.enums + "." + ScalaUtil.toClassName(name)
+
+  val headers = service.headers.sortWith { _.name < _.name }.map { new ScalaHeader(this ,_ ) }
 
   val models = service.models.sortWith { _.name < _.name }.map { new ScalaModel(this, _) }
 
@@ -72,7 +74,7 @@ class ScalaUnion(val ssd: ScalaService, val union: Union) {
   val qualifiedName = ssd.unionClassName(name)
 
   val discriminator: Option[String] = union.discriminator
-  
+
   val description: Option[String] = union.description
 
   // Include an undefined instance to nudge the developer to think
@@ -154,6 +156,20 @@ case class ScalaModel(val ssd: ScalaService, val model: Model) {
 
 }
 
+case class ScalaHeader(ssd: ScalaService, val header: Header) {
+  val originalName: String = header.name
+
+  val name: String = ScalaUtil.toVariable(header.name)
+
+  val datatype = {
+    val t = ssd.datatypeResolver.parse(header.`type`, header.required).getOrElse {
+      sys.error(ssd.errorParsingType(header.`type`, s"header[$header]"))
+    }
+    ssd.scalaDatatype(t)
+  }
+
+  val argEntry = s"${name}: ${datatype.name}"
+}
 
 case class ScalaBody(ssd: ScalaService, val body: Body) {
 
@@ -200,6 +216,7 @@ class ScalaResource(ssd: ScalaService, val resource: Resource) {
 
   val operations = resource.operations.map { new ScalaOperation(ssd, _, this)}
 
+  val headers = ssd.headers
 }
 
 case class ScalaOperation(ssd: ScalaService, operation: Operation, resource: ScalaResource) {
@@ -237,8 +254,8 @@ case class ScalaOperation(ssd: ScalaService, operation: Operation, resource: Sca
 
       ScalaUtil.fieldsToArgList(
         parameters.filter(_.param.required).map(_.definition()) ++
-        Seq(s"%s: %s".format(ScalaUtil.quoteNameIfKeyword(bodyVarName), body.datatype.name)) ++
-        parameters.filter(!_.param.required).map(_.definition())
+          Seq(s"%s: %s".format(ScalaUtil.quoteNameIfKeyword(bodyVarName), body.datatype.name)) ++
+          parameters.filter(!_.param.required).map(_.definition())
       )
     }
   }

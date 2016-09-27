@@ -71,6 +71,12 @@ class Play2ClientGeneratorSpec extends FunSpec with ShouldMatchers {
     models.TestHelper.assertEqualsFile("/generators/play2-client-generator-spec-errors-package-no-models.txt", contents)
   }
 
+  it("generates methods with separate parameter lists for formal parameters and headers") {
+    lazy val service = models.TestHelper.parseFile("/examples/play2-client-generator-spec-has-headers.json")
+    val contents = ScalaClientMethodGenerator(clientMethodConfig, ScalaService(service)).objects()
+    models.TestHelper.assertEqualsFile("/generators/play2-client-generator-spec-errors-package-no-models-with-headers.txt", contents)
+  }
+
 /*
   it("model, enum and union use case - https://github.com/mbryzek/apidoc/issues/384") {
     val json = models.TestHelper.readFile("lib/src/test/resources/generators/play-2-union-model-enum-service.json")
