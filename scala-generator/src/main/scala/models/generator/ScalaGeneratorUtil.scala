@@ -131,11 +131,12 @@ case class ScalaGeneratorUtil(config: ScalaClientMethodConfig) {
       require(p.location == ParameterLocation.Path, "Only singletons can be path parameters.")
       p.originalName -> PathParamHelper.urlEncode(p.name, p.datatype)
     }
+
     val tmp: String = pairs.foldLeft(op.path) {
       case (path, (name, value)) =>
-        val spec = s"/:$name"
-        val from = path.indexOfSlice(spec)
-        path.patch(from, s"/$${$value}", spec.length)
+        import scala.util.matching.Regex
+        val repl = Regex.quoteReplacement("${" + value + "}")
+        s"""(?<=[=?&/]):${name}(?=[;/?]|$$)""".r.replaceAllIn(path, repl)
     }
     s""" s"$tmp" """.trim
   }

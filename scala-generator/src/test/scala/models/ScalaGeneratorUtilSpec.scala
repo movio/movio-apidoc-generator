@@ -48,6 +48,38 @@ class ScalaGeneratorUtilSpec extends FunSpec with ShouldMatchers {
     }
   }
 
+
+  it("should generate a valid URI for matrix parameters") {
+    val params = Seq(
+      Parameter(name = "x", `type` = "string", location = ParameterLocation.Path, required = true),
+      Parameter(name = "y", `type` = "string", location = ParameterLocation.Path, required = true),
+      Parameter(name = "z", `type` = "string", location = ParameterLocation.Query, required = true)
+    )
+
+    val operation = new Operation(
+      method = Method.Get,
+      path = "/foo/x=:x;y=:y?z=:z",
+      parameters = params
+    )
+
+    val resource = {
+      val model = new Model("", "", None, None, Nil)
+      val r = new Resource("", "", None, None, None, Nil)
+      new ScalaResource(ssd, r)
+    }
+
+    val rendered = play2Util.pathParams(new ScalaOperation(ssd, operation, resource))
+
+    val expected = (
+        """ s"/foo/""" +
+          """x=${play.utils.UriEncoding.encodePathSegment(x, "UTF-8")};""" +
+          """y=${play.utils.UriEncoding.encodePathSegment(y, "UTF-8")}?""" +
+          """z=:z" """
+      ).trim
+
+    rendered shouldBe expected
+  }
+
   it("supports query parameters that contain lists") {
     val operation = ssd.resources.find(_.plural == "Echoes").get.operations.head
     val code = play2Util.queryParameters("queryParameters", operation.queryParameters).get
