@@ -178,12 +178,13 @@ ${methodGenerator.objects().indent(4)}
           val request = _requestHolder(path).withQueryString(queryParameters:_*).withHeaders(headers:_*)
           _logRequest("DELETE", request).delete()
         }
-         case "HEAD" => {
-           val request = _requestHolder(path).withQueryString(queryParameters:_*).withHeaders(headers:_*)
+        case "HEAD" => {
+          val request = _requestHolder(path).withQueryString(queryParameters:_*).withHeaders(headers:_*)
           _logRequest("HEAD", request).head()
         }
-         case "OPTIONS" => {
-          _logRequest("OPTIONS", _requestHolder(path).withQueryString(queryParameters:_*).withHeaders(headers:_*)).options()
+        case "OPTIONS" => {
+          val request = _requestHolder(path).withQueryString(queryParameters:_*).withHeaders(headers:_*)
+          _logRequest("OPTIONS", request).options()
         }
         case _ => {
           val request = _requestHolder(path).withQueryString(queryParameters:_*).withHeaders(headers:_*)
