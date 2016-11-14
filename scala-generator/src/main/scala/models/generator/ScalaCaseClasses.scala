@@ -38,9 +38,12 @@ object ScalaCaseClasses extends CodeGenerator {
   ): Seq[File] = {
     val ssd = new ScalaService(form.service)
 
-    val header = addHeader match {
-      case false => ""
-      case true => ApidocComments(form.service.version, form.userAgent).toJavaString() + "\n"
+    val header = if (addHeader) {
+      val formattingDirective = "// format: OFF"
+      val commentHeader = ApidocComments(form.service.version, form.userAgent).toJavaString
+      s"$formattingDirective\n\n$commentHeader\n"
+    } else {
+      ""
     }
 
     val undefinedModels = UnionTypeUndefinedModel(ssd).models match {

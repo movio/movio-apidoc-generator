@@ -30,9 +30,12 @@ trait Play2JsonStandalone extends CodeGenerator {
     val enumJson: String = ssd.enums.map { ScalaEnums(ssd, _).buildJson() }.mkString("\n\n")
     val play2Json = Play2JsonExtended(ssd).generate()
 
-    val header = addHeader match {
-      case false => ""
-      case true => ApidocComments(form.service.version, form.userAgent).toJavaString() + "\n"
+    val header = if (addHeader) {
+      val formattingDirective = "// format: OFF"
+      val commentHeader = ApidocComments(form.service.version, form.userAgent).toJavaString
+      s"$formattingDirective\n\n$commentHeader\n"
+    } else {
+      ""
     }
 
     val source = s"""$header

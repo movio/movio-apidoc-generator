@@ -24,9 +24,12 @@ trait Kafka09Serde extends CodeGenerator {
   def generateCode(form: InvocationForm, addBindables: Boolean, addHeader: Boolean): Seq[File] = {
     val ssd = ScalaService(form.service)
 
-    val header = addHeader match {
-      case false => ""
-      case true => ApidocComments(form.service.version, form.userAgent).toJavaString() + "\n"
+    val header = if (addHeader) {
+      val formattingDirective = "// format: OFF"
+      val commentHeader = ApidocComments(form.service.version, form.userAgent).toJavaString
+      s"$formattingDirective\n\n$commentHeader\n"
+    } else {
+      ""
     }
 
     def generateSerdeClasses(simpleName: String, fullName: String): String = {

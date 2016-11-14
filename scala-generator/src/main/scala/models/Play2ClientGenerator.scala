@@ -57,8 +57,10 @@ case class Play2ClientGenerator(
   }
 
   private def generateCode(): Seq[File] = {
-    val source = ApidocComments(form.service.version, form.userAgent).toJavaString + "\n" +
-      client()
+    val commentHeader = ApidocComments(form.service.version, form.userAgent).toJavaString
+    val formattingDirective = "// format: OFF\n"
+    val clientCode = client()
+    val source = Seq(formattingDirective, commentHeader, clientCode).mkString("\n") + "\n"
 
     Seq(ServiceFileNames.toFile(form.service.namespace, form.service.organization.key, form.service.application.key, form.service.version, "Client", source, Some("Scala")))
   }
